@@ -1,99 +1,98 @@
+using System;
 using System.Collections.Generic;
-using Codice.Client.BaseCommands.Merge.Xml;
 using UnityEngine;
 
 namespace PathGeneration
 {
-    public struct Tile
+    public enum TileType { Wall, Path }
+    public enum ConnectionDirection { Top, Right, Bottom, Left }
+    public enum Direction { Up, Right, Down, Left }
+    public enum RelativeMove { Forward, Right, Left, Backtrack }
+
+    public class Tile : ICloneable
     {
-        public enum TileType 
-        {
-            Wall = 1,
-            Path = 2
-        }
-
-        public enum ConnectionDirection
-        {
-            Top = 0,
-            Right = 1,
-            Bottom = 2,
-            Left = 3
-        }
-
         public TileType Type { get; private set; }
         public bool IsCorner { get; private set; }
-        public bool IsValid { get; private set; }
-        public bool[] Connections { get; private set; }
+        public bool IsValid { get; private set; } = true;
+        private HashSet<ConnectionDirection> connections = new();
 
-        public Tile(TileType type)
-        {
-            Type = type;
-            IsCorner = false;
-            IsValid = true;
-            Connections = new bool[4];
-        }
+        public Tile(TileType type) => Type = type;
 
         public void Invalidate() => IsValid = false;
 
-        public void AddConnection(ConnectionDirection direction) 
+        public void Revalidate() => IsValid = true;
+
+        public void AddConnection(ConnectionDirection direction)
         {
-            Connections[(int)direction] = true;
+            connections.Add(direction);
             CheckForCorner();
+        }
+
+        public void RemoveConnection(ConnectionDirection direction)
+        {
+            connections.Remove(direction);
+            CheckForCorner();
+        }
+
+        public void SwitchType(TileType newType) 
+        {
+            if (Type == TileType.Path && newType == TileType.Wall)
+            {
+                connections.Clear();
+                CheckForCorner();
+            }
+
+            Type = newType;
+        }
+
+        public object Clone()
+        {
+            Tile clone = new Tile(this.Type)
+            {
+                IsValid = this.IsValid,
+                IsCorner = this.IsCorner
+            };
+
+            clone.connections = new HashSet<ConnectionDirection>(this.connections);
+
+            return clone;
         }
 
         private void CheckForCorner()
         {
-            for (int i = 0; i < Connections.Length - 1; i++)
-            {
-                if (Connections[i] && Connections[i + 1]) IsCorner = true;
-            }
-
-            if (Connections[0] && Connections[^1]) IsCorner = true;
+            IsCorner = (connections.Contains(ConnectionDirection.Top) && connections.Contains(ConnectionDirection.Right)) ||
+                       (connections.Contains(ConnectionDirection.Right) && connections.Contains(ConnectionDirection.Bottom)) ||
+                       (connections.Contains(ConnectionDirection.Bottom) && connections.Contains(ConnectionDirection.Left)) ||
+                       (connections.Contains(ConnectionDirection.Left) && connections.Contains(ConnectionDirection.Top));
         }
+
+
     }
 
     public class Map
     {
-        private Path _path;
+        public readonly Path MapPath;
 
-        public Map(int mapWidth, int mapHeight)
+        public Map(int width, int height, int stemLength = 2)
         {
-            _path = new Path(mapWidth, mapHeight, new Vector2Int(0, 0), new Vector2Int(mapWidth - 1, mapHeight - 1));
-
-            _path.RandomWalk();
-
-            ExpandCorners();
+            MapPath = new Path(width, height, new Vector2Int(0, 0), new Vector2Int(width - 1, height - 1), stemLength);
         }
 
-        private void MergePaths(Path mainPath, Path additivePath)
-        {            
-            mainPath.ConnectPath(additivePath);
+        public void Generate()
+        {
+            MapPath.Generate();
+            // ExpandCorners();
         }
 
         private void ExpandCorners()
         {
-            for (int x = 1; x < _path.Tiles.GetLength(0) - 1; x++)
+            foreach (var (pos, tile) in MapPath.GetCornerTiles())
             {
-                for (int y = 1; y < _path.Tiles.GetLength(1) - 1; y++)
+                if (UnityEngine.Random.value > 0.5f)
                 {
-                    if (_path.Tiles[x, y].IsCorner && Random.value > 0.5f)
-                    {
-                        Vector2Int cornerPosition = new(x, y);
-
-                        var cornerPath = new Path(_path.Tiles.GetLength(0), _path.Tiles.GetLength(1), cornerPosition, cornerPosition);
-                        
-                        for (int m = 1; m < _path.Tiles.GetLength(0) - 1; m++)
-                        {
-                            for (int n = 1; n < _path.Tiles.GetLength(1) - 1; n++)
-                            {
-                                if (_path.Tiles[m, n].Type == Tile.TileType.Path) cornerPath.AddBannedPosition(new Vector2Int(m, n));
-                            }
-                        }
-
-                        cornerPath.RandomWalk();
-
-                        MergePaths(_path, cornerPath);
-                    }
+                    var newPath = new Path(MapPath.Width, MapPath.Height, pos, pos, MapPath.StemLength, MapPath.GetOccupiedPositions());
+                    newPath.Generate();
+                    MapPath.Merge(newPath);
                 }
             }
         }
@@ -101,15 +100,7 @@ namespace PathGeneration
 
     public class Path
     {
-        public enum Direction
-        {
-            Up = 0,
-            Right = 1,
-            Down = 2,
-            Left = 3
-        }
-
-        private Dictionary<Direction, Vector2Int> _directionsLookup = new()
+        private static readonly Dictionary<Direction, Vector2Int> DirectionVectors = new()
         {
             { Direction.Up, new Vector2Int(0, 1) },
             { Direction.Right, new Vector2Int(1, 0) },
@@ -117,112 +108,294 @@ namespace PathGeneration
             { Direction.Left, new Vector2Int(-1, 0) }
         };
 
-        public Tile[,] Tiles { get; private set; }
-        public Vector2Int StartPosition, EndPosition, CurrentPosition;
+        private readonly Dictionary<RelativeMove, float> moveWeights = new()
+        {
+            { RelativeMove.Forward, 0.6f },
+            { RelativeMove.Right, 0.2f },
+            { RelativeMove.Left, 0.2f }
+        };
 
-        public List<Vector2Int> _bannedPositions = new();
-
-        private Stack<Vector2Int> pathStack = new();
+        public int Width { get; }
+        public int Height { get; }
+        public int StemLength { get; }
+        public readonly Tile[,] tiles;
+        private Vector2Int start, end;
+        private HashSet<Vector2Int> bannedPositions;
+        public Stack<(Vector2Int pos, Direction dir)> pathStack = new();
         private System.Random random = new();
 
-        public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition)
+        public readonly Stack<Tile[,]> TilesHistory;
+
+        private Direction currentDirection;
+
+        (Vector2Int pos, Direction dir) lastState;
+
+        private bool hasBeenTracingBack = false;
+
+        public Path(int width, int height, Vector2Int start, Vector2Int end, int stemLength = 1, HashSet<Vector2Int> banned = null)
         {
-            Tiles = new Tile[width, height];
+            Width = width;
+            Height = height;
+            StemLength = stemLength;
+            this.start = start;
+            this.end = end;
+            bannedPositions = banned ?? new HashSet<Vector2Int>();
 
-            StartPosition = startPosition;
-            EndPosition = endPosition;
-            CurrentPosition = startPosition;
+            tiles = new Tile[width, height];
 
-            Tiles[StartPosition.x, StartPosition.y] = new Tile(Tile.TileType.Path);
+            SetupTiles();
 
-            pathStack.Push(CurrentPosition);
+            SetTile(start.x, start.y, TileType.Path);
+
+            currentDirection = Direction.Up;
+            pathStack.Push((start, currentDirection));
+
+            TilesHistory = new Stack<Tile[,]>();
+
+            SaveTileHistory();
         }
 
-        public void AddBannedPosition(Vector2Int position)
+        public void Generate()
         {
-            _bannedPositions.Add(position);
-        }
+            (Vector2Int pos, Direction dir) state = pathStack.Peek();
 
-        public void ConnectPath(Path additivePath)
-        {
-            for (int x = 0; x < Tiles.GetLength(0); x++)
+            while (state.pos != end)
             {
-                for (int y = 0; y < Tiles.GetLength(1); y++)
+                SaveTileHistory();
+
+                var validMoves = GetValidRelativeMoves(state.pos, state.dir);
+
+                if (validMoves.Count == 0)
                 {
-                    if (additivePath.Tiles[x, y].Type == Tile.TileType.Path && Tiles[x, y].Type != Tile.TileType.Path)
+                    if (hasBeenTracingBack)
                     {
-                        Tiles[x, y] = new Tile(Tile.TileType.Path);
-
-                        foreach (var dir in _directionsLookup)
-                        {
-                            int neighbourPosX = x + dir.Value.x;
-                            int neighbourPosY = x + dir.Value.y;
-
-                            if (Tiles[neighbourPosX, neighbourPosY].Type == Tile.TileType.Path)
-                            {
-                                Tiles[x, y].AddConnection((Tile.ConnectionDirection)dir.Key);
-                                Tiles[neighbourPosX, neighbourPosY].AddConnection((Tile.ConnectionDirection)(((int)dir.Key + 2) % 4)); // Connect back
-                            }
-                        }
+                        tiles[lastState.pos.x, lastState.pos.y].Revalidate();
                     }
-                }
-            }
-        }
 
-        public void RandomWalk()
-        {
-            while (CurrentPosition != EndPosition)
-            {
-                List<Direction> validMoves = GetValidMoves(CurrentPosition);
+                    hasBeenTracingBack = true;
+
+                    if (pathStack.Count == 0)
+                        break;
+                        
+                    for (int i = 0; i < StemLength; i++)
+                    {
+                        if (i == StemLength - 1)
+                            tiles[state.pos.x, state.pos.y].Invalidate();
+
+                        pathStack.Pop();
+
+                        SetTile(state.pos.x, state.pos.y, TileType.Wall);
+
+                        if (pathStack.Count == 0)
+                            break;
+
+                        lastState = state;
+
+                        state = pathStack.Peek();
+                    }
+                    
+                    continue;
+                }
+
+                hasBeenTracingBack = false;
+
+                RelativeMove chosenMove = WeightedChoice(validMoves);
+
+                Direction newDirection = GetNewDirection(state.dir, chosenMove);
                 
-                if (validMoves.Count == 0) // Dead end, backtrack
+                Vector2Int currentPos = state.pos;
+
+                for (int i = 0; i < StemLength; i++)
                 {
-                    if (pathStack.Count > 0)
-                    {
-                        Tiles[CurrentPosition.x, CurrentPosition.y].Invalidate();
-                        CurrentPosition = pathStack.Pop();
-                    }
-                    else break;
+                    Vector2Int nextPos = currentPos + DirectionVectors[newDirection];
+                    SetTile(nextPos.x, nextPos.y, TileType.Path);
+
+                    currentPos = nextPos;
+                    pathStack.Push((currentPos, newDirection));
                 }
-                else
+
+                state = (currentPos, newDirection);
+                currentDirection = newDirection;
+            }
+        }
+
+        private void SaveTileHistory() 
+        {
+            var clone = new Tile[Width, Height];
+
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
                 {
-                    Direction chosenMove = validMoves[random.Next(validMoves.Count)];
-                    Vector2Int nextPosition = CurrentPosition + _directionsLookup[chosenMove];
-                    
-                    Tiles[nextPosition.x, nextPosition.y] = new Tile(Tile.TileType.Path);
-                    Tiles[CurrentPosition.x, CurrentPosition.y].AddConnection((Tile.ConnectionDirection)chosenMove);
-                    Tiles[nextPosition.x, nextPosition.y].AddConnection((Tile.ConnectionDirection)(((int)chosenMove + 2) % 4)); // Connect back
-                    
-                    pathStack.Push(CurrentPosition);
-                    CurrentPosition = nextPosition;
+                    clone[i, j] = tiles[i, j].Clone() as Tile;
+                }
+            }
+
+            TilesHistory.Push(clone);
+        }
+
+        private bool CanMove(Vector2Int pos, Direction dir)
+        {
+            Vector2Int checkPos = pos;
+
+            for (int i = 0; i < StemLength; i++)
+            {
+                checkPos += DirectionVectors[dir];
+
+                if (!IsValidMove(checkPos))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private List<RelativeMove> GetValidRelativeMoves(Vector2Int pos, Direction dir)
+        {
+            var valid = new List<RelativeMove>();
+
+            foreach (RelativeMove move in moveWeights.Keys)
+            {
+                Direction newDir = GetNewDirection(dir, move);
+
+                if (CanMove(pos, newDir))
+                    valid.Add(move);
+            }
+
+            return valid;
+        }
+
+        private Direction GetNewDirection(Direction currentFacing, RelativeMove relativeDirection)
+        {
+            return relativeDirection switch
+            {
+                RelativeMove.Forward => currentFacing,
+                RelativeMove.Right => (Direction)(((int)currentFacing + 1) % 4),
+                RelativeMove.Left => (Direction)(((int)currentFacing + 3) % 4),
+                RelativeMove.Backtrack => (Direction)(((int)currentFacing + 2) % 4),
+                _ => currentFacing
+            };
+        }
+
+        private RelativeMove WeightedChoice(List<RelativeMove> moves)
+        {
+            float total = 0f;
+
+            foreach (var move in moves)
+                total += moveWeights[move];
+
+            float roll = (float)random.NextDouble() * total;
+
+            foreach (var move in moves)
+            {
+                roll -= moveWeights[move];
+
+                if (roll <= 0)
+                    return move;
+            }
+
+            return moves[^1];
+        }
+
+        public void Merge(Path other)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    if (other.tiles[x, y].Type == TileType.Path && tiles[x, y] == null)
+                    {
+                        SetTile(x, y, TileType.Path);
+                    }
                 }
             }
         }
 
-        private List<Direction> GetValidMoves(Vector2Int position)
+        public HashSet<Vector2Int> GetOccupiedPositions()
         {
-            List<Direction> validMoves = new();
+            var positions = new HashSet<Vector2Int>();
 
-            foreach (var dir in _directionsLookup)
+            for (int x = 0; x < Width; x++)
             {
-                Vector2Int nextPos = position + dir.Value;
-
-                if (IsValidMove(nextPos))
-                    validMoves.Add(dir.Key);
+                for (int y = 0; y < Height; y++)
+                {
+                    if (tiles[x, y].Type == TileType.Path)
+                        positions.Add(new Vector2Int(x, y));
+                }
             }
 
-            return validMoves;
+            return positions;
+        }
+
+        public IEnumerable<(Vector2Int, Tile)> GetCornerTiles()
+        {
+            for (int x = 1; x < Width - 1; x++)
+            {
+                for (int y = 1; y < Height - 1; y++)
+                {
+                    if (tiles[x, y].IsCorner == true)
+                        yield return (new Vector2Int(x, y), tiles[x, y]);
+                }
+            }
         }
 
         private bool IsValidMove(Vector2Int pos)
-        {   
-            if (_bannedPositions.Contains(pos)) return false;
+        {
+            // Out of bound
+            if (pos.x < 0 || pos.y < 0 || pos.x >= Width || pos.y >= Height) return false;
 
-            if (pos.x < 0 || pos.y < 0 || pos.x >= Tiles.GetLength(0) || pos.y >= Tiles.GetLength(1)) return false;
+            // Start position
+            if (pos.x == 0 && pos.y == 0) return false;
 
-            if (Tiles[pos.x, pos.y].IsCorner || !Tiles[pos.x, pos.y].IsValid) return false;
+            // Edge explored area
+            if ((pos.x == 0 || pos.y == 0 || pos.x == Width - 1 || pos.y == Height - 1) && tiles[pos.x, pos.y].Type == TileType.Path) return false;
 
-            return  true;
+            // Banned position
+            if (bannedPositions.Contains(pos)) return false;
+
+            // Invalid tile
+            if (!tiles[pos.x, pos.y].IsValid || tiles[pos.x, pos.y].IsCorner) return false;
+
+            return true;
+        }
+
+        private void SetupTiles()
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    tiles[x, y] = new Tile(TileType.Wall);
+                }
+            }
+        }
+
+        private void SetTile(int x, int y, TileType type)
+        {
+            tiles[x, y].SwitchType(type);
+
+            SetupAdjacentConnections(x, y);
+        }
+
+        private void SetupAdjacentConnections(int x, int y)
+        {
+            foreach (var (dir, vec) in DirectionVectors)
+            {
+                int nx = x + vec.x, ny = y + vec.y;
+
+                if (nx < 0 || ny < 0 || nx >= Width || ny >= Height) continue;
+
+                if (tiles[nx, ny].Type == TileType.Path)
+                {
+                    tiles[x, y].AddConnection((ConnectionDirection)dir);
+                    tiles[nx, ny].AddConnection((ConnectionDirection)(((int)dir + 2) % 4));
+                }
+
+                if (tiles[nx, ny].Type == TileType.Wall)
+                {
+                    tiles[x, y].RemoveConnection((ConnectionDirection)dir);
+                    tiles[nx, ny].RemoveConnection((ConnectionDirection)(((int)dir + 2) % 4));
+                }
+            }
         }
     }
 }

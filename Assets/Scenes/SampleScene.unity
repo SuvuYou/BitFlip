@@ -137,7 +137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &78958477
 Transform:
   m_ObjectHideFlags: 0
@@ -1128,6 +1128,55 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5}
   m_EdgeRadius: 0
+--- !u!1 &1186204284
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1186204286}
+  - component: {fileID: 1186204285}
+  m_Layer: 0
+  m_Name: Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1186204285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186204284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e6d3ab9bda910a4fa72c0e61c6665b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _width: 11
+  _height: 11
+  _wallTilePrefab: {fileID: 7592168057920007101, guid: c15da85d88ed3214fbb4d8b42f3718fa, type: 3}
+  _pathTilePrefab: {fileID: 4257750055679165568, guid: 65dafbee167ddb14e81751238fc0842c, type: 3}
+  _invalidTilePrefab: {fileID: 7592168057920007101, guid: 0b5051c2263b24949b59b7da9467dbf4, type: 3}
+--- !u!4 &1186204286
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186204284}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1227039799
 GameObject:
   m_ObjectHideFlags: 0
@@ -1330,7 +1379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1357060697
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1413,7 +1462,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1437034906
 Transform:
   m_ObjectHideFlags: 0
@@ -1564,7 +1613,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!156049354 &1496557479
 Grid:
   m_ObjectHideFlags: 0
@@ -3035,3 +3084,4 @@ SceneRoots:
   - {fileID: 1357060698}
   - {fileID: 1437034906}
   - {fileID: 78958477}
+  - {fileID: 1186204286}
