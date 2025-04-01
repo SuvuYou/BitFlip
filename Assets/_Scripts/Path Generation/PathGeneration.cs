@@ -5,16 +5,48 @@ using UnityEngine;
 namespace PathGeneration
 {
     public enum TileType { Wall, Path }
-    public enum ConnectionDirection { Top, Right, Bottom, Left }
     public enum Direction { Up, Right, Down, Left }
     public enum RelativeMove { Forward, Right, Left, Backtrack }
+
+    public static class DirectionExtentions
+    {
+        public static Direction Opposite(this Direction direction) =>
+            direction switch
+            {
+                Direction.Up => Direction.Down,
+                Direction.Down => Direction.Up,
+                Direction.Left => Direction.Right,
+                Direction.Right => Direction.Left,
+                _ => Direction.Up
+            };
+
+        public static Direction LocalRight(this Direction direction) =>
+            direction switch
+            {
+                Direction.Up => Direction.Right,
+                Direction.Right => Direction.Down,
+                Direction.Down => Direction.Left,
+                Direction.Left => Direction.Up,
+                _ => Direction.Up
+            };
+
+        public static Direction LocalLeft(this Direction direction) =>
+            direction switch
+            {
+                Direction.Up => Direction.Left, 
+                Direction.Right => Direction.Up,
+                Direction.Down => Direction.Right,
+                Direction.Left => Direction.Down,
+                _ => Direction.Up
+            };
+    }
 
     public class Tile : ICloneable
     {
         public TileType Type { get; private set; }
         public bool IsCorner { get; private set; }
         public bool IsValid { get; private set; } = true;
-        private HashSet<ConnectionDirection> connections = new();
+        private HashSet<Direction> connections = new();
 
         public Tile(TileType type) => Type = type;
 
@@ -22,13 +54,13 @@ namespace PathGeneration
 
         public void Revalidate() => IsValid = true;
 
-        public void AddConnection(ConnectionDirection direction)
+        public void AddConnection(Direction direction)
         {
             connections.Add(direction);
             CheckForCorner();
         }
 
-        public void RemoveConnection(ConnectionDirection direction)
+        public void RemoveConnection(Direction direction)
         {
             connections.Remove(direction);
             CheckForCorner();
@@ -45,6 +77,8 @@ namespace PathGeneration
             Type = newType;
         }
 
+        public bool IsConnectedToDirection(Direction direction) => connections.Contains(direction);
+
         public object Clone()
         {
             Tile clone = new Tile(this.Type)
@@ -53,17 +87,17 @@ namespace PathGeneration
                 IsCorner = this.IsCorner
             };
 
-            clone.connections = new HashSet<ConnectionDirection>(this.connections);
+            clone.connections = new HashSet<Direction>(this.connections);
 
             return clone;
         }
 
         private void CheckForCorner()
         {
-            IsCorner = (connections.Contains(ConnectionDirection.Top) && connections.Contains(ConnectionDirection.Right)) ||
-                       (connections.Contains(ConnectionDirection.Right) && connections.Contains(ConnectionDirection.Bottom)) ||
-                       (connections.Contains(ConnectionDirection.Bottom) && connections.Contains(ConnectionDirection.Left)) ||
-                       (connections.Contains(ConnectionDirection.Left) && connections.Contains(ConnectionDirection.Top));
+            IsCorner = (connections.Contains(Direction.Up) && connections.Contains(Direction.Right)) ||
+                       (connections.Contains(Direction.Right) && connections.Contains(Direction.Down)) ||
+                       (connections.Contains(Direction.Down) && connections.Contains(Direction.Left)) ||
+                       (connections.Contains(Direction.Left) && connections.Contains(Direction.Up));
         }
 
 
@@ -242,7 +276,7 @@ namespace PathGeneration
             {
                 checkPos += DirectionVectors[dir];
 
-                if (!IsValidMove(checkPos))
+                if (!IsValidMove(toPosition: checkPos, dir))
                     return false;
             }
 
@@ -269,9 +303,9 @@ namespace PathGeneration
             return relativeDirection switch
             {
                 RelativeMove.Forward => currentFacing,
-                RelativeMove.Right => (Direction)(((int)currentFacing + 1) % 4),
-                RelativeMove.Left => (Direction)(((int)currentFacing + 3) % 4),
-                RelativeMove.Backtrack => (Direction)(((int)currentFacing + 2) % 4),
+                RelativeMove.Right => currentFacing.LocalRight(),
+                RelativeMove.Left => currentFacing.Opposite(),
+                RelativeMove.Backtrack => currentFacing.LocalLeft(),
                 _ => currentFacing
             };
         }
@@ -338,22 +372,25 @@ namespace PathGeneration
             }
         }
 
-        private bool IsValidMove(Vector2Int pos)
+        private bool IsValidMove(Vector2Int toPosition, Direction fromDirection)
         {
             // Out of bound
-            if (pos.x < 0 || pos.y < 0 || pos.x >= Width || pos.y >= Height) return false;
+            if (toPosition.x < 0 || toPosition.y < 0 || toPosition.x >= Width || toPosition.y >= Height) return false;
 
             // Start position
-            if (pos.x == 0 && pos.y == 0) return false;
+            if (toPosition.x == 0 && toPosition.y == 0) return false;
 
             // Edge explored area
-            if ((pos.x == 0 || pos.y == 0 || pos.x == Width - 1 || pos.y == Height - 1) && tiles[pos.x, pos.y].Type == TileType.Path) return false;
+            if ((toPosition.x == 0 || toPosition.y == 0 || toPosition.x == Width - 1 || toPosition.y == Height - 1) && tiles[toPosition.x, toPosition.y].Type == TileType.Path) return false;
 
             // Banned position
-            if (bannedPositions.Contains(pos)) return false;
+            if (bannedPositions.Contains(toPosition)) return false;
 
             // Invalid tile
-            if (!tiles[pos.x, pos.y].IsValid || tiles[pos.x, pos.y].IsCorner) return false;
+            if (!tiles[toPosition.x, toPosition.y].IsValid || tiles[toPosition.x, toPosition.y].IsCorner) return false;
+
+            // Already explored path
+            if (tiles[toPosition.x, toPosition.y].Type == TileType.Path && tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite())) return false;
 
             return true;
         }
@@ -386,14 +423,14 @@ namespace PathGeneration
 
                 if (tiles[nx, ny].Type == TileType.Path)
                 {
-                    tiles[x, y].AddConnection((ConnectionDirection)dir);
-                    tiles[nx, ny].AddConnection((ConnectionDirection)(((int)dir + 2) % 4));
+                    tiles[x, y].AddConnection(dir);
+                    tiles[nx, ny].AddConnection(dir.Opposite());
                 }
 
                 if (tiles[nx, ny].Type == TileType.Wall)
                 {
-                    tiles[x, y].RemoveConnection((ConnectionDirection)dir);
-                    tiles[nx, ny].RemoveConnection((ConnectionDirection)(((int)dir + 2) % 4));
+                    tiles[x, y].RemoveConnection(dir);
+                    tiles[nx, ny].RemoveConnection(dir.Opposite());
                 }
             }
         }
