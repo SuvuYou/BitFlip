@@ -1157,8 +1157,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e6d3ab9bda910a4fa72c0e61c6665b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _width: 11
-  _height: 11
+  _width: 31
+  _height: 31
   _wallTilePrefab: {fileID: 7592168057920007101, guid: c15da85d88ed3214fbb4d8b42f3718fa, type: 3}
   _pathTilePrefab: {fileID: 4257750055679165568, guid: 65dafbee167ddb14e81751238fc0842c, type: 3}
   _invalidTilePrefab: {fileID: 7592168057920007101, guid: 0b5051c2263b24949b59b7da9467dbf4, type: 3}

@@ -2,6 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// TODO: Clean up
+// Set max straight length
+// Use command pattern
+// Use seeded random
 namespace PathGeneration
 {
     public enum TileType { Wall, Path }
@@ -144,9 +149,9 @@ namespace PathGeneration
 
         private readonly Dictionary<RelativeMove, float> moveWeights = new()
         {
-            { RelativeMove.Forward, 0.6f },
-            { RelativeMove.Right, 0.2f },
-            { RelativeMove.Left, 0.2f }
+            { RelativeMove.Forward, 0.7f },
+            { RelativeMove.Right, 0.15f },
+            { RelativeMove.Left, 0.15f }
         };
 
         public int Width { get; }
@@ -304,8 +309,8 @@ namespace PathGeneration
             {
                 RelativeMove.Forward => currentFacing,
                 RelativeMove.Right => currentFacing.LocalRight(),
-                RelativeMove.Left => currentFacing.Opposite(),
-                RelativeMove.Backtrack => currentFacing.LocalLeft(),
+                RelativeMove.Left => currentFacing.LocalLeft(),
+                RelativeMove.Backtrack => currentFacing.Opposite(),
                 _ => currentFacing
             };
         }

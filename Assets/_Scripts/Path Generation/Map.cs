@@ -100,13 +100,8 @@ public class Map : MonoBehaviour
         {
             for (int y = 0; y < _map.MapPath.Height; y++)
             {
-                // if(!tiles[x, y].IsValid)
-                // {
-                //     Debug.Log("asdfgswgwsed");
-                // }
                 if (!tiles[x, y].IsValid)
                 {
-                    Debug.Log("asdfgswgwsedasdfgswgwsedasdfgswgwsedasdfgswgwsedasdfgswgwsedasdfgswgwsedasdfgswgwsed");
                     garbage.Add(Instantiate(_invalidTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform));
 
                     continue;
