@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 // TODO: Clean up
 // Set max straight length
-// Use command pattern
 // Use seeded random
 namespace PathGeneration
 {
@@ -13,8 +11,82 @@ namespace PathGeneration
     public enum Direction { Up, Right, Down, Left }
     public enum RelativeMove { Forward, Right, Left, Backtrack }
 
+    public interface IPathModification
+    {
+        void Modify();
+        void Undo();
+    }
+
+    public class Explore : IPathModification
+    {
+        // Ref
+        private readonly Path path;
+        
+        // Cache
+        private readonly TileType[] previousTypes;
+        private readonly (Vector2Int pos, Direction currentFacingDirection) cachedState;
+
+        // Modification params
+        private readonly Direction ExploreDirection;
+
+        public Explore(Path path, (Vector2Int pos, Direction currentFacingDirection) cachedState, Direction ExploreDirection)
+        {
+            this.path = path;
+            this.cachedState = cachedState;
+            this.ExploreDirection = ExploreDirection;
+
+            previousTypes = new TileType[path.StemLength];
+        }
+
+        public void Modify()
+        {
+            Vector2Int currentPos = cachedState.pos;
+
+            for (int i = 0; i < path.StemLength; i++)
+            {
+                Vector2Int nextPos = currentPos + ExploreDirection.ToVector();
+
+                previousTypes[i] = path.tiles[nextPos.x, nextPos.y].Type;
+
+                path.SetTile(nextPos.x, nextPos.y, TileType.Path);
+
+                currentPos = nextPos;
+
+                if (i == 0)
+                    path.AddPathRoot(nextPos);
+            }
+
+            path.CurrentState = (currentPos, ExploreDirection);
+        }
+
+        public void Undo()
+        {
+            Vector2Int currentPos = cachedState.pos;
+
+            for (int i = 0; i < path.StemLength; i++)
+            {
+                var tileType = previousTypes[i];
+
+                Debug.Log(tileType);
+
+                Vector2Int nextPos = currentPos + ExploreDirection.ToVector();
+                path.SetTile(nextPos.x, nextPos.y, tileType);
+
+                currentPos = nextPos;
+
+                if (i == 0)
+                    path.PopPathRoot();
+            }
+
+            path.CurrentState = cachedState;
+        }
+    }
+
+
     public static class DirectionExtentions
     {
+        public static List<Direction> AllDirections = new () { Direction.Up, Direction.Right, Direction.Down, Direction.Left };
+
         public static Direction Opposite(this Direction direction) =>
             direction switch
             {
@@ -43,6 +115,16 @@ namespace PathGeneration
                 Direction.Down => Direction.Right,
                 Direction.Left => Direction.Down,
                 _ => Direction.Up
+            };
+
+        public static Vector2Int ToVector(this Direction direction) =>
+            direction switch
+            {
+                Direction.Up => new Vector2Int(0, 1), 
+                Direction.Right => new Vector2Int(1, 0),
+                Direction.Down => new Vector2Int(0, -1),
+                Direction.Left => new Vector2Int(-1, 0),
+                _ => new Vector2Int(0, 1)
             };
     }
 
@@ -104,8 +186,6 @@ namespace PathGeneration
                        (connections.Contains(Direction.Down) && connections.Contains(Direction.Left)) ||
                        (connections.Contains(Direction.Left) && connections.Contains(Direction.Up));
         }
-
-
     }
 
     public class Map
@@ -139,19 +219,11 @@ namespace PathGeneration
 
     public class Path
     {
-        private static readonly Dictionary<Direction, Vector2Int> DirectionVectors = new()
-        {
-            { Direction.Up, new Vector2Int(0, 1) },
-            { Direction.Right, new Vector2Int(1, 0) },
-            { Direction.Down, new Vector2Int(0, -1) },
-            { Direction.Left, new Vector2Int(-1, 0) }
-        };
-
         private readonly Dictionary<RelativeMove, float> moveWeights = new()
         {
-            { RelativeMove.Forward, 0.7f },
-            { RelativeMove.Right, 0.15f },
-            { RelativeMove.Left, 0.15f }
+            { RelativeMove.Forward, 0.4f },
+            { RelativeMove.Right, 0.3f },
+            { RelativeMove.Left, 0.3f }
         };
 
         public int Width { get; }
@@ -160,16 +232,22 @@ namespace PathGeneration
         public readonly Tile[,] tiles;
         private Vector2Int start, end;
         private HashSet<Vector2Int> bannedPositions;
-        public Stack<(Vector2Int pos, Direction dir)> pathStack = new();
         private System.Random random = new();
 
         public readonly Stack<Tile[,]> TilesHistory;
 
-        private Direction currentDirection;
+        private Stack<IPathModification> _modificationsHistory = new();
+        private Stack<Vector2Int> _pathRoots = new();
 
-        (Vector2Int pos, Direction dir) lastState;
+        private Stack<Vector2Int> _validationStack = new();
 
-        private bool hasBeenTracingBack = false;
+        private bool _hasBeenInvalidated;
+
+        public (Vector2Int pos, Direction currentFacingDirection) CurrentState;
+
+        public void AddPathRoot(Vector2Int rootPos) => _pathRoots.Push(rootPos);
+
+        public void PopPathRoot() => _pathRoots.Pop();
 
         public Path(int width, int height, Vector2Int start, Vector2Int end, int stemLength = 1, HashSet<Vector2Int> banned = null)
         {
@@ -186,76 +264,9 @@ namespace PathGeneration
 
             SetTile(start.x, start.y, TileType.Path);
 
-            currentDirection = Direction.Up;
-            pathStack.Push((start, currentDirection));
-
             TilesHistory = new Stack<Tile[,]>();
 
             SaveTileHistory();
-        }
-
-        public void Generate()
-        {
-            (Vector2Int pos, Direction dir) state = pathStack.Peek();
-
-            while (state.pos != end)
-            {
-                SaveTileHistory();
-
-                var validMoves = GetValidRelativeMoves(state.pos, state.dir);
-
-                if (validMoves.Count == 0)
-                {
-                    if (hasBeenTracingBack)
-                    {
-                        tiles[lastState.pos.x, lastState.pos.y].Revalidate();
-                    }
-
-                    hasBeenTracingBack = true;
-
-                    if (pathStack.Count == 0)
-                        break;
-                        
-                    for (int i = 0; i < StemLength; i++)
-                    {
-                        if (i == StemLength - 1)
-                            tiles[state.pos.x, state.pos.y].Invalidate();
-
-                        pathStack.Pop();
-
-                        SetTile(state.pos.x, state.pos.y, TileType.Wall);
-
-                        if (pathStack.Count == 0)
-                            break;
-
-                        lastState = state;
-
-                        state = pathStack.Peek();
-                    }
-                    
-                    continue;
-                }
-
-                hasBeenTracingBack = false;
-
-                RelativeMove chosenMove = WeightedChoice(validMoves);
-
-                Direction newDirection = GetNewDirection(state.dir, chosenMove);
-                
-                Vector2Int currentPos = state.pos;
-
-                for (int i = 0; i < StemLength; i++)
-                {
-                    Vector2Int nextPos = currentPos + DirectionVectors[newDirection];
-                    SetTile(nextPos.x, nextPos.y, TileType.Path);
-
-                    currentPos = nextPos;
-                    pathStack.Push((currentPos, newDirection));
-                }
-
-                state = (currentPos, newDirection);
-                currentDirection = newDirection;
-            }
         }
 
         private void SaveTileHistory() 
@@ -273,13 +284,60 @@ namespace PathGeneration
             TilesHistory.Push(clone);
         }
 
+        public void Generate()
+        {
+            while (CurrentState.pos != end)
+            {
+                SaveTileHistory();
+
+                var validMoves = GetValidRelativeMoves(CurrentState.pos, CurrentState.currentFacingDirection);
+
+                if (validMoves.Count == 0)
+                {
+                    if (_modificationsHistory.Count == 0)
+                        throw new Exception("Reached dead end with no way to backtrack");
+
+                    if (_hasBeenInvalidated)
+                    {
+                        Vector2Int pos = _validationStack.Pop();
+                        tiles[pos.x, pos.y].Revalidate();
+                    }
+
+                    Vector2Int invalidPos = _pathRoots.Peek();
+
+                    tiles[invalidPos.x, invalidPos.y].Invalidate();
+
+                    _validationStack.Push(invalidPos);
+
+                    var lastModifiation = _modificationsHistory.Pop();
+                    lastModifiation.Undo();
+
+                    _hasBeenInvalidated = true;
+                    
+                    continue;
+                }
+
+                _hasBeenInvalidated = false;
+
+                RelativeMove chosenMove = WeightedChoice(validMoves);
+
+                Direction newCurrentFacingDirection = GetNewDirection(CurrentState.currentFacingDirection, chosenMove);
+
+                var exploreModification = new Explore(this, CurrentState, newCurrentFacingDirection);
+
+                exploreModification.Modify();
+
+                _modificationsHistory.Push(exploreModification);
+            }
+        }
+
         private bool CanMove(Vector2Int pos, Direction dir)
         {
             Vector2Int checkPos = pos;
 
             for (int i = 0; i < StemLength; i++)
             {
-                checkPos += DirectionVectors[dir];
+                checkPos += dir.ToVector();
 
                 if (!IsValidMove(toPosition: checkPos, dir))
                     return false;
@@ -288,13 +346,13 @@ namespace PathGeneration
             return true;
         }
 
-        private List<RelativeMove> GetValidRelativeMoves(Vector2Int pos, Direction dir)
+        private List<RelativeMove> GetValidRelativeMoves(Vector2Int pos, Direction currentFacing)
         {
             var valid = new List<RelativeMove>();
 
             foreach (RelativeMove move in moveWeights.Keys)
             {
-                Direction newDir = GetNewDirection(dir, move);
+                Direction newDir = GetNewDirection(currentFacing, move);
 
                 if (CanMove(pos, newDir))
                     valid.Add(move);
@@ -411,7 +469,7 @@ namespace PathGeneration
             }
         }
 
-        private void SetTile(int x, int y, TileType type)
+        public void SetTile(int x, int y, TileType type)
         {
             tiles[x, y].SwitchType(type);
 
@@ -420,9 +478,9 @@ namespace PathGeneration
 
         private void SetupAdjacentConnections(int x, int y)
         {
-            foreach (var (dir, vec) in DirectionVectors)
+            foreach (var dir in DirectionExtentions.AllDirections)
             {
-                int nx = x + vec.x, ny = y + vec.y;
+                int nx = x + dir.ToVector().x, ny = y + dir.ToVector().y;
 
                 if (nx < 0 || ny < 0 || nx >= Width || ny >= Height) continue;
 

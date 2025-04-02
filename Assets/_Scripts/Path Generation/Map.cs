@@ -47,11 +47,20 @@ public class Map : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            index++;
+
             garbage.ForEach(x => Destroy(x));
 
             DrawAll(tilessfes[index]);
+        }
 
-            index++;
+        if (Input.GetMouseButtonDown(1))
+        {
+            index--;
+
+            garbage.ForEach(x => Destroy(x));
+
+            DrawAll(tilessfes[index]);
         }
     }
 
