@@ -1,131 +1,32 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-public class Map : MonoBehaviour
+namespace PathGeneration
 {
-    [SerializeField] private int _width = 10, _height = 10;
-
-    [SerializeField] private GameObject _wallTilePrefab;
-    [SerializeField] private GameObject _pathTilePrefab;
-    [SerializeField] private GameObject _invalidTilePrefab;
-
-    private PathGeneration.Map _map;
-
-    private int index;
-
-    private List<GameObject> garbage = new List<GameObject>();
-
-    private List<PathGeneration.Tile[,]> tilessfes;
-
-    private void Awake()
+    public class Map
     {
-        _map = new PathGeneration.Map(_width, _height);
+        public readonly Path MapPath;
 
-        _map.Generate();
-
-        tilessfes = _map.MapPath.TilesHistory.ToList();
-        tilessfes.Reverse();
-
-
-        // DrawAll();
-    }
-
-
-    // private void DrawBackground()
-    // {
-    //     for (int x = 0; x < _map.MapPath.Width; x++)
-    //     {
-    //         for (int y = 0; y < _map.MapPath.Height; y++)
-    //         {
-    //             Instantiate(_wallTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform);
-    //         }
-    //     }
-    // }
-
-    public void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
+        public Map(int width, int height, int stemLength = 2)
         {
-            index++;
-
-            garbage.ForEach(x => Destroy(x));
-
-            DrawAll(tilessfes[index]);
+            MapPath = new Path(width, height, new Vector2Int(0, 0), new Vector2Int(width - 1, height - 1), stemLength);
         }
 
-        if (Input.GetMouseButtonDown(1))
+        public void Generate()
         {
-            index--;
-
-            garbage.ForEach(x => Destroy(x));
-
-            DrawAll(tilessfes[index]);
+            MapPath.RandomWalk();
+            // ExpandCorners();
         }
-    }
 
-    // public void DrawNext()
-    // {
-    //     (Vector2Int pos, PathGeneration.Direction dir) state = _map.MapPath.pathStack.ToList()[index];
-
-    //     Instantiate(_pathTilePrefab, new Vector3(state.pos.x, state.pos.y, 0), Quaternion.identity, transform);
-
-    //     index++;
-    // }
-
-    // private void DrawMap()
-    // {
-    //     for (int x = 0; x < _map.MapPath.Width; x++)
-    //     {
-    //         for (int y = 0; y < _map.MapPath.Height; y++)
-    //         {
-    //             if (_map.MapPath.tiles[x, y]?.Type == PathGeneration.TileType.Wall)
-    //             {
-    //                 Instantiate(_wallTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform);
-    //             }
-    //             else
-    //             {
-    //                 Instantiate(_pathTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // private void DrawInvalid()
-    // {
-    //     for (int x = 0; x < _map.MapPath.Width; x++)
-    //     {
-    //         for (int y = 0; y < _map.MapPath.Height; y++)
-    //         {
-    //             if (!_map.MapPath.tiles[x, y].IsValid)
-    //                 Instantiate(_invalidTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform);
-    //         }
-    //     }
-    // }
-
-    private void DrawAll(PathGeneration.Tile[,] tiles)
-    {
-        for (int x = 0; x < _map.MapPath.Width; x++)
+        private void ExpandCorners()
         {
-            for (int y = 0; y < _map.MapPath.Height; y++)
+            foreach (var (pos, tile) in MapPath.GetCornerTiles())
             {
-                if (!tiles[x, y].IsValid)
+                if (UnityEngine.Random.value > 0.5f)
                 {
-                    garbage.Add(Instantiate(_invalidTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform));
-
-                    continue;
+                    var newPath = new Path(MapPath.Width, MapPath.Height, pos, pos, MapPath.StemLength, MapPath.GetOccupiedPositions());
+                    newPath.RandomWalk();
+                    MapPath.Merge(newPath);
                 }
-
-                if (tiles[x, y]?.Type == PathGeneration.TileType.Wall)
-                {
-                    garbage.Add(Instantiate(_wallTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform));
-                }
-                else if (tiles[x, y]?.Type == PathGeneration.TileType.Path)
-                {
-                    garbage.Add(Instantiate(_pathTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform));
-                }
-                
-             
             }
         }
     }
