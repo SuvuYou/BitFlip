@@ -9,11 +9,11 @@ public interface ISnapshotable<T>
 
 public class SnapshotManager<T>
 {
-    public readonly Stack<T> SnapshotHistory;
+    public readonly Stack<T> SnapshotHistory = new();
 
     private ISnapshotable<T> _snapshotable;
 
-    private List<T> _snapshotList;
+    private List<T> _snapshotList = new();
     private int _currentReadingIndex = 0;
     private int _maxReadingIndex, _minReadingIndex;
 

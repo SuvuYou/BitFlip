@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: Clean up
+// TODO:
 // Set max straight length
 // Use seeded random
 namespace PathGeneration
