@@ -4,7 +4,6 @@ using UnityEngine;
 
 // TODO:
 // Set max straight length
-// Use seeded random
 namespace PathGeneration
 {
     public enum RelativeMove { Forward, Right, Left, Backtrack }
@@ -39,6 +38,7 @@ namespace PathGeneration
 
         public readonly Tile[,] Tiles;
 
+        public readonly PseudoRandom.SystemRandomManager _systemRandom;
         public readonly Validator PathValidator = new();
         public readonly SnapshotManager<Tile[,]> TilesSnapshotManager;
 
@@ -46,8 +46,6 @@ namespace PathGeneration
 
         private Vector2Int _startPosition, _endPosition;
         private HashSet<Vector2Int> _bannedTilePositions;
-
-        private System.Random random = new();
 
         private (Vector2Int position, Direction facingDirection) _currentState;
 
@@ -68,6 +66,7 @@ namespace PathGeneration
             _bannedTilePositions = bannedTilePositions ?? new HashSet<Vector2Int>();
 
             TilesSnapshotManager = new (this);
+            _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
 
             Tiles = new Tile[width, height];
 
@@ -186,7 +185,7 @@ namespace PathGeneration
             foreach (var move in moves)
                 total += MOVE_WEIGHTS[move];
 
-            float roll = (float)random.NextDouble() * total;
+            float roll = _systemRandom.GetRandomFloat() * total;
 
             foreach (var move in moves)
             {
