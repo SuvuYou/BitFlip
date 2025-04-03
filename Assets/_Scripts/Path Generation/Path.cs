@@ -27,9 +27,9 @@ namespace PathGeneration
 
         private readonly Dictionary<RelativeMove, float> MOVE_WEIGHTS = new()
         {
-            { RelativeMove.Forward, 0.4f },
-            { RelativeMove.Right, 0.3f },
-            { RelativeMove.Left, 0.3f }
+            { RelativeMove.Forward, 0.7f },
+            { RelativeMove.Right, 0.15f },
+            { RelativeMove.Left, 0.15f }
         };
 
         public int Width { get; }

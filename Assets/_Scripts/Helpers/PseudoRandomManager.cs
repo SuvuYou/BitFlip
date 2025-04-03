@@ -11,7 +11,7 @@ namespace PseudoRandom
 
     public static class SystemRandomHolder
     {
-        private static Dictionary<SystemRandomType, SystemRandomManager> _systemRandomLookup;
+        private static Dictionary<SystemRandomType, SystemRandomManager> _systemRandomLookup = new();
 
         public static void InitSystems()
         {
