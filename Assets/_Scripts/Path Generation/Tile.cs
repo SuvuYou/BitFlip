@@ -8,6 +8,7 @@ namespace PathGeneration
     public class Tile : ICloneable
     {
         public TileType Type { get; private set; }
+        public bool IsBorder { get; private set; }
         public bool IsCorner { get; private set; }
         public bool IsValid { get; private set; } = true;
         private HashSet<Direction> _connections = new();
@@ -15,8 +16,8 @@ namespace PathGeneration
         public Tile(TileType type) => Type = type;
 
         public void Invalidate() => IsValid = false;
-
         public void Revalidate() => IsValid = true;
+        public void SetAsBorder() => IsBorder = true;
 
         public void AddConnection(Direction direction)
         {

@@ -1185,6 +1185,7 @@ GameObject:
   - component: {fileID: 1186204286}
   - component: {fileID: 1186204285}
   - component: {fileID: 1186204287}
+  - component: {fileID: 1186204288}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -1206,6 +1207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameData: {fileID: 11400000, guid: eb9fbdce04e37d344b5f2837a8f6cd4c, type: 2}
   _swappableTilemapRenderer: {fileID: 1186204287}
+  _mapDebugRenderer: {fileID: 1186204288}
 --- !u!4 &1186204286
 Transform:
   m_ObjectHideFlags: 0
@@ -1236,6 +1238,21 @@ MonoBehaviour:
   _tilemap: {fileID: 1979538198}
   _pathSwappableTilePrefab: {fileID: 4717876599869351786, guid: bef327291f84a51428fa9e19f35c45b7, type: 3}
   _wallSwappableTilePrefab: {fileID: 1632000032801609470, guid: 7c9cd91dc63fed04eb607e423aab20bb, type: 3}
+--- !u!114 &1186204288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186204284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 246b61ea95458e24e9d094b7d17261d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pathTilePrefab: {fileID: 530874617647756762, guid: 65dafbee167ddb14e81751238fc0842c, type: 3}
+  _wallTilePrefab: {fileID: 1288312549008478868, guid: c15da85d88ed3214fbb4d8b42f3718fa, type: 3}
+  _borderTilePrefab: {fileID: 4244415543113807516, guid: 18f04d26181a5fe4c948e103d8083161, type: 3}
 --- !u!1 &1227039799
 GameObject:
   m_ObjectHideFlags: 0

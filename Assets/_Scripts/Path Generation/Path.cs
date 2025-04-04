@@ -34,6 +34,7 @@ namespace PathGeneration
 
         public int Width { get; }
         public int Height { get; }
+        public Vector2Int BorderSize { get; }
         public int StemLength { get; }
 
         public readonly Tile[,] Tiles;
@@ -54,10 +55,11 @@ namespace PathGeneration
         public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
         public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
 
-        public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition, int stemLength = 1, HashSet<Vector2Int> bannedTilePositions = null)
+        public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition, Vector2Int borderSize = default, int stemLength = 1, HashSet<Vector2Int> bannedTilePositions = null)
         {
             Width = width;
             Height = height;
+            BorderSize = borderSize;
             StemLength = stemLength;
 
             _startPosition = startPosition;
@@ -73,6 +75,8 @@ namespace PathGeneration
             SetupTiles();
 
             SetTile(_startPosition.x, _startPosition.y, TileType.Path); 
+
+            _currentState = (_startPosition, Direction.Up);
 
             TilesSnapshotManager.Snapshot();
         }
@@ -149,16 +153,16 @@ namespace PathGeneration
             if (toPosition.x < 0 || toPosition.y < 0 || toPosition.x >= Width || toPosition.y >= Height) return false;
 
             // Start position
-            if (toPosition.x == 0 && toPosition.y == 0) return false;
+            if (toPosition.x == _startPosition.x && toPosition.y == _startPosition.y) return false;
 
             // Edge explored area
-            if ((toPosition.x == 0 || toPosition.y == 0 || toPosition.x == Width - 1 || toPosition.y == Height - 1) && Tiles[toPosition.x, toPosition.y].Type == TileType.Path) return false;
+            if ((toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].Type == TileType.Path) return false;
 
             // Banned position
             if (_bannedTilePositions.Contains(toPosition)) return false;
 
             // Invalid tile
-            if (!Tiles[toPosition.x, toPosition.y].IsValid || Tiles[toPosition.x, toPosition.y].IsCorner) return false;
+            if (!Tiles[toPosition.x, toPosition.y].IsValid || Tiles[toPosition.x, toPosition.y].IsCorner || Tiles[toPosition.x, toPosition.y].IsBorder) return false;
 
             // Already explored path
             if (Tiles[toPosition.x, toPosition.y].Type == TileType.Path && Tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite())) return false;
@@ -247,6 +251,11 @@ namespace PathGeneration
                 for (int y = 0; y < Height; y++)
                 {
                     Tiles[x, y] = new Tile(TileType.Wall);
+
+                    if (x < BorderSize.x || y < BorderSize.y || x >= (Width - BorderSize.x) || y >= (Height - BorderSize.y))
+                    {
+                        Tiles[x, y].SetAsBorder();
+                    }
                 }
             }
         }

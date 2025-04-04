@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 979bc773e60ec714384150f975d22715, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  MapWidth: 11
-  MapHeight: 11
+  MapWidth: 51
+  MapHeight: 51
+  MapStemLength: 2
+  MapBorderSize: {x: 10, y: 4}

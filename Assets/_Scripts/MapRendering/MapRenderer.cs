@@ -8,9 +8,11 @@ public class MapRenderer : MonoBehaviour
 
     private PathGeneration.Map _map;
 
+    [SerializeField] MapDebugRenderer _mapDebugRenderer;
+
     private void Awake()
     {
-        _map = new PathGeneration.Map(_gameData.MapWidth, _gameData.MapHeight);
+        _map = new PathGeneration.Map(_gameData.MapWidth, _gameData.MapHeight, _gameData.MapBorderSize, _gameData.MapStemLength);
 
         _map.Generate();
 
@@ -18,7 +20,6 @@ public class MapRenderer : MonoBehaviour
 
         _swappableTilemapRenderer.RenderTilemap();
 
-        // TODO: remove snapshots
-        _map.MapPath.TilesSnapshotManager.Read();
+        // _mapDebugRenderer.SetMap(_map);
     }
 }
