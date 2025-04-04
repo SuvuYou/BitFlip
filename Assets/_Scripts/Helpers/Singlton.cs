@@ -1,31 +1,36 @@
 using UnityEngine;
 
-public class BasicSingleton<T> where T : class, new()
+public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T _instance;
-    
+
     public static T Instance
     {
         get
         {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<T>();
+
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new (typeof(T).Name);
+                    _instance = singletonObject.AddComponent<T>();
+                }
+            }
             return _instance;
         }
     }
-}
-
-public class Singlton<T> : MonoBehaviour where T : MonoBehaviour
-{
-    public static T Instance { get; private set; }
 
     protected virtual void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this as T;
-
-            return;
+            _instance = this as T;
         }
-
-        Destroy(gameObject);
+        else if (_instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 }

@@ -1,12 +1,23 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SwapSystem
 {
-    public class SwappableEntitiesManager : Singlton<SwappableEntitiesManager>
+    public class SwappableEntitiesManager : Singleton<SwappableEntitiesManager>
     {
-        private SwappableGroup _dynamicSwappableEntities = new ();
+        private List<ISwappable> _dynamicSwappableEntities = new ();
+        private Dictionary<int, List<ISwappable>> _staticSwappableEntities = new ();
 
-        private Dictionary<int, SwappableGroup> _staticSwappableEntities = new ();
+        private int _startStaticPositionY = 0, _endStaticPositionY = 0;
+
+        public SwapVariant CurrentSupposedVariant = SwapVariant.Light;
+
+        private SwapConditionByGameobjectPositionY _swapConditionByGameobjectPositionY = new();
+
+        public event Action OnSwapComplete;
+        public event Action<int> OnSwapAtYLevelComplete;
 
         public void Register(ISwappable swappableEntity) => _dynamicSwappableEntities.Add(swappableEntity);
         public void Unregister(ISwappable swappableEntity) => _dynamicSwappableEntities.Remove(swappableEntity);
@@ -14,25 +25,67 @@ namespace SwapSystem
         public void Register(ISwappable swappableEntity, int staticPositionY) => _staticSwappableEntities[staticPositionY].Add(swappableEntity);
         public void Unregister(ISwappable swappableEntity, int staticPositionY) => _staticSwappableEntities[staticPositionY].Remove(swappableEntity);
 
-        public void SwapVariant() => _dynamicSwappableEntities.SwapVariant();
+        private Coroutine _swapCoroutine;
 
-        private struct SwappableGroup
+        public void InitContainers(GameDataSO gameData)
         {
-            public List<ISwappable> swappableEntities;
-            public SwapVariant CurrentVariant;
+            for (int i = 0; i < gameData.MapHeight; i++) _staticSwappableEntities.Add(i, new List<ISwappable>());
 
-            public readonly void Add(ISwappable swappableEntity) => swappableEntities.Add(swappableEntity);
-            public readonly void Remove(ISwappable swappableEntity) => swappableEntities.Remove(swappableEntity);
+            _startStaticPositionY = 0;
+            _endStaticPositionY = gameData.MapHeight - 1;
+        }
 
-            public void SwapVariant()
+        public void SwapEntities(float layerSwapInterval = 0.01f)
+        {
+            if (_swapCoroutine != null)
+                StopCoroutine(_swapCoroutine);
+
+            _swapCoroutine = StartCoroutine(SwapVariantInRange(layerSwapInterval));
+        }
+
+        private void SwapVariantAt(int staticPositionY)
+        {
+            _swapConditionByGameobjectPositionY.ThresholdPositionY = staticPositionY;
+
+            foreach (ISwappable swappableEntity in _dynamicSwappableEntities)
             {
-                CurrentVariant = CurrentVariant.Opposite();
+                if (swappableEntity.IsCurrentVariantEqualTo(CurrentSupposedVariant)) continue;
+                if (swappableEntity.ConditionByGameobject(_swapConditionByGameobjectPositionY.GameObjectYPositionCondition)) continue;
 
-                foreach (ISwappable swappableEntity in swappableEntities)
-                {
-                    swappableEntity.Swap(CurrentVariant);
-                }
+                swappableEntity.Swap(CurrentSupposedVariant);
             }
+
+            foreach (ISwappable swappableEntity in _staticSwappableEntities[staticPositionY])
+            {
+                if (swappableEntity.IsCurrentVariantEqualTo(CurrentSupposedVariant)) continue;
+
+                swappableEntity.Swap(CurrentSupposedVariant);
+            }
+
+            OnSwapAtYLevelComplete?.Invoke(staticPositionY);
+        }
+
+        private IEnumerator SwapVariantInRange(float layerSwapInterval)
+        {
+            CurrentSupposedVariant = CurrentSupposedVariant.Opposite();
+
+            for (int i = _startStaticPositionY; i <= _endStaticPositionY; i++)
+            {
+                SwapVariantAt(i);
+                yield return new WaitForSeconds(layerSwapInterval);
+            }
+
+            OnSwapComplete?.Invoke();
+        }
+    }
+
+    public class SwapConditionByGameobjectPositionY
+    {
+        public int ThresholdPositionY { get; set; }
+
+        public bool GameObjectYPositionCondition(GameObject gameObject)
+        {
+            return gameObject.transform.position.y > ThresholdPositionY;
         }
     }
 }

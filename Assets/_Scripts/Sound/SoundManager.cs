@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundManager : Singlton<SoundManager>
+public class SoundManager : Singleton<SoundManager>
 {
     [Header("Audio Settings")]
     [SerializeField] private SoundEventsSO _soundEvents;

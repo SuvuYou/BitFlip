@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class MusicManager : Singlton<MusicManager>
+public class MusicManager : Singleton<MusicManager>
 {
     [Header("References")]
     [SerializeField] private AudioSource _audioSource;

@@ -231,6 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e396fd925521584d8b1a04f2e76efc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameData: {fileID: 11400000, guid: eb9fbdce04e37d344b5f2837a8f6cd4c, type: 2}
   _mapRenderer: {fileID: 1186204285}
 --- !u!1 &214265665
 GameObject:
@@ -733,7 +734,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.486111
+  orthographic size: 5.4791665
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1203,12 +1204,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e6d3ab9bda910a4fa72c0e61c6665b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _width: 31
-  _height: 31
-  _wallTilePrefab: {fileID: 7592168057920007101, guid: c15da85d88ed3214fbb4d8b42f3718fa, type: 3}
-  _pathTilePrefab: {fileID: 4257750055679165568, guid: 65dafbee167ddb14e81751238fc0842c, type: 3}
-  _invalidTilePrefab: {fileID: 7592168057920007101, guid: 0b5051c2263b24949b59b7da9467dbf4, type: 3}
-  _renderer: {fileID: 1186204287}
+  _gameData: {fileID: 11400000, guid: eb9fbdce04e37d344b5f2837a8f6cd4c, type: 2}
+  _swappableTilemapRenderer: {fileID: 1186204287}
 --- !u!4 &1186204286
 Transform:
   m_ObjectHideFlags: 0
@@ -1236,9 +1233,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51a6e9b9993abad43a6352ffa49c3b03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilemap: {fileID: 1979538198}
-  pathTile: {fileID: 11400000, guid: c9f1793956378db47b8ec64b2405b483, type: 2}
-  wallTile: {fileID: 11400000, guid: 08701400bb4193547899621e77d73ef3, type: 2}
+  _tilemap: {fileID: 1979538198}
+  _pathSwappableTilePrefab: {fileID: 4717876599869351786, guid: bef327291f84a51428fa9e19f35c45b7, type: 3}
+  _wallSwappableTilePrefab: {fileID: 1632000032801609470, guid: 7c9cd91dc63fed04eb607e423aab20bb, type: 3}
 --- !u!1 &1227039799
 GameObject:
   m_ObjectHideFlags: 0
