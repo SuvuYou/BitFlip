@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 public class SwappableTilemapRenderer : MonoBehaviour
 {
     [SerializeField] private Tilemap _tilemap;
+    [SerializeField] private Tilemap _tilemapCollider;
 
     [SerializeField] private SwapSystem.SwappableRuleTile _pathSwappableTilePrefab;
     [SerializeField] private SwapSystem.SwappableRuleTile _wallSwappableTilePrefab;
@@ -29,6 +30,9 @@ public class SwappableTilemapRenderer : MonoBehaviour
                 tilePosition.y = y;
 
                 _tilemap.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
+
+                if (_swappableTiles[x, y].IsCollidable)
+                    _tilemapCollider.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
             }
         }
     }
@@ -51,7 +55,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
                         break;
                     case PathGeneration.TileType.Wall:
                         _swappableTiles[x, y] = Instantiate(_wallSwappableTilePrefab, tilePosition, Quaternion.identity);
-                        _swappableTiles[x, y].Init();
+                        _swappableTiles[x, y].Init(isCollidable: true);
                         break;
                 }
             }

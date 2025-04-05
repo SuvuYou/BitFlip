@@ -13,8 +13,11 @@ namespace SwapSystem
         private Dictionary<SwapVariant, RuleTile> _variantsDictionary;
         private SwapVariant _currentVariant;
 
-        public void Init() 
+        public bool IsCollidable { get; private set; }
+
+        public void Init(bool isCollidable = false) 
         {
+            IsCollidable = isCollidable;
             _variantsDictionary = _variants.ToDictionary();
 
             (this as ISwappable).Register(staticPositionY: (int)transform.position.y);
