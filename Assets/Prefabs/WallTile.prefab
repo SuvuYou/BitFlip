@@ -47,6 +47,6 @@ MonoBehaviour:
   _variants:
     items:
     - key: 0
-      value: {fileID: 11400000, guid: ef775529a40fb004bbad18f2d3b81937, type: 2}
+      value: {fileID: 11400000, guid: b14e92ed5aa9d9a4385fbabf2096a44d, type: 2}
     - key: 1
       value: {fileID: 11400000, guid: 8289f03de69b2224cbebbd81ce048b94, type: 2}
