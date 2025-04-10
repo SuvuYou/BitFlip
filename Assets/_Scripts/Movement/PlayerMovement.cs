@@ -53,23 +53,23 @@ public class PlayerMovement : MonoBehaviour
 
     private void GetInput()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             ChangeDirection(Direction.Up);
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKeyDown(KeyCode.S))
         {
             ChangeDirection(Direction.Down);
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKeyDown(KeyCode.A))
         {
             ChangeDirection(Direction.Left);
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKeyDown(KeyCode.D))
         {
             ChangeDirection(Direction.Right);
         }
-        else if (Input.GetKey(KeyCode.K))
+        else if (Input.GetKeyDown(KeyCode.K))
         {
             ChangeDirection(Direction.Idle);
         }
@@ -81,7 +81,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (_directionsLookup[_currentDirection] == -_directionsLookup[direction]) return;
 
-        if (IsFacingWall(_directionsLookup[direction])) return;
+        if (IsFacingWall(_directionsLookup[direction]))
+        {
+
+            Debug.Log("DFSaosifa");
+            return;
+        }
 
         _currentDirection = direction;
 
@@ -105,7 +110,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsFacingWall(Vector3 direction)
     {
-        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.5f, 0.5f), 0, direction, _raycastDistance - 0.25f, _layerMask);
+        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.1f, 0.1f), 0, direction, _raycastDistance, _layerMask);
 
         return hit.collider != null;
     }

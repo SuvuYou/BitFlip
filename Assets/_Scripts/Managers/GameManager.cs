@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private MapRenderer _mapRenderer;
 
+    [SerializeField] private PlayerSpawnManager _playerSpawnManager;
+
     private Coroutine _swapCoroutine;
 
     private void Awake()
@@ -14,6 +16,10 @@ public class GameManager : MonoBehaviour
         PseudoRandom.SystemRandomHolder.InitSystems();
 
         SwapSystem.SwappableEntitiesManager.Instance.InitContainers(_gameData);
+
+        (Vector3Int startPosition, Vector3Int _) = _mapRenderer.Render();
+
+        _playerSpawnManager.Spawn(startPosition);
     }
 
     private void Update()

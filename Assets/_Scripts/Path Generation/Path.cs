@@ -45,7 +45,9 @@ namespace PathGeneration
 
         private Stack<IPathModification> _modificationsHistory = new();
 
-        private Vector2Int _startPosition, _endPosition;
+        public Vector2Int StartPosition  { get; private set; }
+        public Vector2Int EndPosition  { get; private set; }
+        
         private HashSet<Vector2Int> _bannedTilePositions;
 
         private (Vector2Int position, Direction facingDirection) _currentState;
@@ -62,8 +64,8 @@ namespace PathGeneration
             BorderSize = borderSize;
             StemLength = stemLength;
 
-            _startPosition = startPosition;
-            _endPosition = endPosition;
+            StartPosition = startPosition;
+            EndPosition = endPosition;
 
             _bannedTilePositions = bannedTilePositions ?? new HashSet<Vector2Int>();
 
@@ -74,16 +76,16 @@ namespace PathGeneration
 
             SetupTiles();
 
-            SetTile(_startPosition.x, _startPosition.y, TileType.Path); 
+            SetTile(StartPosition.x, StartPosition.y, TileType.Path); 
 
-            _currentState = (_startPosition, Direction.Up);
+            _currentState = (StartPosition, Direction.Up);
 
             TilesSnapshotManager.Snapshot();
         }
 
         public void RandomWalk()
         {
-            while (_currentState.position != _endPosition)
+            while (_currentState.position != EndPosition)
             {
                 TilesSnapshotManager.Snapshot();
 
@@ -153,7 +155,7 @@ namespace PathGeneration
             if (toPosition.x < 0 || toPosition.y < 0 || toPosition.x >= Width || toPosition.y >= Height) return false;
 
             // Start position
-            if (toPosition.x == _startPosition.x && toPosition.y == _startPosition.y) return false;
+            if (toPosition.x == StartPosition.x && toPosition.y == StartPosition.y) return false;
 
             // Edge explored area
             if ((toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].Type == TileType.Path) return false;

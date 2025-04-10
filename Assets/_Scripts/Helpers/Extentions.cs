@@ -89,6 +89,8 @@ public static class VectorExtentions
     }
 
     public static Vector3 ToVector3WithZ(this Vector2 vector, float z) => new (vector.x, vector.y, z);
+
+    public static Vector3Int ToVector3WithZ(this Vector2Int vector, int z) => new (vector.x, vector.y, z);
 } 
 
 public static class FloatExtentions
