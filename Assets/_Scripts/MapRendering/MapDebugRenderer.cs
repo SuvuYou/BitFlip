@@ -35,21 +35,27 @@ public class MapDebugRenderer : MonoBehaviour
         {
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
-                if (tiles[x, y].IsBorder)
+                if (tiles[x, y].StateData.IsBorder)
                 {
                     garbage.Add(Instantiate(_borderTilePrefab, new Vector3(x, y, 0), Quaternion.identity));
 
                     continue;
                 }
 
-                if (tiles[x, y].Type == PathGeneration.TileType.Path)
+                if (tiles[x, y].StateData.Type == PathGeneration.TileType.Path)
                 {
                     garbage.Add(Instantiate(_pathTilePrefab, new Vector3(x, y, 0), Quaternion.identity));
 
                     continue;
                 }
                 
-                if (tiles[x, y].Type == PathGeneration.TileType.Wall) {
+                if (tiles[x, y].StateData.Type == PathGeneration.TileType.Wall) {
+                    garbage.Add(Instantiate(_wallTilePrefab, new Vector3(x, y, 0), Quaternion.identity));
+
+                    continue;
+                }
+
+                if (tiles[x, y].StateData.Type == PathGeneration.TileType.DeadlyWall) {
                     garbage.Add(Instantiate(_wallTilePrefab, new Vector3(x, y, 0), Quaternion.identity));
 
                     continue;

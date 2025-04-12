@@ -8,6 +8,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
     [SerializeField] private SwapSystem.SwappableRuleTile _pathSwappableTilePrefab;
     [SerializeField] private SwapSystem.SwappableRuleTile _wallSwappableTilePrefab;
+    [SerializeField] private SwapSystem.SwappableRuleTile _deadlyWallSwappableTilePrefab;
 
     private SwapSystem.SwappableRuleTile[,] _swappableTiles;
 
@@ -33,7 +34,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
                 _tilemap.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
 
-                if (_map.MapPath.Tiles[tilePosition.x, tilePosition.y].IsIncludedInDungeonRoom)
+                if (_map.MapPath.Tiles[tilePosition.x, tilePosition.y].StateData.IsIncludedInDungeonRoom)
                 {
                     _tilemap.SetColor(tilePosition, Color.red);
                 }
@@ -56,7 +57,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
             {
                 Vector3Int tilePosition = new (x, y, 0);
 
-                switch (map.MapPath.Tiles[x, y].Type)
+                switch (map.MapPath.Tiles[x, y].StateData.Type)
                 {
                     case PathGeneration.TileType.Path:
                         _swappableTiles[x, y] = Instantiate(_pathSwappableTilePrefab, tilePosition, Quaternion.identity);
@@ -64,6 +65,10 @@ public class SwappableTilemapRenderer : MonoBehaviour
                         break;
                     case PathGeneration.TileType.Wall:
                         _swappableTiles[x, y] = Instantiate(_wallSwappableTilePrefab, tilePosition, Quaternion.identity);
+                        _swappableTiles[x, y].Init(isCollidable: true);
+                        break;
+                    case PathGeneration.TileType.DeadlyWall:
+                        _swappableTiles[x, y] = Instantiate(_deadlyWallSwappableTilePrefab, tilePosition, Quaternion.identity);
                         _swappableTiles[x, y].Init(isCollidable: true);
                         break;
                 }

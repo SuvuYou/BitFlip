@@ -6,6 +6,7 @@ namespace PseudoRandom
     public enum SystemRandomType
     {
         PathGeneration,
+        DungeonGeneration,
         Other
     }
 

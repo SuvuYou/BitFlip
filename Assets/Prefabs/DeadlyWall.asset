@@ -9,13 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 979bc773e60ec714384150f975d22715, type: 3}
-  m_Name: GameData
+  m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
+  m_Name: DeadlyWall
   m_EditorClassIdentifier: 
-  MapWidth: 51
-  MapHeight: 51
-  MapStemLength: 2
-  MaxNumberOfDungeonRooms: 6
-  MinDungeonRoomSize: {x: 4, y: 4}
-  MaxDungeonRoomSize: {x: 8, y: 8}
-  MapBorderSize: {x: 10, y: 4}
+  m_DefaultSprite: {fileID: -131757725, guid: ed4edcc13cc60764181cc25a7679faf6, type: 3}
+  m_DefaultGameObject: {fileID: 0}
+  m_DefaultColliderType: 2
+  m_TilingRules: []

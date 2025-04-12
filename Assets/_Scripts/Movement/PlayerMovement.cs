@@ -83,8 +83,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (IsFacingWall(_directionsLookup[direction]))
         {
-
-            Debug.Log("DFSaosifa");
             return;
         }
 

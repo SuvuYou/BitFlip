@@ -27,9 +27,9 @@ namespace PathGeneration
 
         private readonly Dictionary<RelativeMove, float> MOVE_WEIGHTS = new()
         {
-            { RelativeMove.Forward, 0.7f },
-            { RelativeMove.Right, 0.15f },
-            { RelativeMove.Left, 0.15f }
+            { RelativeMove.Forward, 0.8f },
+            { RelativeMove.Right, 0.1f },
+            { RelativeMove.Left, 0.1f }
         };
 
         public int Width { get; }
@@ -76,7 +76,7 @@ namespace PathGeneration
 
             SetupTiles();
 
-            SetTile(StartPosition.x, StartPosition.y, TileType.Path); 
+            SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.Up); 
 
             _currentState = (StartPosition, Direction.Up);
 
@@ -158,16 +158,16 @@ namespace PathGeneration
             if (toPosition.x == StartPosition.x && toPosition.y == StartPosition.y) return false;
 
             // Edge explored area
-            if ((toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].Type == TileType.Path) return false;
+            if ((toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path) return false;
 
             // Banned position
             if (_bannedTilePositions.Contains(toPosition)) return false;
 
             // Invalid tile
-            if (!Tiles[toPosition.x, toPosition.y].IsValid || Tiles[toPosition.x, toPosition.y].IsCorner || Tiles[toPosition.x, toPosition.y].IsBorder) return false;
+            if (!Tiles[toPosition.x, toPosition.y].StateData.IsValid || Tiles[toPosition.x, toPosition.y].StateData.IsCorner || Tiles[toPosition.x, toPosition.y].StateData.IsBorder) return false;
 
             // Already explored path
-            if (Tiles[toPosition.x, toPosition.y].Type == TileType.Path && Tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite())) return false;
+            if (Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path && Tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite())) return false;
 
             return true;
         }
@@ -210,9 +210,9 @@ namespace PathGeneration
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    if (other.GetTileByPosition(x, y).Type == TileType.Path && Tiles[x, y] == null)
+                    if (other.GetTileByPosition(x, y).StateData.Type == TileType.Path && Tiles[x, y] == null)
                     {
-                        SetTile(x, y, TileType.Path);
+                        SetTile(x, y, other.GetTileByPosition(x, y));
                     }
                 }
             }
@@ -226,7 +226,7 @@ namespace PathGeneration
             {
                 for (int y = lowerBound.y; y < upperBound.y; y++)
                 {
-                    SetTile(x, y, dungeonRoom.Tiles[x - lowerBound.x, y - lowerBound.y].Type);         
+                    SetTile(x, y, dungeonRoom.Tiles[x - lowerBound.x, y - lowerBound.y]);         
                     Tiles[x,y].SetAsDungeonRoomTile();
                 }
             }
@@ -240,7 +240,7 @@ namespace PathGeneration
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    if (Tiles[x, y].Type == TileType.Path)
+                    if (Tiles[x, y].StateData.Type == TileType.Path)
                         positions.Add(new Vector2Int(x, y));
                 }
             }
@@ -254,7 +254,7 @@ namespace PathGeneration
             {
                 for (int y = 1; y < Height - 1; y++)
                 {
-                    if (Tiles[x, y].IsCorner == true)
+                    if (Tiles[x, y].StateData.IsCorner == true)
                         yield return (new Vector2Int(x, y), Tiles[x, y]);
                 }
             }
@@ -276,9 +276,16 @@ namespace PathGeneration
             }
         }
 
-        public void SetTile(int x, int y, TileType type)
+        public void SetTile(int x, int y, TileType type, Direction facingDirection)
         {
-            Tiles[x, y].SwitchType(type);
+            Tiles[x, y].SwitchType(type, facingDirection);
+
+            SetupAdjacentConnections(x, y);
+        }
+
+        public void SetTile(int x, int y, Tile tile)
+        {
+            Tiles[x, y].CloneStateData(tile);
 
             SetupAdjacentConnections(x, y);
         }
@@ -292,13 +299,13 @@ namespace PathGeneration
 
                 if (newX < 0 || newY < 0 || newX >= Width || newY >= Height) continue;
 
-                if (Tiles[newX, newY].Type == TileType.Path)
+                if (Tiles[newX, newY].StateData.Type == TileType.Path)
                 {
                     Tiles[x, y].AddConnection(direction);
                     Tiles[newX, newY].AddConnection(direction.Opposite());
                 }
 
-                if (Tiles[newX, newY].Type == TileType.Wall)
+                if (Tiles[newX, newY].StateData.Type == TileType.Wall)
                 {
                     Tiles[x, y].RemoveConnection(direction);
                     Tiles[newX, newY].RemoveConnection(direction.Opposite());

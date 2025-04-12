@@ -3,26 +3,59 @@ using System.Collections.Generic;
 
 namespace PathGeneration
 {
-    public enum TileType { Wall, Path }
+    public enum TileType { Wall, Path, DeadlyWall }
+
+    public struct TileData 
+    {
+        public TileType Type;
+
+        public Direction FacingDirection;
+
+        public bool IsBorder;
+        public bool IsCorner;
+        public bool IsIncludedInDungeonRoom;
+        public bool IsValid;
+
+        public TileData(TileType type, Direction facingDirection, bool isBorder, bool isCorner, bool isIncludedInDungeonRoom)
+        {
+            Type = type;
+            FacingDirection = facingDirection;
+            IsBorder = isBorder;
+            IsCorner = isCorner;
+            IsIncludedInDungeonRoom = isIncludedInDungeonRoom;
+            IsValid = true;
+        }
+    }
 
     public class Tile : ICloneable
     {
-        public TileType Type { get; private set; }
-
-        public bool IsBorder { get; private set; }
-        public bool IsCorner { get; private set; }
-        public bool IsIncludedInDungeonRoom { get; private set; }
-
-        public bool IsValid { get; private set; } = true;
+        public TileData StateData;
 
         private HashSet<Direction> _connections = new();
 
-        public Tile(TileType type) => Type = type;
+        public Tile(TileType type, Direction facingDirection = Direction.Up)
+        {
+            StateData = new TileData(type, facingDirection, false, false, false);
+        }
 
-        public void Invalidate() => IsValid = false;
-        public void Revalidate() => IsValid = true;
-        public void SetAsBorder() => IsBorder = true;
-        public void SetAsDungeonRoomTile() => IsIncludedInDungeonRoom = true;
+        public void Invalidate() => StateData.IsValid = false;
+        public void Revalidate() => StateData.IsValid = true;
+        public void SetAsBorder() => StateData.IsBorder = true;
+        public void SetAsDungeonRoomTile() => StateData.IsIncludedInDungeonRoom = true;
+
+        public void SwitchType(TileType newType, Direction facingDirection = Direction.Up)  
+        {
+            if (StateData.Type == TileType.Path && newType == TileType.Wall)
+            {
+                _connections.Clear();
+                CheckIsCorner();
+            }
+
+            StateData.Type = newType;
+            StateData.FacingDirection = facingDirection;
+        }
+
+        public bool IsConnectedToDirection(Direction direction) => _connections.Contains(direction);
 
         public void AddConnection(Direction direction)
         {
@@ -36,33 +69,24 @@ namespace PathGeneration
             CheckIsCorner();
         }
 
-        public void SwitchType(TileType newType) 
-        {
-            if (Type == TileType.Path && newType == TileType.Wall)
-            {
-                _connections.Clear();
-                CheckIsCorner();
-            }
-
-            Type = newType;
-        }
-
-        public bool IsConnectedToDirection(Direction direction) => _connections.Contains(direction);
-
         private void CheckIsCorner()
         {
-            IsCorner = (_connections.Contains(Direction.Up) && _connections.Contains(Direction.Right)) ||
+            StateData.IsCorner = (_connections.Contains(Direction.Up) && _connections.Contains(Direction.Right)) ||
                        (_connections.Contains(Direction.Right) && _connections.Contains(Direction.Down)) ||
                        (_connections.Contains(Direction.Down) && _connections.Contains(Direction.Left)) ||
                        (_connections.Contains(Direction.Left) && _connections.Contains(Direction.Up));
         }
 
+        public void CloneStateData(Tile tile)
+        {
+            StateData = tile.StateData;
+        }
+
         public object Clone()
         {
-            Tile clone = new (this.Type)
+            Tile clone = new (this.StateData.Type)
             {
-                IsValid = this.IsValid,
-                IsCorner = this.IsCorner
+                StateData = this.StateData,
             };
 
             clone._connections = new HashSet<Direction>(this._connections);
