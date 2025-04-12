@@ -3,15 +3,12 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public enum Direction { Idle, Up, Down, Left, Right };
-
     private Dictionary<Direction, Vector2> _directionsLookup = new()
     {
         { Direction.Up, Vector2.up },
         { Direction.Down, Vector2.down },
         { Direction.Left, Vector2.left },
-        { Direction.Right, Vector2.right },
-        { Direction.Idle, Vector2.zero }
+        { Direction.Right, Vector2.right }
     };
 
     [SerializeField] private Transform _playerTransform;
@@ -20,15 +17,28 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _maxSpeed = 5f;
     [SerializeField] private float _acceleration = 5f;
     [SerializeField] private float _raycastDistance = 1f;
+    [SerializeField] private float _cayoteMovementTime = 0.1f;
+
     [SerializeField] private LayerMask _layerMask;
 
+    private Timer _cayoteTimer;
+
+    private bool _isIdle = true;
+
     private Vector2 _currentVelocity = Vector2.zero;
+    private Direction _nextDirection = Direction.Up;
     private Direction _currentDirection;
+
+    private void Start()
+    {
+        _cayoteTimer = new Timer(_cayoteMovementTime);
+    }
 
     private void Update()
     {
         GetInput();
         CollisionCheck();
+        UpdateDirection();
 
         ApplyVelocity();
         Move();
@@ -48,6 +58,8 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector2 GetMovementDirection()
     {
+        if (_isIdle) return Vector2.zero;
+
         return _directionsLookup[_currentDirection];
     }
 
@@ -55,42 +67,64 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.W))
         {
-            ChangeDirection(Direction.Up);
+            TryChangeDirection(Direction.Up);
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
-            ChangeDirection(Direction.Down);
+            TryChangeDirection(Direction.Down);
         }
         else if (Input.GetKeyDown(KeyCode.A))
         {
-            ChangeDirection(Direction.Left);
+            TryChangeDirection(Direction.Left);
         }
         else if (Input.GetKeyDown(KeyCode.D))
         {
-            ChangeDirection(Direction.Right);
-        }
-        else if (Input.GetKeyDown(KeyCode.K))
-        {
-            ChangeDirection(Direction.Idle);
+            TryChangeDirection(Direction.Right);
         }
     }
 
-    private void ChangeDirection(Direction direction)
+    private void TryChangeDirection(Direction direction)
     {
-        if (_currentDirection == direction) return;
+        if (_currentDirection == direction && !_isIdle) return;
 
-        if (_directionsLookup[_currentDirection] == -_directionsLookup[direction]) return;
+        _nextDirection = direction;
 
-        if (IsFacingWall(_directionsLookup[direction]))
+        _cayoteTimer.Reset();
+        _cayoteTimer.Start();
+    }
+
+    private void UpdateDirection()
+    {
+        if (!_cayoteTimer.IsRunning) return;
+
+        _cayoteTimer.Update(Time.deltaTime);
+
+        if (_cayoteTimer.IsFinished) 
         {
+            _cayoteTimer.Stop();
+
             return;
         }
 
-        _currentDirection = direction;
+        if (!_isIdle) return;
 
+        _currentDirection = _nextDirection;
         _currentVelocity = Vector2.zero;
-
         SnapToGrid();
+
+        _isIdle = false;
+        _cayoteTimer.Stop();
+    }
+
+    private void CollisionCheck() 
+    { 
+        if (IsFacingWall(_directionsLookup[_currentDirection]))
+        {
+            _isIdle = true;
+
+            _currentVelocity = Vector2.zero;
+            SnapToGrid();
+        }
     }
 
     private void SnapToGrid() 
@@ -98,17 +132,9 @@ public class PlayerMovement : MonoBehaviour
         _playerTransform.position = new Vector3(Mathf.Round(_playerTransform.position.x), Mathf.Round(_playerTransform.position.y), _playerTransform.position.z); 
     }
 
-    private void CollisionCheck() 
-    { 
-        if (IsFacingWall(_directionsLookup[_currentDirection]))
-        {
-            ChangeDirection(Direction.Idle);
-        }
-    }
-
     private bool IsFacingWall(Vector3 direction)
     {
-        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.1f, 0.1f), 0, direction, _raycastDistance, _layerMask);
+        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction, _raycastDistance, _layerMask);
 
         return hit.collider != null;
     }
