@@ -12,7 +12,7 @@ public class MapRenderer : MonoBehaviour
 
     public (Vector3Int startPosition, Vector3Int endPosition) Render()
     {
-        _map = new PathGeneration.Map(_gameData.MapWidth, _gameData.MapHeight, _gameData.MapBorderSize, _gameData.MapStemLength);
+        _map = new PathGeneration.Map(_gameData);
 
         _map.Generate();
 

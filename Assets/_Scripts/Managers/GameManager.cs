@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1)]
@@ -16,7 +17,12 @@ public class GameManager : MonoBehaviour
         PseudoRandom.SystemRandomHolder.InitSystems();
 
         SwapSystem.SwappableEntitiesManager.Instance.InitContainers(_gameData);
+    }
 
+    private IEnumerator Start()
+    {
+        yield return null;
+        
         (Vector3Int startPosition, Vector3Int _) = _mapRenderer.Render();
 
         _playerSpawnManager.Spawn(startPosition);

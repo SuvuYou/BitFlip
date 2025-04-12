@@ -11,6 +11,8 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
     private SwapSystem.SwappableRuleTile[,] _swappableTiles;
 
+    private PathGeneration.Map _map;
+
     private void Start()
     {
         SwapSystem.SwappableEntitiesManager.Instance.OnSwapAtYLevelComplete += (int yLevel) => RenderTilemap(); 
@@ -31,6 +33,11 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
                 _tilemap.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
 
+                if (_map.MapPath.Tiles[tilePosition.x, tilePosition.y].IsIncludedInDungeonRoom)
+                {
+                    _tilemap.SetColor(tilePosition, Color.red);
+                }
+
                 if (_swappableTiles[x, y].IsCollidable)
                     _tilemapCollider.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
             }
@@ -39,6 +46,8 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
     public void ConstructSwappableTiles(PathGeneration.Map map)
     { 
+        _map = map;
+
         _swappableTiles = new SwapSystem.SwappableRuleTile[map.MapPath.Width,  map.MapPath.Height];
 
         for (int x = 0; x < map.MapPath.Width; x++)

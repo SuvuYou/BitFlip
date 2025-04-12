@@ -8,9 +8,13 @@ namespace PathGeneration
     public class Tile : ICloneable
     {
         public TileType Type { get; private set; }
+
         public bool IsBorder { get; private set; }
         public bool IsCorner { get; private set; }
+        public bool IsIncludedInDungeonRoom { get; private set; }
+
         public bool IsValid { get; private set; } = true;
+
         private HashSet<Direction> _connections = new();
 
         public Tile(TileType type) => Type = type;
@@ -18,6 +22,7 @@ namespace PathGeneration
         public void Invalidate() => IsValid = false;
         public void Revalidate() => IsValid = true;
         public void SetAsBorder() => IsBorder = true;
+        public void SetAsDungeonRoomTile() => IsIncludedInDungeonRoom = true;
 
         public void AddConnection(Direction direction)
         {
@@ -54,7 +59,7 @@ namespace PathGeneration
 
         public object Clone()
         {
-            Tile clone = new Tile(this.Type)
+            Tile clone = new (this.Type)
             {
                 IsValid = this.IsValid,
                 IsCorner = this.IsCorner

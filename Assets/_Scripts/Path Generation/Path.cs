@@ -218,6 +218,20 @@ namespace PathGeneration
             }
         }
 
+        public void OverrideDungeonRoom(DungeonRoom dungeonRoom)
+        {
+            (Vector2Int lowerBound, Vector2Int upperBound) = dungeonRoom.Bounds;
+
+            for (int x = lowerBound.x; x < upperBound.x; x++)
+            {
+                for (int y = lowerBound.y; y < upperBound.y; y++)
+                {
+                    SetTile(x, y, dungeonRoom.Tiles[x - lowerBound.x, y - lowerBound.y].Type);         
+                    Tiles[x,y].SetAsDungeonRoomTile();
+                }
+            }
+        }
+
         public HashSet<Vector2Int> GetOccupiedPositions()
         {
             var positions = new HashSet<Vector2Int>();

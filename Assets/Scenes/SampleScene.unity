@@ -701,7 +701,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8.092592
+  orthographic size: 8.092593
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1091,6 +1091,7 @@ MonoBehaviour:
   _tilemapCollider: {fileID: 1355288709}
   _pathSwappableTilePrefab: {fileID: 4717876599869351786, guid: bef327291f84a51428fa9e19f35c45b7, type: 3}
   _wallSwappableTilePrefab: {fileID: 1632000032801609470, guid: 7c9cd91dc63fed04eb607e423aab20bb, type: 3}
+  _dungeonSwappableTilePrefab: {fileID: 4717876599869351786, guid: 4c3e685404843914db8e4ee6f63e403b, type: 3}
 --- !u!114 &1186204288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1993,9 +1994,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BindingMode: 1
   m_FollowOffset: {x: 0, y: 0, z: -10}
-  m_XDamping: 1
-  m_YDamping: 1
-  m_ZDamping: 1
+  m_XDamping: 0.25
+  m_YDamping: 0.25
+  m_ZDamping: 0
   m_AngularDampingMode: 0
   m_PitchDamping: 0
   m_YawDamping: 0
