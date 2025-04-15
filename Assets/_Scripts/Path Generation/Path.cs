@@ -20,6 +20,8 @@ namespace PathGeneration
         public int StemLength { get; }
 
         public readonly TilesMatrix Tiles;
+        
+        public int RouteIndex { get; private set; }
 
         public readonly PseudoRandom.SystemRandomManager _systemRandom;
         public readonly Validator PathValidator = new();
@@ -35,18 +37,20 @@ namespace PathGeneration
 
         private bool _shouldLog = false;
 
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, int stemLength = 1, bool shouldLog = false)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, int stemLength = 2, int routeIndex = 0, bool shouldLog = false)
         {
             StemLength = stemLength;
 
             StartPosition = startPosition;
             EndPosition = endPosition;
 
+            RouteIndex = routeIndex;
+
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
 
             Tiles = tiles;
 
-            Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.Up); 
+            Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.Up, Tiles.CurrentLargestRouteIndex); 
 
             _currentState = (StartPosition, Direction.Up);
 
@@ -90,7 +94,7 @@ namespace PathGeneration
 
                 Direction newFacingDirection = ApplyRelativeTurnToDirection(_currentState.facingDirection, chosenMove);
 
-                var exploreModification = new Explore(this, _currentState, newFacingDirection);
+                var exploreModification = new Explore(this, _currentState, newFacingDirection, RouteIndex);
 
                 exploreModification.Modify();
 
@@ -153,7 +157,7 @@ namespace PathGeneration
             // Edge explored area
             if (isEdge) return false;
 
-            bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.IsCorner || tile.StateData.IsBorder;
+            bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.ConnectionType == TileConnectionType.Corner || tile.StateData.IsBorder;
 
             // Invalid tile
             if (isInvalidTile) return false;

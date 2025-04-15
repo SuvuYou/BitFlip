@@ -47,7 +47,7 @@ namespace PathGeneration
 
         private void ExpandCorners()
         {
-            foreach (var (pos, tile) in MapPath.Tiles.GetCornerTiles())
+            foreach (var pos in MapPath.Tiles.GetCornerTiles())
             {
                 if (_systemRandom.GetRandomFloat() > 0.5f)
                 {
@@ -60,7 +60,7 @@ namespace PathGeneration
 
         private void GenerateDungeonRooms()
         {
-            foreach (var (pos, tile) in MapPath.Tiles.GetCornerTiles())
+            foreach (var pos in MapPath.Tiles.GetCornerTiles())
             {
                 if (_systemRandom.GetRandomFloat() > 0.5f && NumberOfDungeonRooms < MaxNumberOfDungeonRooms)
                 {

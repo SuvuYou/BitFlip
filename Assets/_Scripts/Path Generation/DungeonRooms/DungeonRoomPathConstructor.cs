@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace PathGeneration
@@ -23,6 +24,39 @@ namespace PathGeneration
 
         public DungeonRoom ConstructPath(DungeonRoom dungeonRoom)
         {
+            int i = 0;
+
+            var cornerTiles = dungeonRoom.Tiles.GetCornerTiles();
+            var pathfinder = new Pathfinder(dungeonRoom.Tiles);
+            
+            while (i < 100)
+            {
+                i++;
+
+                if (!dungeonRoom.Tiles.TryGetRandomUnoccupiedPosition(_random, out Vector2Int randomUnoccupiedPosition)) continue;
+
+                var randomCornerTile = cornerTiles.ElementAt(_random.GetRandomInt(0, cornerTiles.Count)); 
+
+                if (!pathfinder.IsPathFindable(randomUnoccupiedPosition, randomCornerTile)) continue;
+
+                dungeonRoom.Tiles.TraversePathRoute(randomCornerTile);
+
+                var pathTiles = dungeonRoom.Tiles.GetSingleOccupiedPositionsByRoute(1);
+
+                Debug.Log(dungeonRoom.Tiles.CurrentLargestRouteIndex);
+
+                dungeonRoom.Tiles.IncreaseCurrentLargestRouteIndex();
+
+                var newPath1 = new Path(dungeonRoom.Tiles, randomCornerTile, randomUnoccupiedPosition, dungeonRoom.Tiles.CurrentLargestRouteIndex, _stemLength);
+                var newPath2 = new Path(dungeonRoom.Tiles, randomUnoccupiedPosition, pathTiles.ElementAt(0), dungeonRoom.Tiles.CurrentLargestRouteIndex, _stemLength);
+
+                newPath1.RandomWalk();
+                newPath2.RandomWalk();
+
+                // dungeonRoom.Tiles.MergeWithPath(newPath1);
+                // dungeonRoom.Tiles.MergeWithPath(newPath2);
+            }
+
             var expandCornerTileFunc = GetExpandCornerTileFunction(dungeonRoom);
 
             dungeonRoom.Tiles.LoopThroughTiles(expandCornerTileFunc, TilesMatrix.LoopType.WithoutEdges);
@@ -34,7 +68,7 @@ namespace PathGeneration
         {
             return (int x, int y, Tile tile) => 
             {
-                if (!tile.StateData.IsCorner) return;
+                if (tile.StateData.ConnectionType != TileConnectionType.Corner) return;
 
                 var pos = new Vector2Int(x, y);
 

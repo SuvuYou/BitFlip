@@ -1,27 +1,36 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace PathGeneration
 {
     public enum TileType { Wall, Path, DeadlyWall }
+    public enum TileConnectionType { Single, Corner, T_Junction, Intersection }
 
     public struct TileData 
     {
         public TileType Type;
 
+        public Direction PreviousFacingDirection;
         public Direction FacingDirection;
 
+        public int RouteIndices;
+        public TileConnectionType ConnectionType;
+
         public bool IsBorder;
-        public bool IsCorner;
         public bool IsIncludedInDungeonRoom;
         public bool IsValid;
 
-        public TileData(TileType type, Direction facingDirection, bool isBorder, bool isCorner, bool isIncludedInDungeonRoom)
+        public TileData(TileType type, Direction previousFacingDirection, int routeIndex, TileConnectionType connectionType, bool isBorder, bool isIncludedInDungeonRoom)
         {
             Type = type;
-            FacingDirection = facingDirection;
+            PreviousFacingDirection = previousFacingDirection;
+            FacingDirection = default;
+
+            RouteIndices = routeIndex;
+            ConnectionType = connectionType;
+
             IsBorder = isBorder;
-            IsCorner = isCorner;
             IsIncludedInDungeonRoom = isIncludedInDungeonRoom;
             IsValid = true;
         }
@@ -33,9 +42,9 @@ namespace PathGeneration
 
         private HashSet<Direction> _connections = new();
 
-        public Tile(TileType type, Direction facingDirection = Direction.Up)
+        public Tile(TileType type, Direction previousFacingDirection = Direction.Up, int routeIndex = 0)
         {
-            StateData = new TileData(type, facingDirection, false, false, false);
+            StateData = new TileData(type, previousFacingDirection, routeIndex, TileConnectionType.Single, false, false);
         }
 
         public void Invalidate() => StateData.IsValid = false;
@@ -43,16 +52,45 @@ namespace PathGeneration
         public void SetAsBorder() => StateData.IsBorder = true;
         public void SetAsDungeonRoomTile() => StateData.IsIncludedInDungeonRoom = true;
 
-        public void SwitchType(TileType newType, Direction facingDirection = Direction.Up)  
+        public void SwitchType(TileType newType, Direction previousFacingDirection = Direction.Up)  
         {
             if (StateData.Type == TileType.Path && newType == TileType.Wall)
             {
                 _connections.Clear();
-                CheckIsCorner();
+
+                SetupConnectionType();
             }
 
             StateData.Type = newType;
-            StateData.FacingDirection = facingDirection;
+            StateData.PreviousFacingDirection = previousFacingDirection;
+        }
+
+        #region Routes
+
+        public void AddRouteIndex(int routeBit) => StateData.RouteIndices |= routeBit;
+
+        public void SetRouteIndex(int routeBit) => StateData.RouteIndices = routeBit;
+
+        public bool HasRouteIndex(int bit) => (StateData.RouteIndices & bit) != 0;
+        
+        #endregion
+
+        #region Connections
+
+        public bool TryGetNextConnectedTilePosition(Vector2Int currentPosition, out Vector2Int nextPosition) 
+        {
+            nextPosition = new Vector2Int();
+
+            foreach (var direction in _connections)
+            {
+                if (direction == StateData.PreviousFacingDirection) continue;
+                
+                nextPosition = currentPosition + direction.ToVector();
+
+                return true;
+            }
+
+            return false;
         }
 
         public bool IsConnectedToDirection(Direction direction) => _connections.Contains(direction);
@@ -60,22 +98,41 @@ namespace PathGeneration
         public void AddConnection(Direction direction)
         {
             _connections.Add(direction);
-            CheckIsCorner();
+
+            SetupConnectionType();
         }
 
         public void RemoveConnection(Direction direction)
         {
             _connections.Remove(direction);
-            CheckIsCorner();
+
+            SetupConnectionType();
         }
 
-        private void CheckIsCorner()
+        private void SetupConnectionType()
         {
-            StateData.IsCorner = (_connections.Contains(Direction.Up) && _connections.Contains(Direction.Right)) ||
-                       (_connections.Contains(Direction.Right) && _connections.Contains(Direction.Down)) ||
-                       (_connections.Contains(Direction.Down) && _connections.Contains(Direction.Left)) ||
-                       (_connections.Contains(Direction.Left) && _connections.Contains(Direction.Up));
+            int cornersCount = 0;
+
+            foreach (var direction in DirectionExtentions.AllDirections)
+            {
+                if (_connections.Contains(direction) && _connections.Contains(direction.LocalRight()))
+                {
+                    cornersCount++;
+                }
+            }
+            
+            StateData.ConnectionType = cornersCount switch
+            {
+                0 => TileConnectionType.Single,
+                1 => TileConnectionType.Corner,
+                2 => TileConnectionType.T_Junction,
+                _ => TileConnectionType.Intersection
+            };
         }
+
+        #endregion
+
+        #region Cloning
 
         public void CloneStateData(Tile tile)
         {
@@ -93,5 +150,7 @@ namespace PathGeneration
 
             return clone;
         }
+
+        #endregion
     }
 }

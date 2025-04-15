@@ -38,16 +38,16 @@ namespace PathGeneration
         {
             Debug.Log(tile.StateData.Type == TileType.Path);
 
-            if (tile.StateData.Type == TileType.Path && tile.StateData.IsCorner)
+            if (tile.StateData.Type == TileType.Path && tile.StateData.ConnectionType == TileConnectionType.Corner)
             {
-                var directionVector = tile.StateData.FacingDirection.ToVector();
+                var directionVector = tile.StateData.PreviousFacingDirection.ToVector();
                 _wallTiles.Add(_dungeonRoom.Tiles.GetTileByPosition(x + directionVector.x, y + directionVector.y));
             }
         }
 
         private void OverrideToPathTiles(int x, int y, Tile tile)
         {
-            tile.SwitchType(TileType.Path, tile.StateData.FacingDirection);
+            tile.SwitchType(TileType.Path, tile.StateData.PreviousFacingDirection);
         }
     }
 }
