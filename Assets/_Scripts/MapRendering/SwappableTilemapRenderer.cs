@@ -34,7 +34,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
                 _tilemap.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
 
-                if (_map.MapPath.Tiles[tilePosition.x, tilePosition.y].StateData.IsIncludedInDungeonRoom)
+                if (_map.MapPath.Tiles.GetTileByPosition(x, y).StateData.IsIncludedInDungeonRoom)
                 {
                     _tilemap.SetColor(tilePosition, Color.red);
                 }
@@ -49,15 +49,15 @@ public class SwappableTilemapRenderer : MonoBehaviour
     { 
         _map = map;
 
-        _swappableTiles = new SwapSystem.SwappableRuleTile[map.MapPath.Width,  map.MapPath.Height];
+        _swappableTiles = new SwapSystem.SwappableRuleTile[map.MapPath.Tiles.Width,  map.MapPath.Tiles.Height];
 
-        for (int x = 0; x < map.MapPath.Width; x++)
+        for (int x = 0; x < map.MapPath.Tiles.Width; x++)
         {
-            for (int y = 0; y <  map.MapPath.Height; y++)
+            for (int y = 0; y <  map.MapPath.Tiles.Height; y++)
             {
                 Vector3Int tilePosition = new (x, y, 0);
 
-                switch (map.MapPath.Tiles[x, y].StateData.Type)
+                switch (map.MapPath.Tiles.GetTileByPosition(x, y).StateData.Type)
                 {
                     case PathGeneration.TileType.Path:
                         _swappableTiles[x, y] = Instantiate(_pathSwappableTilePrefab, tilePosition, Quaternion.identity);

@@ -8,23 +8,8 @@ namespace PathGeneration
 {
     public enum RelativeMove { Forward, Right, Left, Backtrack }
 
-    public class Path : ISnapshotable<Tile[,]>
+    public class Path
     {
-        public Tile[,] TakeSnapshot()
-        {
-            var clone = new Tile[Width, Height];
-
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    clone[i, j] = Tiles[i, j].Clone() as Tile;
-                }
-            }
-
-            return clone;
-        }
-
         private readonly Dictionary<RelativeMove, float> MOVE_WEIGHTS = new()
         {
             { RelativeMove.Forward, 0.8f },
@@ -32,16 +17,12 @@ namespace PathGeneration
             { RelativeMove.Left, 0.1f }
         };
 
-        public int Width { get; }
-        public int Height { get; }
-        public Vector2Int BorderSize { get; }
         public int StemLength { get; }
 
-        public readonly Tile[,] Tiles;
+        public readonly TilesMatrix Tiles;
 
         public readonly PseudoRandom.SystemRandomManager _systemRandom;
         public readonly Validator PathValidator = new();
-        public readonly SnapshotManager<Tile[,]> TilesSnapshotManager;
 
         private Stack<IPathModification> _modificationsHistory = new();
 
@@ -54,16 +35,10 @@ namespace PathGeneration
 
         public void SetCurrentState((Vector2Int position, Direction facingDirection) newState) => _currentState = newState;
 
-        public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
-        public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
-
         private bool _shouldLog = false;
 
         public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition, Vector2Int borderSize = default, int stemLength = 1, HashSet<Vector2Int> bannedTilePositions = null, bool shouldLog = false)
         {
-            Width = width;
-            Height = height;
-            BorderSize = borderSize;
             StemLength = stemLength;
 
             StartPosition = startPosition;
@@ -71,18 +46,13 @@ namespace PathGeneration
 
             _bannedTilePositions = bannedTilePositions ?? new HashSet<Vector2Int>();
 
-            TilesSnapshotManager = new (this);
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
 
-            Tiles = new Tile[width, height];
+            Tiles = new TilesMatrix(width, height, borderSize);
 
-            SetupTiles();
-
-            SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.Up); 
+            Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.Up); 
 
             _currentState = (StartPosition, Direction.Up);
-
-            TilesSnapshotManager.Snapshot();
 
             _shouldLog = shouldLog;
         }
@@ -95,7 +65,7 @@ namespace PathGeneration
             {
                 i++;
                 
-                TilesSnapshotManager.Snapshot();
+                Tiles.TilesSnapshotManager.Snapshot();
 
                 var validMoves = GetValidRelativeMoves(_currentState.position, _currentState.facingDirection);
 
@@ -170,8 +140,7 @@ namespace PathGeneration
 
         private bool IsValidMove(Vector2Int toPosition, Direction fromDirection)
         {
-
-            bool isOutOfBound = toPosition.x < 0 || toPosition.y < 0 || toPosition.x >= Width || toPosition.y >= Height;
+            bool isOutOfBound = Tiles.IsOutOfBounds(toPosition);
             
             // Out of bound
             if (isOutOfBound) return false;
@@ -181,25 +150,24 @@ namespace PathGeneration
             // Start position
             if (isStartPosition) return false;
 
+            var tile = Tiles.GetTileByPosition(toPosition);
 
-            bool isEdge = (toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path;
+            bool isEdge = Tiles.IsOnTheEdge(toPosition) && tile.StateData.Type == TileType.Path;
 
             // Edge explored area
             if (isEdge) return false;
-
 
             bool isBanned = _bannedTilePositions.Contains(toPosition);
 
             // Banned position
             if (isBanned) return false;
 
-
-            bool isInvalidTile = !Tiles[toPosition.x, toPosition.y].StateData.IsValid || Tiles[toPosition.x, toPosition.y].StateData.IsCorner || Tiles[toPosition.x, toPosition.y].StateData.IsBorder;
+            bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.IsCorner || tile.StateData.IsBorder;
 
             // Invalid tile
             if (isInvalidTile) return false;
 
-            bool isAlreadyExplored = Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path && Tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite());
+            bool isAlreadyExplored = tile.StateData.Type == TileType.Path && tile.IsConnectedToDirection(fromDirection.Opposite());
 
             // Already explored path
             if (isAlreadyExplored) return false;
@@ -244,115 +212,6 @@ namespace PathGeneration
             }
 
             return moves[^1];
-        }
-
-        public void Merge(Path other)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (other.GetTileByPosition(x, y).StateData.Type == TileType.Path)
-                    {
-                        SetTile(x, y, other.GetTileByPosition(x, y));
-                    }
-                }
-            }
-        }
-
-        public void OverrideDungeonRoom(DungeonRoom dungeonRoom)
-        {
-            (Vector2Int lowerBound, Vector2Int upperBound) = dungeonRoom.Bounds;
-
-            for (int x = lowerBound.x; x < upperBound.x; x++)
-            {
-                for (int y = lowerBound.y; y < upperBound.y; y++)
-                {
-                    SetTile(x, y, dungeonRoom.Tiles[x - lowerBound.x, y - lowerBound.y]);         
-                    Tiles[x,y].SetAsDungeonRoomTile();
-                }
-            }
-        }
-
-        public HashSet<Vector2Int> GetOccupiedPositions()
-        {
-            var positions = new HashSet<Vector2Int>();
-
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (Tiles[x, y].StateData.Type == TileType.Path)
-                        positions.Add(new Vector2Int(x, y));
-                }
-            }
-
-            return positions;
-        }
-
-        public IEnumerable<(Vector2Int, Tile)> GetCornerTiles()
-        {
-            for (int x = 1; x < Width - 1; x++)
-            {
-                for (int y = 1; y < Height - 1; y++)
-                {
-                    if (Tiles[x, y].StateData.IsCorner == true)
-                        yield return (new Vector2Int(x, y), Tiles[x, y]);
-                }
-            }
-        }
-
-        private void SetupTiles()
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    Tiles[x, y] = new Tile(TileType.Wall);
-
-                    if (x < BorderSize.x || y < BorderSize.y || x >= (Width - BorderSize.x) || y >= (Height - BorderSize.y))
-                    {
-                        Tiles[x, y].SetAsBorder();
-                    }
-                }
-            }
-        }
-
-        public void SetTile(int x, int y, TileType type, Direction facingDirection)
-        {
-            Tiles[x, y].SwitchType(type, facingDirection);
-
-            SetupAdjacentConnections(x, y);
-        }
-
-        public void SetTile(int x, int y, Tile tile)
-        {
-            Tiles[x, y].CloneStateData(tile);
-
-            SetupAdjacentConnections(x, y);
-        }
-
-        private void SetupAdjacentConnections(int x, int y)
-        {
-            foreach (var direction in DirectionExtentions.AllDirections)
-            {
-                int newX = x + direction.ToVector().x;
-                int newY = y + direction.ToVector().y;
-
-                if (newX < 0 || newY < 0 || newX >= Width || newY >= Height) continue;
-
-                if (Tiles[newX, newY].StateData.Type == TileType.Path)
-                {
-                    Tiles[x, y].AddConnection(direction);
-                    Tiles[newX, newY].AddConnection(direction.Opposite());
-                }
-
-                if (Tiles[newX, newY].StateData.Type == TileType.Wall)
-                {
-                    Tiles[x, y].RemoveConnection(direction);
-                    Tiles[newX, newY].RemoveConnection(direction.Opposite());
-                }
-            }
         }
     }
 }

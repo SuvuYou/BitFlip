@@ -21,7 +21,7 @@ namespace PathGeneration
         {
             var expandCornerTileFunc = GetExpandCornerTileFunction(dungeonRoom);
 
-            dungeonRoom.LoopThroughTiles(expandCornerTileFunc, DungeonRoom.LoopType.InnerRoom);
+            dungeonRoom.Tiles.LoopThroughTiles(expandCornerTileFunc, TilesMatrix.LoopType.WithoutEdges);
 
             return dungeonRoom;
         }
@@ -36,11 +36,11 @@ namespace PathGeneration
 
                 Debug.Log("sadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsgg");
 
-                var newPath = new Path(dungeonRoom.Width, dungeonRoom.Height, pos, pos, new Vector2Int(0, 0), 2, dungeonRoom.GetOccupiedPositions(), shouldLog: false);
+                var newPath = new Path(dungeonRoom.Tiles.Width, dungeonRoom.Tiles.Height, pos, pos, new Vector2Int(0, 0), 2, dungeonRoom.Tiles.GetOccupiedPositions(), shouldLog: false);
 
                 newPath.RandomWalk();
 
-                dungeonRoom.Merge(newPath);
+                dungeonRoom.Tiles.MergeWithPath(newPath);
             };
   
         }

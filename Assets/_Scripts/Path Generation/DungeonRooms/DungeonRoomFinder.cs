@@ -21,7 +21,7 @@ namespace PathGeneration
         {
             dungeonRoom = null;
             
-            if (path.GetTileByPosition(forceContainPosition.x, forceContainPosition.y).StateData.IsIncludedInDungeonRoom) return false;
+            if (path.Tiles.GetTileByPosition(forceContainPosition.x, forceContainPosition.y).StateData.IsIncludedInDungeonRoom) return false;
 
             List<(Vector2Int bottomLeft, Vector2Int topRight)> validCandidates = new();
 
@@ -45,13 +45,13 @@ namespace PathGeneration
                                     int posX = bottomLeft.x + i;
                                     int posY = bottomLeft.y + j;
 
-                                    if (posX < 0 || posY < 0 || posX >= path.Width || posY >= path.Height)
+                                    if (posX < 0 || posY < 0 || posX >= path.Tiles.Width || posY >= path.Tiles.Height)
                                     {
                                         candidateValid = false;
                                         break;
                                     }
 
-                                    if (path.GetTileByPosition(posX, posY).StateData.IsIncludedInDungeonRoom || path.GetTileByPosition(posX, posY).StateData.IsBorder)
+                                    if (path.Tiles.GetTileByPosition(posX, posY).StateData.IsIncludedInDungeonRoom || path.Tiles.GetTileByPosition(posX, posY).StateData.IsBorder)
                                     {
                                         candidateValid = false;
                                         break;
@@ -64,28 +64,28 @@ namespace PathGeneration
                             if (!candidateValid)
                                 continue;
 
-                            if (path.GetTileByPosition(bottomLeft.x, bottomLeft.y).StateData.Type == TileType.Path
-                                || path.GetTileByPosition(bottomLeft.x + width - 1, bottomLeft.y).StateData.Type == TileType.Path
-                                || path.GetTileByPosition(bottomLeft.x, bottomLeft.y + height - 1).StateData.Type == TileType.Path
-                                || path.GetTileByPosition(bottomLeft.x + width - 1, bottomLeft.y + height - 1).StateData.Type == TileType.Path)
+                            if (path.Tiles.GetTileByPosition(bottomLeft.x, bottomLeft.y).StateData.Type == TileType.Path
+                                || path.Tiles.GetTileByPosition(bottomLeft.x + width - 1, bottomLeft.y).StateData.Type == TileType.Path
+                                || path.Tiles.GetTileByPosition(bottomLeft.x, bottomLeft.y + height - 1).StateData.Type == TileType.Path
+                                || path.Tiles.GetTileByPosition(bottomLeft.x + width - 1, bottomLeft.y + height - 1).StateData.Type == TileType.Path)
                                 continue;
 
                             int edgePathCount = 0;
 
                             for (int i = 0; i < width; i++)
                             {
-                                if (path.GetTileByPosition(bottomLeft.x + i, bottomLeft.y).StateData.Type == TileType.Path)
+                                if (path.Tiles.GetTileByPosition(bottomLeft.x + i, bottomLeft.y).StateData.Type == TileType.Path)
                                     edgePathCount++;
 
-                                if (path.GetTileByPosition(bottomLeft.x + i, bottomLeft.y + height - 1).StateData.Type == TileType.Path)
+                                if (path.Tiles.GetTileByPosition(bottomLeft.x + i, bottomLeft.y + height - 1).StateData.Type == TileType.Path)
                                     edgePathCount++;
                             }
 
                             for (int j = 1; j < height - 1; j++)
                             {
-                                if (path.GetTileByPosition(bottomLeft.x, bottomLeft.y + j).StateData.Type == TileType.Path)
+                                if (path.Tiles.GetTileByPosition(bottomLeft.x, bottomLeft.y + j).StateData.Type == TileType.Path)
                                     edgePathCount++;
-                                if (path.GetTileByPosition(bottomLeft.x + width - 1, bottomLeft.y + j).StateData.Type == TileType.Path)
+                                if (path.Tiles.GetTileByPosition(bottomLeft.x + width - 1, bottomLeft.y + j).StateData.Type == TileType.Path)
                                     edgePathCount++;
                             }
 
@@ -104,24 +104,7 @@ namespace PathGeneration
 
                 dungeonRoom = new DungeonRoom(DungeonRoomType.DedlyWall, (candidate.bottomLeft, candidate.topRight));
 
-                int xCount = candidate.topRight.x - candidate.bottomLeft.x;
-                int yCount = candidate.topRight.y - candidate.bottomLeft.y;
-
-                Tile[,] tiles = new Tile[xCount, yCount];
-
-                for (int i = 0; i < xCount; i++)
-                {
-                    for (int j = 0; j < yCount; j++)
-                    {
-                        int posX = i + candidate.bottomLeft.x;
-                        int posY = j + candidate.bottomLeft.y;
-
-                        tiles[i, j] = path.GetTileByPosition(posX, posY).Clone() as Tile;
-                        tiles[i, j].SetAsDungeonRoomTile();
-                    }
-                }
-
-                dungeonRoom.SetTiles(tiles);
+                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(candidate));
 
                 return true;
             }

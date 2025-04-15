@@ -42,20 +42,20 @@ namespace PathGeneration
 
         private void ExpandCorners()
         {
-            foreach (var (pos, tile) in MapPath.GetCornerTiles())
+            foreach (var (pos, tile) in MapPath.Tiles.GetCornerTiles())
             {
                 if (_systemRandom.GetRandomFloat() > 0.5f)
                 {
-                    var newPath = new Path(MapPath.Width, MapPath.Height, pos, pos, MapPath.BorderSize, MapPath.StemLength, MapPath.GetOccupiedPositions());
+                    var newPath = new Path(MapPath.Tiles.Width, MapPath.Tiles.Height, pos, pos, MapPath.Tiles.BorderSize, MapPath.StemLength, MapPath.Tiles.GetOccupiedPositions());
                     newPath.RandomWalk();
-                    MapPath.Merge(newPath);
+                    MapPath.Tiles.MergeWithPath(newPath);
                 }
             }
         }
 
         private void GenerateDungeonRooms()
         {
-            foreach (var (pos, tile) in MapPath.GetCornerTiles())
+            foreach (var (pos, tile) in MapPath.Tiles.GetCornerTiles())
             {
                 if (_systemRandom.GetRandomFloat() > 0.5f && NumberOfDungeonRooms < MaxNumberOfDungeonRooms)
                 {
@@ -65,7 +65,7 @@ namespace PathGeneration
 
                     // dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
                     
-                    MapPath.OverrideDungeonRoom(dungeonRoom);
+                    MapPath.Tiles.MergeWithDungeonRoom(dungeonRoom);
 
                     NumberOfDungeonRooms++;
                 }

@@ -17,9 +17,9 @@ namespace PathGeneration
         {
             _dungeonRoom = dungeonRoom;
 
-            dungeonRoom.LoopThroughTiles(SetDeadlyBorder, DungeonRoom.LoopType.Borders);
-            dungeonRoom.LoopThroughTiles(CollectWallTiles, DungeonRoom.LoopType.InnerRoom);
-            dungeonRoom.LoopThroughTiles(OverrideToPathTiles, DungeonRoom.LoopType.InnerRoom);
+            dungeonRoom.Tiles.LoopThroughTiles(SetDeadlyBorder, TilesMatrix.LoopType.OnlyEdges);
+            dungeonRoom.Tiles.LoopThroughTiles(CollectWallTiles, TilesMatrix.LoopType.WithoutEdges);
+            dungeonRoom.Tiles.LoopThroughTiles(OverrideToPathTiles, TilesMatrix.LoopType.WithoutEdges);
 
             foreach (var wallTile in _wallTiles)
                 wallTile.SwitchType(TileType.Wall);
@@ -41,7 +41,7 @@ namespace PathGeneration
             if (tile.StateData.Type == TileType.Path && tile.StateData.IsCorner)
             {
                 var directionVector = tile.StateData.FacingDirection.ToVector();
-                _wallTiles.Add(_dungeonRoom.Tiles[x + directionVector.x, y + directionVector.y]);
+                _wallTiles.Add(_dungeonRoom.Tiles.GetTileByPosition(x + directionVector.x, y + directionVector.y));
             }
         }
 

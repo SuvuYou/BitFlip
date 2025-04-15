@@ -13,19 +13,19 @@ public class MapDebugRenderer : MonoBehaviour
     {
         _map = map;
         // TODO: remove snapshots
-        _map.MapPath.TilesSnapshotManager.Read();
+        _map.MapPath.Tiles.TilesSnapshotManager.Read();
     }
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            DrawAll(_map.MapPath.TilesSnapshotManager.Next());
+            DrawAll(_map.MapPath.Tiles.TilesSnapshotManager.Next());
         }
         
         if (Input.GetMouseButtonDown(1))
         {
-            DrawAll(_map.MapPath.TilesSnapshotManager.Prev());
+            DrawAll(_map.MapPath.Tiles.TilesSnapshotManager.Prev());
         }
     }
 
