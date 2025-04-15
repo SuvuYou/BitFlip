@@ -4,11 +4,12 @@ namespace PathGeneration
 {
     public class Map
     {
+        public readonly TilesMatrix MapTiles;
         public readonly Path MapPath;
         public readonly PseudoRandom.SystemRandomManager _systemRandom;
 
         private IDungeonRoomFinder _dungeonRoomFinder = new DungeonRoomFinder();
-        private IDungeonRoomPathConstructor _dungeonRoomPathConstructor = new DungeonRoomPathConstructor();
+        private IDungeonRoomPathConstructor _dungeonRoomPathConstructor;
         private IDungeonRoomTransformer _dungeonRoomTransformer = new DungeonRoomTransformer();
 
         public Vector2Int MaxRoomSize { get; private set; } 
@@ -21,7 +22,9 @@ namespace PathGeneration
             Vector2Int startPos = new (0 + gameDataSO.MapBorderSize.x, 0 + gameDataSO.MapBorderSize.y);
             Vector2Int endPos = new (gameDataSO.MapWidth - 1 - gameDataSO.MapBorderSize.x, gameDataSO.MapHeight - 1 - gameDataSO.MapBorderSize.y);
 
-            MapPath = new Path(gameDataSO.MapWidth, gameDataSO.MapHeight, startPos, endPos, gameDataSO.MapBorderSize, gameDataSO.MapStemLength);
+            MapTiles = new TilesMatrix(gameDataSO.MapWidth, gameDataSO.MapHeight, gameDataSO.MapBorderSize);
+
+            MapPath = new Path(MapTiles, startPos, endPos, gameDataSO.MapStemLength);
 
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
 
@@ -30,6 +33,8 @@ namespace PathGeneration
 
             MaxRoomSize = gameDataSO.MaxDungeonRoomSize;
             MinRoomSize = gameDataSO.MinDungeonRoomSize;
+
+            _dungeonRoomPathConstructor = new DungeonRoomPathConstructor(gameDataSO);
         }
 
         public void Generate()
@@ -46,7 +51,7 @@ namespace PathGeneration
             {
                 if (_systemRandom.GetRandomFloat() > 0.5f)
                 {
-                    var newPath = new Path(MapPath.Tiles.Width, MapPath.Tiles.Height, pos, pos, MapPath.Tiles.BorderSize, MapPath.StemLength, MapPath.Tiles.GetOccupiedPositions());
+                    var newPath = new Path(MapPath.Tiles, pos, pos, MapPath.StemLength);
                     newPath.RandomWalk();
                     MapPath.Tiles.MergeWithPath(newPath);
                 }

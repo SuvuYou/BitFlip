@@ -35,6 +35,9 @@ namespace PathGeneration
         public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
         public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
 
+        public void SetTileReference(Vector2Int position, Tile tile) => Tiles[position.x, position.y] = tile;
+        public void SetTileReference(int x, int y, Tile tile) => Tiles[x, y] = tile;
+
         public bool IsOutOfBounds(Vector2Int tilePosition) => tilePosition.x < 0 || tilePosition.y < 0 || tilePosition.x >= Width || tilePosition.y >= Height;
         public bool IsOnTheEdge(Vector2Int tilePosition) => tilePosition.x == BorderSize.x || tilePosition.y == BorderSize.y || tilePosition.x == Width - 1 - BorderSize.x || tilePosition.y == Height - 1 - BorderSize.y;
 
@@ -52,7 +55,7 @@ namespace PathGeneration
             SetupAdjacentConnections(x, y);
         }
 
-        public TilesMatrix(int width, int height, Vector2Int borderSize = default)
+        public TilesMatrix(int width, int height, Vector2Int borderSize = default, bool shouldSetupDefaultTiles = true)
         {
             Width = width;
             Height = height;
@@ -62,7 +65,8 @@ namespace PathGeneration
 
             Tiles = new Tile[width, height];
 
-            SetupTiles();
+            if (shouldSetupDefaultTiles)
+                SetupTiles();
 
             TilesSnapshotManager.Snapshot();
         }
@@ -118,7 +122,7 @@ namespace PathGeneration
             int width = topRight.x - bottomLeft.x;
             int height = topRight.y - bottomLeft.y;
 
-            var clonedRegion = new TilesMatrix(width, height, borderSize: Vector2Int.zero);
+            var clonedRegion = new TilesMatrix(width, height, borderSize: Vector2Int.zero, shouldSetupDefaultTiles: false);
 
             var SetRegionTileFunction = ConstructSetRegionTileFunction(bounds, clonedRegion);
 
@@ -240,7 +244,7 @@ namespace PathGeneration
                 int posX = x + bottomLeft.x;
                 int posY = y + bottomLeft.y;
 
-                clonedRegion.SetTile(x, y, GetTileByPosition(posX, posY));
+                clonedRegion.SetTileReference(x, y, GetTileByPosition(posX, posY));
             };
         }
 

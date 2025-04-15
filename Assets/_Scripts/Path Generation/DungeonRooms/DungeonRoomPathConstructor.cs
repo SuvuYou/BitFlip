@@ -12,9 +12,13 @@ namespace PathGeneration
     {
         private PseudoRandom.SystemRandomManager _random;
 
-        public DungeonRoomPathConstructor() 
+        private int _stemLength;
+
+        public DungeonRoomPathConstructor(GameDataSO gameDataSO) 
         {
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
+
+            _stemLength = gameDataSO.MapStemLength;
         }
 
         public DungeonRoom ConstructPath(DungeonRoom dungeonRoom)
@@ -34,9 +38,7 @@ namespace PathGeneration
 
                 var pos = new Vector2Int(x, y);
 
-                Debug.Log("sadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsggsadsdgsgg");
-
-                var newPath = new Path(dungeonRoom.Tiles.Width, dungeonRoom.Tiles.Height, pos, pos, new Vector2Int(0, 0), 2, dungeonRoom.Tiles.GetOccupiedPositions(), shouldLog: false);
+                var newPath = new Path(dungeonRoom.Tiles, pos, pos, _stemLength, shouldLog: false);
 
                 newPath.RandomWalk();
 

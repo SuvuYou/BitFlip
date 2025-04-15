@@ -28,8 +28,6 @@ namespace PathGeneration
 
         public Vector2Int StartPosition  { get; private set; }
         public Vector2Int EndPosition  { get; private set; }
-        
-        private HashSet<Vector2Int> _bannedTilePositions;
 
         private (Vector2Int position, Direction facingDirection) _currentState;
 
@@ -37,18 +35,16 @@ namespace PathGeneration
 
         private bool _shouldLog = false;
 
-        public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition, Vector2Int borderSize = default, int stemLength = 1, HashSet<Vector2Int> bannedTilePositions = null, bool shouldLog = false)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, int stemLength = 1, bool shouldLog = false)
         {
             StemLength = stemLength;
 
             StartPosition = startPosition;
             EndPosition = endPosition;
 
-            _bannedTilePositions = bannedTilePositions ?? new HashSet<Vector2Int>();
-
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
 
-            Tiles = new TilesMatrix(width, height, borderSize);
+            Tiles = tiles;
 
             Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.Up); 
 
@@ -156,11 +152,6 @@ namespace PathGeneration
 
             // Edge explored area
             if (isEdge) return false;
-
-            bool isBanned = _bannedTilePositions.Contains(toPosition);
-
-            // Banned position
-            if (isBanned) return false;
 
             bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.IsCorner || tile.StateData.IsBorder;
 
