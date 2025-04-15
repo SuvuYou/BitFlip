@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace PathGeneration
 {
@@ -35,6 +36,8 @@ namespace PathGeneration
 
         private void CollectWallTiles(int x, int y, Tile tile)
         {
+            Debug.Log(tile.StateData.Type == TileType.Path);
+
             if (tile.StateData.Type == TileType.Path && tile.StateData.IsCorner)
             {
                 var directionVector = tile.StateData.FacingDirection.ToVector();

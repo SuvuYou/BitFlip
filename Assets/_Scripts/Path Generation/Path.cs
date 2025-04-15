@@ -57,7 +57,9 @@ namespace PathGeneration
         public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
         public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
 
-        public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition, Vector2Int borderSize = default, int stemLength = 1, HashSet<Vector2Int> bannedTilePositions = null)
+        private bool _shouldLog = false;
+
+        public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition, Vector2Int borderSize = default, int stemLength = 1, HashSet<Vector2Int> bannedTilePositions = null, bool shouldLog = false)
         {
             Width = width;
             Height = height;
@@ -81,20 +83,31 @@ namespace PathGeneration
             _currentState = (StartPosition, Direction.Up);
 
             TilesSnapshotManager.Snapshot();
+
+            _shouldLog = shouldLog;
         }
 
         public void RandomWalk()
         {
-            while (_currentState.position != EndPosition)
+            int i = 0;
+
+            while (_currentState.position != EndPosition || i == 0)
             {
+                i++;
+                
                 TilesSnapshotManager.Snapshot();
 
                 var validMoves = GetValidRelativeMoves(_currentState.position, _currentState.facingDirection);
 
+                if (_shouldLog) Debug.Log(validMoves.Count);
+
                 if (validMoves.Count == 0)
                 {
                     if (_modificationsHistory.Count == 0)
-                        throw new Exception("Reached dead end with no way to backtrack");
+                    {
+                        break;
+                        // throw new Exception("Reached dead end with no way to backtrack");
+                    }
 
                     PathValidator.InvalidateLastPathRoot();
 
@@ -142,32 +155,61 @@ namespace PathGeneration
             {
                 tempPosition += direction.ToVector();
 
-                if (!IsValidMove(toPosition: tempPosition, direction))
+                bool isValidMove = IsValidMove(toPosition: tempPosition, direction);
+
+                if (_shouldLog)  Debug.Log("IsValidMove? " + tempPosition + " " + direction + " " + isValidMove);
+
+                if (!isValidMove)
                     return false;
             }
+
+            if (_shouldLog)  Debug.Log("IsValidMove?IsValidMove?IsValidMove?IsValidMove?IsValidMove?IsValidMove? ");
 
             return true;
         }
 
         private bool IsValidMove(Vector2Int toPosition, Direction fromDirection)
         {
+
+            bool isOutOfBound = toPosition.x < 0 || toPosition.y < 0 || toPosition.x >= Width || toPosition.y >= Height;
+            
             // Out of bound
-            if (toPosition.x < 0 || toPosition.y < 0 || toPosition.x >= Width || toPosition.y >= Height) return false;
+            if (isOutOfBound) return false;
+
+            bool isStartPosition = toPosition.x == StartPosition.x && toPosition.y == StartPosition.y;
 
             // Start position
-            if (toPosition.x == StartPosition.x && toPosition.y == StartPosition.y) return false;
+            if (isStartPosition) return false;
+
+
+            bool isEdge = (toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path;
 
             // Edge explored area
-            if ((toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path) return false;
+            if (isEdge) return false;
+
+
+            bool isBanned = _bannedTilePositions.Contains(toPosition);
 
             // Banned position
-            if (_bannedTilePositions.Contains(toPosition)) return false;
+            if (isBanned) return false;
+
+
+            bool isInvalidTile = !Tiles[toPosition.x, toPosition.y].StateData.IsValid || Tiles[toPosition.x, toPosition.y].StateData.IsCorner || Tiles[toPosition.x, toPosition.y].StateData.IsBorder;
 
             // Invalid tile
-            if (!Tiles[toPosition.x, toPosition.y].StateData.IsValid || Tiles[toPosition.x, toPosition.y].StateData.IsCorner || Tiles[toPosition.x, toPosition.y].StateData.IsBorder) return false;
+            if (isInvalidTile) return false;
+
+            bool isAlreadyExplored = Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path && Tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite());
 
             // Already explored path
-            if (Tiles[toPosition.x, toPosition.y].StateData.Type == TileType.Path && Tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite())) return false;
+            if (isAlreadyExplored) return false;
+
+            // Debug.Log("isOutOfBound: " + isOutOfBound);
+            // Debug.Log("isStartPosition: " + isStartPosition);
+            // Debug.Log("isEdge: " + isEdge); 
+            // Debug.Log("isBanned: " + isBanned);
+            // Debug.Log("isInvalidTile: " + isInvalidTile);
+            // Debug.Log("isAlreadyExplored: " + isAlreadyExplored);
 
             return true;
         }
@@ -210,7 +252,7 @@ namespace PathGeneration
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    if (other.GetTileByPosition(x, y).StateData.Type == TileType.Path && Tiles[x, y] == null)
+                    if (other.GetTileByPosition(x, y).StateData.Type == TileType.Path)
                     {
                         SetTile(x, y, other.GetTileByPosition(x, y));
                     }

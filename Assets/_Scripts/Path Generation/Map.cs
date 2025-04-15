@@ -63,7 +63,7 @@ namespace PathGeneration
 
                     dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
 
-                    dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
+                    // dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
                     
                     MapPath.OverrideDungeonRoom(dungeonRoom);
 
