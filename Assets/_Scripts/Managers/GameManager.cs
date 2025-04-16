@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1)]
@@ -10,19 +9,19 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private PlayerSpawnManager _playerSpawnManager;
 
-    private Coroutine _swapCoroutine;
+    [SerializeField] private SeedField _seedField;
 
     private void Awake()
     {
-        PseudoRandom.SystemRandomHolder.InitSystems();
-
         SwapSystem.SwappableEntitiesManager.Instance.InitContainers(_gameData);
     }
 
-    private IEnumerator Start()
+    public void Spawn()
     {
-        yield return null;
-        
+        int seed = PseudoRandom.SystemRandomHolder.InitSystems(_seedField.Seed);
+
+        _seedField.SetSeedText(seed);
+
         (Vector3Int startPosition, Vector3Int _) = _mapRenderer.Render();
 
         _playerSpawnManager.Spawn(startPosition);

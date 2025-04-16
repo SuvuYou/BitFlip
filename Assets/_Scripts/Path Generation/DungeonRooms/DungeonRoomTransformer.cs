@@ -22,7 +22,7 @@ namespace PathGeneration
             dungeonRoom.Tiles.LoopThroughTiles(OverrideToPathTiles, TilesMatrix.LoopType.WithoutEdges);
 
             foreach (var wallTile in _wallTiles)
-                wallTile.SwitchType(TileType.Wall);
+                wallTile.SwitchType(TileType.Wall, Direction.Up);
 
             return dungeonRoom;
         }
@@ -31,13 +31,11 @@ namespace PathGeneration
         {
             if (tile.StateData.Type == TileType.Path) return;
 
-            tile.SwitchType(TileType.DeadlyWall);
+            tile.SwitchType(TileType.DeadlyWall, Direction.Up);
         }
 
         private void CollectWallTiles(int x, int y, Tile tile)
         {
-            Debug.Log(tile.StateData.Type == TileType.Path);
-
             if (tile.StateData.Type == TileType.Path && tile.StateData.ConnectionType == TileConnectionType.Corner)
             {
                 var directionVector = tile.StateData.PreviousFacingDirection.ToVector();

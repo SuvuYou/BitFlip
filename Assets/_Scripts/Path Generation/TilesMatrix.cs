@@ -168,25 +168,33 @@ namespace PathGeneration
             var currentPosition = startPosition;
             var currentTile = Tiles[currentPosition.x, currentPosition.y];
 
-            while(currentTile.TryGetNextConnectedTilePosition(currentPosition, out Vector2Int nextPosition))
+            int i = 0;
+
+            Debug.Log("TraversePathRoute " + CurrentLargestRouteIndex);
+
+            while(currentTile.TryGetNextConnectedTilePosition(currentPosition, out Vector2Int nextPosition) && i < 1000000)
             {
+                if (i < 10)
+                    Debug.Log(currentPosition + " -> " + nextPosition);
+
+                i++;
+
                 if (IsOutOfBounds(nextPosition)) break;
 
                 currentTile = Tiles[nextPosition.x, nextPosition.y];
                 currentPosition = nextPosition;
 
-                Debug.Log("Traversing path route: " + CurrentLargestRouteIndex);
-
                 if (!currentTile.HasRouteIndex(CurrentLargestRouteIndex))
                 {
                     currentTile.SetRouteIndex(CurrentLargestRouteIndex);
                     
-
                     break;
                 }
 
                 currentTile.SetRouteIndex(CurrentLargestRouteIndex);
             }
+
+            
         }
 
         public TilesMatrix CopyTilesRegion((Vector2Int, Vector2Int) bounds)
@@ -212,7 +220,7 @@ namespace PathGeneration
 
         private void SetupDefaultTile(int x, int y, Tile tile)
         {
-            Tiles[x, y] = new Tile(TileType.Wall);
+            Tiles[x, y] = new Tile(TileType.Wall, Direction.Up);
 
             if (x < BorderSize.x || y < BorderSize.y || x >= (Width - BorderSize.x) || y >= (Height - BorderSize.y))
             {

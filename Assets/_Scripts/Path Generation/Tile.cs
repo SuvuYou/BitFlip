@@ -12,7 +12,6 @@ namespace PathGeneration
         public TileType Type;
 
         public Direction PreviousFacingDirection;
-        public Direction FacingDirection;
 
         public int RouteIndices;
         public TileConnectionType ConnectionType;
@@ -25,7 +24,6 @@ namespace PathGeneration
         {
             Type = type;
             PreviousFacingDirection = previousFacingDirection;
-            FacingDirection = default;
 
             RouteIndices = routeIndex;
             ConnectionType = connectionType;
@@ -42,7 +40,7 @@ namespace PathGeneration
 
         private HashSet<Direction> _connections = new();
 
-        public Tile(TileType type, Direction previousFacingDirection = Direction.Up, int routeIndex = 0)
+        public Tile(TileType type, Direction previousFacingDirection, int routeIndex = 0)
         {
             StateData = new TileData(type, previousFacingDirection, routeIndex, TileConnectionType.Single, false, false);
         }
@@ -52,7 +50,7 @@ namespace PathGeneration
         public void SetAsBorder() => StateData.IsBorder = true;
         public void SetAsDungeonRoomTile() => StateData.IsIncludedInDungeonRoom = true;
 
-        public void SwitchType(TileType newType, Direction previousFacingDirection = Direction.Up)  
+        public void SwitchType(TileType newType, Direction previousFacingDirection)  
         {
             if (StateData.Type == TileType.Path && newType == TileType.Wall)
             {
@@ -81,9 +79,14 @@ namespace PathGeneration
         {
             nextPosition = new Vector2Int();
 
+            Debug.Log(StateData.Type + " Type");
+            Debug.Log(StateData.PreviousFacingDirection + " PreviousFacingDirection");
+
             foreach (var direction in _connections)
             {
-                if (direction == StateData.PreviousFacingDirection) continue;
+                Debug.Log(direction);
+
+                if (direction == StateData.PreviousFacingDirection.Opposite()) continue;
                 
                 nextPosition = currentPosition + direction.ToVector();
 
@@ -141,7 +144,7 @@ namespace PathGeneration
 
         public object Clone()
         {
-            Tile clone = new (this.StateData.Type)
+            Tile clone = new (this.StateData.Type, this.StateData.PreviousFacingDirection, this.StateData.RouteIndices)
             {
                 StateData = this.StateData,
             };

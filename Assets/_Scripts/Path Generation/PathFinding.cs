@@ -45,8 +45,11 @@ namespace PathGeneration
                 { startPos, startNode }
             };
 
-            while (openList.Count > 0)
+            int i = 0;
+
+            while (openList.Count > 0 && i < 100000)
             {
+                i++;
                 var currentNode = openList.OrderBy(n => n.FCost).ThenBy(n => n.HCost).First();
                 openList.Remove(currentNode);
                 closedSet.Add(currentNode.Position);
@@ -84,6 +87,11 @@ namespace PathGeneration
                     }
                 }
             }
+
+            if (i > 1000)
+                Debug.Log("Pathfinding failed " + i);
+
+            
 
             return false;
         }

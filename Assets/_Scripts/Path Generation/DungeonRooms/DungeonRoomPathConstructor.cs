@@ -29,7 +29,7 @@ namespace PathGeneration
             var cornerTiles = dungeonRoom.Tiles.GetCornerTiles();
             var pathfinder = new Pathfinder(dungeonRoom.Tiles);
             
-            while (i < 100)
+            while (i < 10)
             {
                 i++;
 
@@ -43,7 +43,7 @@ namespace PathGeneration
 
                 var pathTiles = dungeonRoom.Tiles.GetSingleOccupiedPositionsByRoute(1);
 
-                Debug.Log(dungeonRoom.Tiles.CurrentLargestRouteIndex);
+                if (pathTiles.Count == 0) continue;
 
                 dungeonRoom.Tiles.IncreaseCurrentLargestRouteIndex();
 
@@ -53,13 +53,13 @@ namespace PathGeneration
                 newPath1.RandomWalk();
                 newPath2.RandomWalk();
 
-                // dungeonRoom.Tiles.MergeWithPath(newPath1);
-                // dungeonRoom.Tiles.MergeWithPath(newPath2);
+                dungeonRoom.Tiles.MergeWithPath(newPath1);
+                dungeonRoom.Tiles.MergeWithPath(newPath2);
             }
 
-            var expandCornerTileFunc = GetExpandCornerTileFunction(dungeonRoom);
+            // var expandCornerTileFunc = GetExpandCornerTileFunction(dungeonRoom);
 
-            dungeonRoom.Tiles.LoopThroughTiles(expandCornerTileFunc, TilesMatrix.LoopType.WithoutEdges);
+            // dungeonRoom.Tiles.LoopThroughTiles(expandCornerTileFunc, TilesMatrix.LoopType.WithoutEdges);
 
             return dungeonRoom;
         }
