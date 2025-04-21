@@ -26,6 +26,8 @@ namespace PathGeneration
             Tiles = tiles;
 
             Tiles.LoopThroughTiles(SetTileToDungeonRoomTile, TilesMatrix.LoopType.All);
+
+            Tiles.InvalidateBorders();
         }
 
         private void SetTileToDungeonRoomTile (int x, int y, Tile tile) => tile.SetAsDungeonRoomTile();

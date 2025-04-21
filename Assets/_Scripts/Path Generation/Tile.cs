@@ -40,7 +40,7 @@ namespace PathGeneration
 
         private HashSet<Direction> _connections = new();
 
-        public Tile(TileType type, Direction previousFacingDirection, int routeIndex = 0)
+        public Tile(TileType type, Direction previousFacingDirection, int routeIndex = 1)
         {
             StateData = new TileData(type, previousFacingDirection, routeIndex, TileConnectionType.Single, false, false);
         }
@@ -79,15 +79,13 @@ namespace PathGeneration
         {
             nextPosition = new Vector2Int();
 
-            Debug.Log(StateData.Type + " Type");
-            Debug.Log(StateData.PreviousFacingDirection + " PreviousFacingDirection");
+            // Debug.Log(StateData.Type + " Type");
+            // Debug.Log(StateData.PreviousFacingDirection + " PreviousFacingDirection");
 
             foreach (var direction in _connections)
             {
-                Debug.Log(direction);
-
                 if (direction == StateData.PreviousFacingDirection.Opposite()) continue;
-                
+
                 nextPosition = currentPosition + direction.ToVector();
 
                 return true;

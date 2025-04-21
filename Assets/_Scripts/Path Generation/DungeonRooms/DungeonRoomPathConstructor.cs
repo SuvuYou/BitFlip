@@ -28,33 +28,41 @@ namespace PathGeneration
 
             var cornerTiles = dungeonRoom.Tiles.GetCornerTiles();
             var pathfinder = new Pathfinder(dungeonRoom.Tiles);
+
+            var exampleCornerTile = cornerTiles.ElementAt(0);
             
-            while (i < 10)
+            // TODO:
+            // Set minimum distance for random unoccupied position
+            while (i < 1)
             {
                 i++;
 
-                if (!dungeonRoom.Tiles.TryGetRandomUnoccupiedPosition(_random, out Vector2Int randomUnoccupiedPosition)) continue;
+                if (!dungeonRoom.Tiles.TryGetRandomUnoccupiedPosition(_random, exampleCornerTile.x % 2 == 0, exampleCornerTile.y % 2 == 0, out Vector2Int randomUnoccupiedPosition)) continue;
 
-                var randomCornerTile = cornerTiles.ElementAt(_random.GetRandomInt(0, cornerTiles.Count)); 
+                var randomCornerTile = cornerTiles.ElementAt(_random.GetRandomInt(0, cornerTiles.Count));
 
-                if (!pathfinder.IsPathFindable(randomUnoccupiedPosition, randomCornerTile)) continue;
+                // if (!pathfinder.IsPathFindable(randomUnoccupiedPosition, randomCornerTile)) continue;
 
                 dungeonRoom.Tiles.TraversePathRoute(randomCornerTile);
 
                 var pathTiles = dungeonRoom.Tiles.GetSingleOccupiedPositionsByRoute(1);
 
+                pathTiles = pathTiles.Where(tilePosition => tilePosition.x % 2 == exampleCornerTile.x % 2 && tilePosition.y % 2 == exampleCornerTile.y % 2).ToHashSet();
+
                 if (pathTiles.Count == 0) continue;
 
                 dungeonRoom.Tiles.IncreaseCurrentLargestRouteIndex();
 
-                var newPath1 = new Path(dungeonRoom.Tiles, randomCornerTile, randomUnoccupiedPosition, dungeonRoom.Tiles.CurrentLargestRouteIndex, _stemLength);
-                var newPath2 = new Path(dungeonRoom.Tiles, randomUnoccupiedPosition, pathTiles.ElementAt(0), dungeonRoom.Tiles.CurrentLargestRouteIndex, _stemLength);
+                // var newPath1 = new Path(dungeonRoom.Tiles, randomCornerTile, randomUnoccupiedPosition, _stemLength, dungeonRoom.Tiles.CurrentLargestRouteIndex);
+                var newPath2 = new Path(dungeonRoom.Tiles, randomUnoccupiedPosition, pathTiles.ElementAt(0), _stemLength, dungeonRoom.Tiles.CurrentLargestRouteIndex);
 
-                newPath1.RandomWalk();
+                Debug.Log(i);
+                Debug.Log("randomCornerTile " + randomCornerTile);
+                Debug.Log("randomUnoccupiedPosition " + randomUnoccupiedPosition);
+                Debug.Log("randomNonCornerPosition " + pathTiles.ElementAt(0));
+
+                // newPath1.RandomWalk();
                 newPath2.RandomWalk();
-
-                dungeonRoom.Tiles.MergeWithPath(newPath1);
-                dungeonRoom.Tiles.MergeWithPath(newPath2);
             }
 
             // var expandCornerTileFunc = GetExpandCornerTileFunction(dungeonRoom);

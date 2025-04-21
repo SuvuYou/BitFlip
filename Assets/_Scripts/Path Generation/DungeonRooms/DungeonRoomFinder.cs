@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace PathGeneration
@@ -37,6 +38,7 @@ namespace PathGeneration
                             Vector2Int topRight = new (bottomLeft.x + width, bottomLeft.y + height);
 
                             bool candidateValid = true;
+                            int singlePathTileCount = 0;
 
                             for (int i = 0; i < width; i++)
                             {
@@ -56,12 +58,18 @@ namespace PathGeneration
                                         candidateValid = false;
                                         break;
                                     }
+
+                                    if (path.Tiles.GetTileByPosition(posX, posY).StateData.Type == TileType.Path && path.Tiles.GetTileByPosition(posX, posY).StateData.ConnectionType == TileConnectionType.Single)
+                                    {
+                                        singlePathTileCount++;
+                                    }
                                 }
+
                                 if (!candidateValid)
                                     break;
                             }
 
-                            if (!candidateValid)
+                            if (!candidateValid || singlePathTileCount <= 3)
                                 continue;
 
                             if (path.Tiles.GetTileByPosition(bottomLeft.x, bottomLeft.y).StateData.Type == TileType.Path
@@ -91,7 +99,7 @@ namespace PathGeneration
 
                             if (edgePathCount == 2)
                             {
-                                validCandidates.Add((bottomLeft, topRight));                                
+                                validCandidates.Add((bottomLeft, topRight));                      
                             }
                         }
                     }
@@ -104,7 +112,7 @@ namespace PathGeneration
 
                 dungeonRoom = new DungeonRoom(DungeonRoomType.DedlyWall, (candidate.bottomLeft, candidate.topRight));
 
-                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(candidate));
+                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(candidate, Vector2Int.one));
 
                 return true;
             }

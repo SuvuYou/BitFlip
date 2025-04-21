@@ -37,7 +37,7 @@ namespace PathGeneration
 
         private bool _shouldLog = false;
 
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, int stemLength = 2, int routeIndex = 0, bool shouldLog = false)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, int stemLength = 2, int routeIndex = 1, bool shouldLog = false)
         {
             StemLength = stemLength;
 
@@ -50,9 +50,14 @@ namespace PathGeneration
 
             Tiles = tiles;
 
-            Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.Up, Tiles.CurrentLargestRouteIndex); 
+            if (Tiles.GetTileByPosition(StartPosition).StateData.Type != TileType.Path)
+            {
+                Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.None); 
+            }
 
-            _currentState = (StartPosition, Direction.Up);
+            Tiles.SetTileRouteIndex(StartPosition.x, StartPosition.y, Tiles.CurrentLargestRouteIndex);
+
+            _currentState = (StartPosition, Direction.None);
 
             _shouldLog = shouldLog;
         }
@@ -181,7 +186,7 @@ namespace PathGeneration
         {
             return relativeDirection switch
             {
-                RelativeMove.Forward => facingDirection,
+                RelativeMove.Forward => facingDirection.LocalForward(),
                 RelativeMove.Right => facingDirection.LocalRight(),
                 RelativeMove.Left => facingDirection.LocalLeft(),
                 RelativeMove.Backtrack => facingDirection.Opposite(),

@@ -44,14 +44,19 @@ namespace PathGeneration
         public bool IsOutOfBounds(Vector2Int tilePosition) => tilePosition.x < 0 || tilePosition.y < 0 || tilePosition.x >= Width || tilePosition.y >= Height;
         public bool IsOnTheEdge(Vector2Int tilePosition) => tilePosition.x == BorderSize.x || tilePosition.y == BorderSize.y || tilePosition.x == Width - 1 - BorderSize.x || tilePosition.y == Height - 1 - BorderSize.y;
 
-        public void SetTile(int x, int y, TileType type, Direction facingDirection, int routeIndex = 0)
+        public void SetTileRouteIndex(int x, int y, int routeIndex) 
+        {
+            if (Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single || Tiles[x, y].StateData.ConnectionType == TileConnectionType.Corner) Tiles[x, y].SetRouteIndex(routeIndex);
+            else Tiles[x, y].AddRouteIndex(routeIndex);
+        }
+
+        public void SetTile(int x, int y, TileType type, Direction facingDirection, int routeIndex = 1)
         {
             Tiles[x, y].SwitchType(type, facingDirection);
 
             SetupAdjacentConnections(x, y);
 
-            if (Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single || Tiles[x, y].StateData.ConnectionType == TileConnectionType.Corner) Tiles[x, y].SetRouteIndex(routeIndex);
-            else Tiles[x, y].AddRouteIndex(routeIndex);
+            SetTileRouteIndex(x, y, routeIndex);
         }
 
         public void SetTile(int x, int y, Tile tile)
@@ -61,7 +66,7 @@ namespace PathGeneration
             SetupAdjacentConnections(x, y);
         }
 
-        public TilesMatrix(int width, int height, Vector2Int borderSize = default, int currentLargestRouteIndex = 0, bool shouldSetupDefaultTiles = true)
+        public TilesMatrix(int width, int height, Vector2Int borderSize = default, int currentLargestRouteIndex = 1, bool shouldSetupDefaultTiles = true)
         {
             Width = width;
             Height = height;
@@ -118,9 +123,9 @@ namespace PathGeneration
         {
             var positions = new HashSet<Vector2Int>();
 
-            var GetCornerTileFunction = ConstructGetSingleOccupiedPositionByRouteFunction(positions, routeIndex);
+            var GetSingleTileFunction = ConstructGetSingleOccupiedPositionByRouteFunction(positions, routeIndex);
 
-            LoopThroughTiles(GetCornerTileFunction, LoopType.All);
+            LoopThroughTiles(GetSingleTileFunction, LoopType.All);
 
             return positions;
         }
@@ -136,7 +141,9 @@ namespace PathGeneration
             return corners;
         }
 
-        public bool TryGetRandomUnoccupiedPosition(PseudoRandom.SystemRandomManager random, out Vector2Int position)
+        public void InvalidateBorders() => LoopThroughTiles((int x, int y, Tile tile) => tile.SetAsBorder(), LoopType.OnlyBorders);
+
+        public bool TryGetRandomUnoccupiedPosition(PseudoRandom.SystemRandomManager random, bool isXEven, bool isYEven, out Vector2Int position)
         {
             int i = 0;
 
@@ -144,8 +151,14 @@ namespace PathGeneration
             {
                 i++;
 
-                int x = random.GetRandomInt(0, Width);
-                int y = random.GetRandomInt(0, Height);
+                int x = random.GetRandomInt(1, Width - 1);
+                int y = random.GetRandomInt(1, Height - 1);
+
+                if (isXEven && x % 2 == 1) continue;
+                if (!isXEven && x % 2 == 0) continue;
+
+                if (isYEven && y % 2 == 1) continue;
+                if (!isYEven && y % 2 == 0) continue;
 
                 if (Tiles[x, y].StateData.Type != TileType.Path)
                 {
@@ -170,12 +183,12 @@ namespace PathGeneration
 
             int i = 0;
 
-            Debug.Log("TraversePathRoute " + CurrentLargestRouteIndex);
+            // Debug.Log("TraversePathRoute " + CurrentLargestRouteIndex);
 
             while(currentTile.TryGetNextConnectedTilePosition(currentPosition, out Vector2Int nextPosition) && i < 1000000)
             {
-                if (i < 10)
-                    Debug.Log(currentPosition + " -> " + nextPosition);
+                // if (i < 10)
+                //     Debug.Log(currentPosition + " -> " + nextPosition);
 
                 i++;
 
@@ -193,18 +206,16 @@ namespace PathGeneration
 
                 currentTile.SetRouteIndex(CurrentLargestRouteIndex);
             }
-
-            
         }
 
-        public TilesMatrix CopyTilesRegion((Vector2Int, Vector2Int) bounds)
+        public TilesMatrix CopyTilesRegion((Vector2Int, Vector2Int) bounds, Vector2Int borderSize = default)
         {
             var (bottomLeft, topRight) = bounds;
 
             int width = topRight.x - bottomLeft.x;
             int height = topRight.y - bottomLeft.y;
 
-            var clonedRegion = new TilesMatrix(width, height, borderSize: Vector2Int.zero, CurrentLargestRouteIndex, shouldSetupDefaultTiles: false);
+            var clonedRegion = new TilesMatrix(width, height, borderSize, CurrentLargestRouteIndex, shouldSetupDefaultTiles: false);
 
             var SetRegionTileFunction = ConstructSetRegionTileFunction(bounds, clonedRegion);
 
@@ -220,7 +231,7 @@ namespace PathGeneration
 
         private void SetupDefaultTile(int x, int y, Tile tile)
         {
-            Tiles[x, y] = new Tile(TileType.Wall, Direction.Up);
+            Tiles[x, y] = new Tile(TileType.Wall, Direction.None);
 
             if (x < BorderSize.x || y < BorderSize.y || x >= (Width - BorderSize.x) || y >= (Height - BorderSize.y))
             {
@@ -354,7 +365,7 @@ namespace PathGeneration
         { 
             return (int x, int y, Tile tile) => 
             {
-                if (Tiles[x, y].StateData.Type == TileType.Path && Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single && Tiles[x, y].HasRouteIndex(routeIndex))
+                if (Tiles[x, y].StateData.Type == TileType.Path && Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single && !Tiles[x, y].StateData.IsBorder && Tiles[x, y].HasRouteIndex(routeIndex))
                     occupiedPositions.Add(new Vector2Int(x, y));
             };
         }

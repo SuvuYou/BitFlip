@@ -88,11 +88,6 @@ namespace PathGeneration
                 }
             }
 
-            if (i > 1000)
-                Debug.Log("Pathfinding failed " + i);
-
-            
-
             return false;
         }
 
