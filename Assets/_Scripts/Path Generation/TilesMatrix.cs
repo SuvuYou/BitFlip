@@ -36,28 +36,28 @@ namespace PathGeneration
         public readonly Validator PathValidator = new();
         public readonly SnapshotManager<Tile[,]> TilesSnapshotManager;
 
-        public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
+        public Tile GetTileByPosition(Vector2Int position) { Debug.Log(position); return Tiles[position.x, position.y]; }
         public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
 
-
-        // TODO: refactor
         public void SetTileReference(Vector2Int position, Tile tile) => Tiles[position.x, position.y] = tile;
         public void SetTileReference(int x, int y, Tile tile) => Tiles[x, y] = tile;
 
-        public bool IsOutOfBounds(Vector2Int tilePosition) => tilePosition.x < 0 || tilePosition.y < 0 || tilePosition.x >= Width || tilePosition.y >= Height;
-        public bool IsOutOfBounds(int x, int y) => x < 0 || y < 0 || x >= Width || y >= Height;
+        // TODO: refactor
 
-        public bool IsOnTheBorder(Vector2Int tilePosition) => tilePosition.x == BorderSize.x - 1 || tilePosition.y == BorderSize.y - 1 || tilePosition.x == Width - BorderSize.x || tilePosition.y == Height - BorderSize.y;
-        public bool IsOnTheBorder(int x, int y) => x == BorderSize.x - 1 || y == BorderSize.y - 1 || x == Width - BorderSize.x || y == Height - BorderSize.y;
-        
-        public bool IsOnTheEdge(Vector2Int tilePosition) => tilePosition.x == BorderSize.x || tilePosition.y == BorderSize.y || tilePosition.x == Width - 1 - BorderSize.x || tilePosition.y == Height - 1 - BorderSize.y;
-        public bool IsOnTheEdge(int x, int y) => x == BorderSize.x || y == BorderSize.y || x == Width - 1 - BorderSize.x || y == Height - 1 - BorderSize.y;
+        Vector2Int MatrixLowerBounds, MatrixUpperBounds;
 
-        public bool IsWithinStemLengthOfBorder(Vector2Int tilePosition) => tilePosition.x == BorderSize.x - 1 + StemLength || tilePosition.y == BorderSize.y - 1 + StemLength || tilePosition.x == Width - BorderSize.x - StemLength || tilePosition.y == Height - BorderSize.y - StemLength;
-        public bool IsWithinStemLengthOfBorder(int x, int y) => x == BorderSize.x - 1 + StemLength || y == BorderSize.y - 1 + StemLength || x == Width - BorderSize.x - StemLength || y == Height - BorderSize.y - StemLength;
+        public bool IsOutOfBounds(Vector2Int tilePosition) => !BoundsHelper.IsWithinBounds(tilePosition, MatrixLowerBounds, MatrixUpperBounds);
+        public bool IsOutOfBounds(int x, int y) => !BoundsHelper.IsWithinBounds(x, y, MatrixLowerBounds, MatrixUpperBounds);
 
-        public bool IsOnBounds(Vector2Int tilePosition, Vector2Int lowerBounds, Vector2Int upperBounds) => tilePosition.x == lowerBounds.x || tilePosition.y == lowerBounds.y || tilePosition.x == upperBounds.x || tilePosition.y == upperBounds.y;
-        public bool IsOnBounds(int x, int y, int lowerBoundsX, int lowerBoundsY, int upperBoundsX, int upperBoundsY) => x == lowerBoundsX || y == lowerBoundsY || x == upperBoundsX || y == upperBoundsY;
+        Vector2Int PlacableAreaLowerBounds, PlacableAreaUpperBounds;
+
+        public bool IsWithinPlacableArea(Vector2Int tilePosition) => BoundsHelper.IsWithinBounds(tilePosition, PlacableAreaLowerBounds, PlacableAreaUpperBounds);
+        public bool IsWithinPlacableArea(int x, int y) => BoundsHelper.IsWithinBounds(x, y, PlacableAreaLowerBounds, PlacableAreaUpperBounds);
+
+        Vector2Int StemLengthBorderLowerBounds, StemLengthBorderUpperBounds;
+
+        public bool IsWithinStemLengthOfBorder(Vector2Int tilePosition) => BoundsHelper.IsWithinBounds(tilePosition, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds);
+        public bool IsWithinStemLengthOfBorder(int x, int y) => BoundsHelper.IsWithinBounds(x, y, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds);
 
         public void SetTileRouteIndex(int x, int y, int routeIndex) 
         {
@@ -88,6 +88,8 @@ namespace PathGeneration
             StemLength = stemLength;
             BorderSize = borderSize;
 
+            Debug.Log(Width + " " + Height);
+
             CurrentLargestRouteIndex = currentLargestRouteIndex;
 
             TilesSnapshotManager = new (this);
@@ -100,6 +102,15 @@ namespace PathGeneration
 
                 TilesSnapshotManager.Snapshot();
             }
+
+            MatrixLowerBounds = Vector2Int.zero;
+            MatrixUpperBounds = new (Width - 1, Height - 1);
+
+            PlacableAreaLowerBounds = new (BorderSize.x, BorderSize.y);
+            PlacableAreaUpperBounds = new (Width - 1 - BorderSize.x, Height - 1 - BorderSize.y);
+
+            StemLengthBorderLowerBounds = new (BorderSize.x + (StemLength - 1), BorderSize.y + (StemLength - 1));
+            StemLengthBorderUpperBounds = new (Width - 1 - BorderSize.x - (StemLength - 1), Height - 1 - BorderSize.y - (StemLength - 1));
         }
 
         public void MergeWithPath(Path other)

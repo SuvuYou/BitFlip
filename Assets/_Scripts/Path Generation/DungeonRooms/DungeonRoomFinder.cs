@@ -36,6 +36,9 @@ namespace PathGeneration
                         {
                             Vector2Int bottomLeft = new (forceContainPosition.x - offsetX, forceContainPosition.y - offsetY);
                             Vector2Int topRight = new (bottomLeft.x + width, bottomLeft.y + height);
+                            
+                            Vector2Int StemLengthBorderLowerBounds = new (bottomLeft.x + path.Tiles.BorderSize.x + (path.Tiles.StemLength - 1), bottomLeft.y + path.Tiles.BorderSize.y + (path.Tiles.StemLength - 1));
+                            Vector2Int StemLengthBorderUpperBounds = new (topRight.x + path.Tiles.Width - 1 - path.Tiles.BorderSize.x - (path.Tiles.StemLength - 1), topRight.y + path.Tiles.Height - 1 - path.Tiles.BorderSize.y - (path.Tiles.StemLength - 1));
 
                             bool candidateValid = true;
                             int singlePathTileCount = 0;
@@ -61,7 +64,7 @@ namespace PathGeneration
                                         break;
                                     }
 
-                                    if (tile.StateData.ConnectionType == TileConnectionType.Corner && path.Tiles.IsOnBounds(posX, posY, bottomLeft.x + path.Tiles.StemLength, bottomLeft.y + path.Tiles.StemLength, topRight.x -  path.Tiles.StemLength, topRight.y -  path.Tiles.StemLength))
+                                    if (tile.StateData.ConnectionType == TileConnectionType.Corner && BoundsHelper.IsWithinBounds(posX, posY, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds))
                                     {
                                         candidateValid = false;
                                         break;

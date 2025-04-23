@@ -87,7 +87,7 @@ namespace PathGeneration
 
                     if (neighbourPos == targetPos) return true;
 
-                    if (_grid.IsOutOfBounds(neighbourPos) || _grid.IsOnTheBorder(neighbourPos))
+                    if (!_grid.IsWithinPlacableArea(neighbourPos))
                         continue;
 
                     if (_closedSet.Contains(neighbourPos))

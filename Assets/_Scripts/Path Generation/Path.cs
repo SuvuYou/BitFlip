@@ -151,26 +151,26 @@ namespace PathGeneration
         {
             if (toPosition == EndPosition) return true;
 
-            bool isOutOfBound = Tiles.IsOutOfBounds(toPosition) || Tiles.IsOnTheBorder(toPosition);
+            bool isOutOfBound = !Tiles.IsWithinPlacableArea(toPosition);
+
             
-            // Out of bound
+
             if (isOutOfBound) return false;
+
+            Debug.Log("toPosition " + toPosition);
 
             bool isStartPosition = toPosition.x == StartPosition.x && toPosition.y == StartPosition.y;
 
-            // Start position
             if (isStartPosition) return false;
 
             var tile = Tiles.GetTileByPosition(toPosition);
 
-            bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.ConnectionType == TileConnectionType.Corner || tile.StateData.IsBorder;
+            bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.ConnectionType == TileConnectionType.Corner;
 
-            // Invalid tile
             if (isInvalidTile) return false;
 
             bool isAlreadyExplored = tile.StateData.Type == TileType.Path && tile.IsConnectedToDirection(fromDirection.Opposite());
 
-            // Already explored path
             if (isAlreadyExplored) return false;
 
             return true;
