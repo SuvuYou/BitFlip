@@ -87,15 +87,13 @@ namespace PathGeneration
 
                     if (neighbourPos == targetPos) return true;
 
-                    if (!_grid.IsWithinPlacableArea(neighbourPos))
-                        continue;
+                    if (!_grid.IsWithinPlacableArea(neighbourPos)) continue;
 
-                    if (_closedSet.Contains(neighbourPos))
-                        continue;
+                    if (_closedSet.Contains(neighbourPos)) continue;
 
                     var tile = _grid.GetTileByPosition(neighbourPos);
-                    if (tile.StateData.Type == TileType.Path)
-                        continue;
+                    
+                    if (tile.StateData.Type == TileType.Path) continue;
 
                     int tentativeG = currentNode.GCost + 1;
 

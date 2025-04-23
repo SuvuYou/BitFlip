@@ -14,6 +14,7 @@ namespace PathGeneration
 
         public Vector2Int MaxRoomSize { get; private set; } 
         public Vector2Int MinRoomSize { get; private set; }
+        public Vector2Int RoomBorderSize { get; private set; }
         public int MaxNumberOfDungeonRooms { get; private set; }
         public int NumberOfDungeonRooms { get; private set; }
 
@@ -33,6 +34,7 @@ namespace PathGeneration
 
             MaxRoomSize = gameDataSO.MaxDungeonRoomSize;
             MinRoomSize = gameDataSO.MinDungeonRoomSize;
+            RoomBorderSize = Vector2Int.one;
 
             _dungeonRoomPathConstructor = new DungeonRoomPathConstructor(gameDataSO);
         }
@@ -64,7 +66,7 @@ namespace PathGeneration
             {
                 if (_systemRandom.GetRandomFloat() > 0.5f && NumberOfDungeonRooms < MaxNumberOfDungeonRooms)
                 {
-                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, MinRoomSize, MaxRoomSize, out DungeonRoom dungeonRoom)) continue;
+                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, MinRoomSize, MaxRoomSize, RoomBorderSize, out DungeonRoom dungeonRoom)) continue;
 
                     dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
 

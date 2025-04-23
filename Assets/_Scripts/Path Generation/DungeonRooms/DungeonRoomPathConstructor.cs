@@ -9,7 +9,7 @@ namespace PathGeneration
 
     public class DungeonRoomPathConstructor : IDungeonRoomPathConstructor
     {
-        private const int MAX_PATH_ATTEMPTS = 10;
+        private const int MAX_PATH_ATTEMPTS = 6;
         private const float MIN_PATH_PERCENTAGE = 0.8f;
 
         private PseudoRandom.SystemRandomManager _random;
@@ -23,12 +23,11 @@ namespace PathGeneration
             _stemLength = gameDataSO.MapStemLength;
         }
 
-        // ADD 2layer small passeges
         public DungeonRoom ConstructPath(DungeonRoom dungeonRoom)
         {
             int pathCounter = 0;
 
-            while (dungeonRoom.Tiles.GetPathPercentage() < MIN_PATH_PERCENTAGE && pathCounter < 10)
+            while (dungeonRoom.Tiles.GetPathPercentage() < MIN_PATH_PERCENTAGE && pathCounter < MAX_PATH_ATTEMPTS)
             {
                 pathCounter++;
 

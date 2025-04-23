@@ -6,7 +6,7 @@ namespace PathGeneration
 {
     public interface IDungeonRoomFinder
     {
-        public bool TryFindDungeonRoom(Path path, Vector2Int forceContainPosition, Vector2Int minSize, Vector2Int maxSize, out DungeonRoom dungeonRoom);
+        public bool TryFindDungeonRoom(Path path, Vector2Int forceContainPosition, Vector2Int minSize, Vector2Int maxSize, Vector2Int roomBorderSize, out DungeonRoom dungeonRoom);
     }
 
     public class DungeonRoomFinder : IDungeonRoomFinder
@@ -18,7 +18,7 @@ namespace PathGeneration
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
         }
 
-        public bool TryFindDungeonRoom(Path path, Vector2Int forceContainPosition, Vector2Int minSize, Vector2Int maxSize, out DungeonRoom dungeonRoom)
+        public bool TryFindDungeonRoom(Path path, Vector2Int forceContainPosition, Vector2Int minSize, Vector2Int maxSize, Vector2Int roomBorderSize, out DungeonRoom dungeonRoom)
         {
             dungeonRoom = null;
             
@@ -37,8 +37,8 @@ namespace PathGeneration
                             Vector2Int bottomLeft = new (forceContainPosition.x - offsetX, forceContainPosition.y - offsetY);
                             Vector2Int topRight = new (bottomLeft.x + width, bottomLeft.y + height);
                             
-                            Vector2Int StemLengthBorderLowerBounds = new (bottomLeft.x + path.Tiles.BorderSize.x + (path.Tiles.StemLength - 1), bottomLeft.y + path.Tiles.BorderSize.y + (path.Tiles.StemLength - 1));
-                            Vector2Int StemLengthBorderUpperBounds = new (topRight.x + path.Tiles.Width - 1 - path.Tiles.BorderSize.x - (path.Tiles.StemLength - 1), topRight.y + path.Tiles.Height - 1 - path.Tiles.BorderSize.y - (path.Tiles.StemLength - 1));
+                            Vector2Int StemLengthBorderLowerBounds = new (bottomLeft.x + roomBorderSize.x + (path.Tiles.StemLength - 1), bottomLeft.y + roomBorderSize.y + (path.Tiles.StemLength - 1));
+                            Vector2Int StemLengthBorderUpperBounds = new (topRight.x + path.Tiles.Width - 1 - roomBorderSize.x - (path.Tiles.StemLength - 1), topRight.y + path.Tiles.Height - 1 - roomBorderSize.y - (path.Tiles.StemLength - 1));
 
                             bool candidateValid = true;
                             int singlePathTileCount = 0;
@@ -64,7 +64,7 @@ namespace PathGeneration
                                         break;
                                     }
 
-                                    if (tile.StateData.ConnectionType == TileConnectionType.Corner && BoundsHelper.IsWithinBounds(posX, posY, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds))
+                                    if (tile.StateData.ConnectionType == TileConnectionType.Corner && !BoundsHelper.IsWithinBounds(posX, posY, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds))
                                     {
                                         candidateValid = false;
                                         break;
@@ -110,7 +110,7 @@ namespace PathGeneration
 
                             if (edgePathCount == 2)
                             {
-                                validCandidates.Add((bottomLeft, topRight));                      
+                                validCandidates.Add((bottomLeft, topRight)); 
                             }
                         }
                     }
@@ -123,7 +123,7 @@ namespace PathGeneration
 
                 dungeonRoom = new DungeonRoom(DungeonRoomType.DedlyWall, (candidate.bottomLeft, candidate.topRight));
 
-                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(candidate, Vector2Int.one));
+                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(candidate, roomBorderSize));
 
                 return true;
             }

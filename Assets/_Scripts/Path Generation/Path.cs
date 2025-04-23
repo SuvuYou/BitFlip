@@ -35,9 +35,7 @@ namespace PathGeneration
 
         public void SetCurrentState((Vector2Int position, Direction facingDirection) newState) => _currentState = newState;
 
-        private bool _shouldLog = false;
-
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction initialFacingDirection = Direction.None, int stemLength = 2, int routeIndex = 1, bool shouldLog = false)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction initialFacingDirection = Direction.None, int stemLength = 2, int routeIndex = 1)
         {
             StemLength = stemLength;
 
@@ -58,8 +56,6 @@ namespace PathGeneration
             Tiles.SetTileRouteIndex(StartPosition.x, StartPosition.y, Tiles.CurrentLargestRouteIndex);
 
             _currentState = (StartPosition, initialFacingDirection);
-
-            _shouldLog = shouldLog;
         }
 
         public void RandomWalk()
@@ -73,8 +69,6 @@ namespace PathGeneration
                 Tiles.TilesSnapshotManager.Snapshot();
 
                 var validMoves = GetValidRelativeMoves(_currentState.position, _currentState.facingDirection);
-
-                if (_shouldLog) Debug.Log(validMoves.Count);
 
                 if (validMoves.Count == 0)
                 {
@@ -97,6 +91,11 @@ namespace PathGeneration
 
                 RelativeMove chosenMove = WeightedChoice(validMoves);
                 Direction newFacingDirection = ApplyRelativeTurnToDirection(_currentState.facingDirection, chosenMove);
+
+                if (i == 1 && _currentState.facingDirection != Direction.None && !CanMoveInDirection(_currentState.position, _currentState.facingDirection))
+                {
+                    break;
+                }
 
                 if (i == 1 && _currentState.facingDirection != Direction.None && CanMoveInDirection(_currentState.position, _currentState.facingDirection))
                 {
@@ -136,13 +135,9 @@ namespace PathGeneration
 
                 bool isValidMove = IsValidMove(toPosition: tempPosition, direction);
 
-                if (_shouldLog)  Debug.Log("IsValidMove? " + tempPosition + " " + direction + " " + isValidMove);
-
                 if (!isValidMove)
                     return false;
             }
-
-            if (_shouldLog)  Debug.Log("IsValidMove?IsValidMove?IsValidMove?IsValidMove?IsValidMove?IsValidMove? ");
 
             return true;
         }
@@ -153,11 +148,7 @@ namespace PathGeneration
 
             bool isOutOfBound = !Tiles.IsWithinPlacableArea(toPosition);
 
-            
-
             if (isOutOfBound) return false;
-
-            Debug.Log("toPosition " + toPosition);
 
             bool isStartPosition = toPosition.x == StartPosition.x && toPosition.y == StartPosition.y;
 

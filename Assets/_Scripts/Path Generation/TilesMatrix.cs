@@ -36,13 +36,11 @@ namespace PathGeneration
         public readonly Validator PathValidator = new();
         public readonly SnapshotManager<Tile[,]> TilesSnapshotManager;
 
-        public Tile GetTileByPosition(Vector2Int position) { Debug.Log(position); return Tiles[position.x, position.y]; }
+        public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
         public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
 
         public void SetTileReference(Vector2Int position, Tile tile) => Tiles[position.x, position.y] = tile;
         public void SetTileReference(int x, int y, Tile tile) => Tiles[x, y] = tile;
-
-        // TODO: refactor
 
         Vector2Int MatrixLowerBounds, MatrixUpperBounds;
 
@@ -87,8 +85,6 @@ namespace PathGeneration
             Height = height;
             StemLength = stemLength;
             BorderSize = borderSize;
-
-            Debug.Log(Width + " " + Height);
 
             CurrentLargestRouteIndex = currentLargestRouteIndex;
 
@@ -182,7 +178,7 @@ namespace PathGeneration
             var pathTiles = GetSingleOccupiedPositions();
             var pathfinder = new Pathfinder(this);
 
-            int limit = 100;
+            int limit = 10;
             int counter = 0;
 
             while (counter < limit)
@@ -192,9 +188,7 @@ namespace PathGeneration
                 var randomCornerTile = cornerTiles.ElementAt(random.GetRandomInt(0, cornerTiles.Count));
 
                 if (!GetTileByPosition(randomCornerTile).TryGetAvailableTurnConnections(out Direction direction)) continue;
-
-                if (IsWithinStemLengthOfBorder(randomCornerTile)) continue;
-
+                
                 lockedDirection = direction;
 
                 pathTiles = pathTiles.Where(tilePosition => tilePosition.x % 2 == randomCornerTile.x % 2 && tilePosition.y % 2 == randomCornerTile.y % 2).ToHashSet();
