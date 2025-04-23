@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Direction { Up, Right, Down, Left }
+public enum Direction { Up, Right, Down, Left, None }
 
 public static class DirectionExtentions
 {
@@ -14,7 +14,7 @@ public static class DirectionExtentions
             Direction.Down => Direction.Up,
             Direction.Left => Direction.Right,
             Direction.Right => Direction.Left,
-            _ => Direction.Up
+            _ => Direction.None
         };
 
     public static Direction LocalRight(this Direction direction) =>
@@ -24,7 +24,8 @@ public static class DirectionExtentions
             Direction.Right => Direction.Down,
             Direction.Down => Direction.Left,
             Direction.Left => Direction.Up,
-            _ => Direction.Up
+            Direction.None => Direction.Right,
+            _ => Direction.None
         };
 
     public static Direction LocalLeft(this Direction direction) =>
@@ -34,7 +35,19 @@ public static class DirectionExtentions
             Direction.Right => Direction.Up,
             Direction.Down => Direction.Right,
             Direction.Left => Direction.Down,
-            _ => Direction.Up
+            Direction.None => Direction.Left,
+            _ => Direction.None
+        };
+
+        public static Direction LocalForward(this Direction direction) =>
+        direction switch
+        {
+            Direction.Up => Direction.Up, 
+            Direction.Right => Direction.Right,
+            Direction.Down => Direction.Down,
+            Direction.Left => Direction.Left,
+            Direction.None => Direction.Up,
+            _ => Direction.None
         };
 
     public static Vector2Int ToVector(this Direction direction) =>
@@ -44,7 +57,8 @@ public static class DirectionExtentions
             Direction.Right => new Vector2Int(1, 0),
             Direction.Down => new Vector2Int(0, -1),
             Direction.Left => new Vector2Int(-1, 0),
-            _ => new Vector2Int(0, 1)
+            Direction.None => new Vector2Int(0, 0),
+            _ => new Vector2Int(0, 0)
         };
 }
 
@@ -89,6 +103,8 @@ public static class VectorExtentions
     }
 
     public static Vector3 ToVector3WithZ(this Vector2 vector, float z) => new (vector.x, vector.y, z);
+
+    public static Vector3Int ToVector3WithZ(this Vector2Int vector, int z) => new (vector.x, vector.y, z);
 } 
 
 public static class FloatExtentions

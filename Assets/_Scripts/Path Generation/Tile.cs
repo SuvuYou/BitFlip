@@ -1,68 +1,168 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace PathGeneration
 {
-    public enum TileType { Wall, Path }
+    public enum TileType { Wall, Path, DeadlyWall }
+    public enum TileConnectionType { Single, Corner, T_Junction, Intersection }
+
+    public struct TileData 
+    {
+        public TileType Type;
+
+        public Direction PreviousFacingDirection;
+
+        public int RouteIndices;
+        public TileConnectionType ConnectionType;
+
+        public bool IsBorder;
+        public bool IsIncludedInDungeonRoom;
+        public bool IsValid;
+
+        public TileData(TileType type, Direction previousFacingDirection, int routeIndex, TileConnectionType connectionType, bool isBorder, bool isIncludedInDungeonRoom)
+        {
+            Type = type;
+            PreviousFacingDirection = previousFacingDirection;
+
+            RouteIndices = routeIndex;
+            ConnectionType = connectionType;
+
+            IsBorder = isBorder;
+            IsIncludedInDungeonRoom = isIncludedInDungeonRoom;
+            IsValid = true;
+        }
+    }
 
     public class Tile : ICloneable
     {
-        public TileType Type { get; private set; }
-        public bool IsBorder { get; private set; }
-        public bool IsCorner { get; private set; }
-        public bool IsValid { get; private set; } = true;
+        public TileData StateData;
+
         private HashSet<Direction> _connections = new();
 
-        public Tile(TileType type) => Type = type;
+        public Tile(TileType type, Direction previousFacingDirection, int routeIndex = 1)
+        {
+            StateData = new TileData(type, previousFacingDirection, routeIndex, TileConnectionType.Single, false, false);
+        }
 
-        public void Invalidate() => IsValid = false;
-        public void Revalidate() => IsValid = true;
-        public void SetAsBorder() => IsBorder = true;
+        public void Invalidate() => StateData.IsValid = false;
+        public void Revalidate() => StateData.IsValid = true;
+        public void SetAsBorder() => StateData.IsBorder = true;
+        public void SetAsDungeonRoomTile() => StateData.IsIncludedInDungeonRoom = true;
+
+        public void SwitchType(TileType newType, Direction previousFacingDirection)  
+        {
+            if (StateData.Type == TileType.Path && newType == TileType.Wall)
+            {
+                _connections.Clear();
+
+                SetupConnectionType();
+            }
+
+            StateData.Type = newType;
+            StateData.PreviousFacingDirection = previousFacingDirection;
+        }
+
+        #region Routes
+
+        public void AddRouteIndex(int routeBit) => StateData.RouteIndices |= routeBit;
+
+        public void SetRouteIndex(int routeBit) => StateData.RouteIndices = routeBit;
+
+        public bool HasRouteIndex(int bit) => (StateData.RouteIndices & bit) != 0;
+        
+        #endregion
+
+        #region Connections
+
+        public bool TryGetNextConnectedTilePosition(Vector2Int currentPosition, out Vector2Int nextPosition) 
+        {
+            nextPosition = new Vector2Int();
+
+            foreach (var direction in _connections)
+            {
+                if (direction == StateData.PreviousFacingDirection.Opposite()) continue;
+
+                nextPosition = currentPosition + direction.ToVector();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetAvailableTurnConnections(out Direction direction) 
+        {
+            direction = Direction.None;
+
+            foreach (var dir in DirectionExtentions.AllDirections)
+            {
+                direction = dir;
+
+                if (!_connections.Contains(dir) && direction != StateData.PreviousFacingDirection) return true;
+            }
+
+            return false;
+        }
+
+        public bool IsConnectedToDirection(Direction direction) => _connections.Contains(direction);
 
         public void AddConnection(Direction direction)
         {
             _connections.Add(direction);
-            CheckIsCorner();
+
+            SetupConnectionType();
         }
 
         public void RemoveConnection(Direction direction)
         {
             _connections.Remove(direction);
-            CheckIsCorner();
+
+            SetupConnectionType();
         }
 
-        public void SwitchType(TileType newType) 
+        private void SetupConnectionType()
         {
-            if (Type == TileType.Path && newType == TileType.Wall)
+            int cornersCount = 0;
+
+            foreach (var direction in DirectionExtentions.AllDirections)
             {
-                _connections.Clear();
-                CheckIsCorner();
+                if (_connections.Contains(direction) && _connections.Contains(direction.LocalRight()))
+                {
+                    cornersCount++;
+                }
             }
-
-            Type = newType;
+            
+            StateData.ConnectionType = cornersCount switch
+            {
+                0 => TileConnectionType.Single,
+                1 => TileConnectionType.Corner,
+                2 => TileConnectionType.T_Junction,
+                _ => TileConnectionType.Intersection
+            };
         }
 
-        public bool IsConnectedToDirection(Direction direction) => _connections.Contains(direction);
+        #endregion
 
-        private void CheckIsCorner()
+        #region Cloning
+
+        public void CloneStateData(Tile tile)
         {
-            IsCorner = (_connections.Contains(Direction.Up) && _connections.Contains(Direction.Right)) ||
-                       (_connections.Contains(Direction.Right) && _connections.Contains(Direction.Down)) ||
-                       (_connections.Contains(Direction.Down) && _connections.Contains(Direction.Left)) ||
-                       (_connections.Contains(Direction.Left) && _connections.Contains(Direction.Up));
+            StateData = tile.StateData;
         }
 
         public object Clone()
         {
-            Tile clone = new Tile(this.Type)
+            Tile clone = new (this.StateData.Type, this.StateData.PreviousFacingDirection, this.StateData.RouteIndices)
             {
-                IsValid = this.IsValid,
-                IsCorner = this.IsCorner
+                StateData = this.StateData,
             };
 
             clone._connections = new HashSet<Direction>(this._connections);
 
             return clone;
         }
+
+        #endregion
     }
 }

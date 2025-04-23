@@ -6,6 +6,7 @@ namespace PseudoRandom
     public enum SystemRandomType
     {
         PathGeneration,
+        DungeonGeneration,
         Other
     }
 
@@ -13,14 +14,19 @@ namespace PseudoRandom
     {
         private static Dictionary<SystemRandomType, SystemRandomManager> _systemRandomLookup = new();
 
-        public static void InitSystems()
+        public static int InitSystems(int seed = -1)
         {
-            int seed = Guid.NewGuid().GetHashCode();
-
+            if (seed == -1)
+            {
+               seed = Guid.NewGuid().GetHashCode();
+            }
+            
             foreach (SystemRandomType system in Enum.GetValues(typeof(SystemRandomType)))
             {
                 _systemRandomLookup[system] = new SystemRandomManager(seed);
             }
+
+            return seed;
         }
 
         public static SystemRandomManager UseSystem(SystemRandomType system) => _systemRandomLookup[system];

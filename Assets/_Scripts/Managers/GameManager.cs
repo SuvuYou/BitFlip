@@ -7,13 +7,24 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private MapRenderer _mapRenderer;
 
-    private Coroutine _swapCoroutine;
+    [SerializeField] private PlayerSpawnManager _playerSpawnManager;
+
+    [SerializeField] private SeedField _seedField;
 
     private void Awake()
     {
-        PseudoRandom.SystemRandomHolder.InitSystems();
-
         SwapSystem.SwappableEntitiesManager.Instance.InitContainers(_gameData);
+    }
+
+    public void Spawn()
+    {
+        int seed = PseudoRandom.SystemRandomHolder.InitSystems(_seedField.Seed);
+
+        _seedField.SetSeedText(seed);
+
+        (Vector3Int startPosition, Vector3Int _) = _mapRenderer.Render();
+
+        _playerSpawnManager.Spawn(startPosition);
     }
 
     private void Update()

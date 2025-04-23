@@ -15,4 +15,7 @@ MonoBehaviour:
   MapWidth: 51
   MapHeight: 51
   MapStemLength: 2
+  MaxNumberOfDungeonRooms: 1
+  MinDungeonRoomSize: {x: 8, y: 8}
+  MaxDungeonRoomSize: {x: 8, y: 8}
   MapBorderSize: {x: 10, y: 4}

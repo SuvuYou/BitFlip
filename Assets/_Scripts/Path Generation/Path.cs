@@ -8,91 +8,75 @@ namespace PathGeneration
 {
     public enum RelativeMove { Forward, Right, Left, Backtrack }
 
-    public class Path : ISnapshotable<Tile[,]>
+    public class Path
     {
-        public Tile[,] TakeSnapshot()
-        {
-            var clone = new Tile[Width, Height];
-
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    clone[i, j] = Tiles[i, j].Clone() as Tile;
-                }
-            }
-
-            return clone;
-        }
-
         private readonly Dictionary<RelativeMove, float> MOVE_WEIGHTS = new()
         {
-            { RelativeMove.Forward, 0.7f },
-            { RelativeMove.Right, 0.15f },
-            { RelativeMove.Left, 0.15f }
+            { RelativeMove.Forward, 0.8f },
+            { RelativeMove.Right, 0.1f },
+            { RelativeMove.Left, 0.1f }
         };
 
-        public int Width { get; }
-        public int Height { get; }
-        public Vector2Int BorderSize { get; }
         public int StemLength { get; }
 
-        public readonly Tile[,] Tiles;
+        public readonly TilesMatrix Tiles;
+        
+        public int RouteIndex { get; private set; }
 
         public readonly PseudoRandom.SystemRandomManager _systemRandom;
         public readonly Validator PathValidator = new();
-        public readonly SnapshotManager<Tile[,]> TilesSnapshotManager;
 
         private Stack<IPathModification> _modificationsHistory = new();
 
-        private Vector2Int _startPosition, _endPosition;
-        private HashSet<Vector2Int> _bannedTilePositions;
+        public Vector2Int StartPosition  { get; private set; }
+        public Vector2Int EndPosition  { get; private set; }
 
         private (Vector2Int position, Direction facingDirection) _currentState;
 
         public void SetCurrentState((Vector2Int position, Direction facingDirection) newState) => _currentState = newState;
 
-        public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
-        public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
-
-        public Path(int width, int height, Vector2Int startPosition, Vector2Int endPosition, Vector2Int borderSize = default, int stemLength = 1, HashSet<Vector2Int> bannedTilePositions = null)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction initialFacingDirection = Direction.None, int stemLength = 2, int routeIndex = 1)
         {
-            Width = width;
-            Height = height;
-            BorderSize = borderSize;
             StemLength = stemLength;
 
-            _startPosition = startPosition;
-            _endPosition = endPosition;
+            StartPosition = startPosition;
+            EndPosition = endPosition;
 
-            _bannedTilePositions = bannedTilePositions ?? new HashSet<Vector2Int>();
+            RouteIndex = routeIndex;
 
-            TilesSnapshotManager = new (this);
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
 
-            Tiles = new Tile[width, height];
+            Tiles = tiles;
 
-            SetupTiles();
+            if (Tiles.GetTileByPosition(StartPosition).StateData.Type != TileType.Path)
+            {
+                Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, initialFacingDirection); 
+            }
 
-            SetTile(_startPosition.x, _startPosition.y, TileType.Path); 
+            Tiles.SetTileRouteIndex(StartPosition.x, StartPosition.y, Tiles.CurrentLargestRouteIndex);
 
-            _currentState = (_startPosition, Direction.Up);
-
-            TilesSnapshotManager.Snapshot();
+            _currentState = (StartPosition, initialFacingDirection);
         }
 
         public void RandomWalk()
         {
-            while (_currentState.position != _endPosition)
+            int i = 0;
+
+            while (_currentState.position != EndPosition || i == 0)
             {
-                TilesSnapshotManager.Snapshot();
+                i++;
+                
+                Tiles.TilesSnapshotManager.Snapshot();
 
                 var validMoves = GetValidRelativeMoves(_currentState.position, _currentState.facingDirection);
 
                 if (validMoves.Count == 0)
                 {
                     if (_modificationsHistory.Count == 0)
-                        throw new Exception("Reached dead end with no way to backtrack");
+                    {
+                        break;
+                        // throw new Exception("Reached dead end with no way to backtrack");
+                    }
 
                     PathValidator.InvalidateLastPathRoot();
 
@@ -106,10 +90,19 @@ namespace PathGeneration
                 PathValidator.ReleaseInvalidationStreak();
 
                 RelativeMove chosenMove = WeightedChoice(validMoves);
-
                 Direction newFacingDirection = ApplyRelativeTurnToDirection(_currentState.facingDirection, chosenMove);
 
-                var exploreModification = new Explore(this, _currentState, newFacingDirection);
+                if (i == 1 && _currentState.facingDirection != Direction.None && !CanMoveInDirection(_currentState.position, _currentState.facingDirection))
+                {
+                    break;
+                }
+
+                if (i == 1 && _currentState.facingDirection != Direction.None && CanMoveInDirection(_currentState.position, _currentState.facingDirection))
+                {
+                    newFacingDirection = _currentState.facingDirection;
+                }
+
+                var exploreModification = new Explore(this, _currentState, newFacingDirection, RouteIndex);
 
                 exploreModification.Modify();
 
@@ -140,7 +133,9 @@ namespace PathGeneration
             {
                 tempPosition += direction.ToVector();
 
-                if (!IsValidMove(toPosition: tempPosition, direction))
+                bool isValidMove = IsValidMove(toPosition: tempPosition, direction);
+
+                if (!isValidMove)
                     return false;
             }
 
@@ -149,23 +144,25 @@ namespace PathGeneration
 
         private bool IsValidMove(Vector2Int toPosition, Direction fromDirection)
         {
-            // Out of bound
-            if (toPosition.x < 0 || toPosition.y < 0 || toPosition.x >= Width || toPosition.y >= Height) return false;
+            if (toPosition == EndPosition) return true;
 
-            // Start position
-            if (toPosition.x == _startPosition.x && toPosition.y == _startPosition.y) return false;
+            bool isOutOfBound = !Tiles.IsWithinPlacableArea(toPosition);
 
-            // Edge explored area
-            if ((toPosition.x == BorderSize.x || toPosition.y == BorderSize.y || toPosition.x == Width - 1 - BorderSize.x || toPosition.y == Height - 1 - BorderSize.y) && Tiles[toPosition.x, toPosition.y].Type == TileType.Path) return false;
+            if (isOutOfBound) return false;
 
-            // Banned position
-            if (_bannedTilePositions.Contains(toPosition)) return false;
+            bool isStartPosition = toPosition.x == StartPosition.x && toPosition.y == StartPosition.y;
 
-            // Invalid tile
-            if (!Tiles[toPosition.x, toPosition.y].IsValid || Tiles[toPosition.x, toPosition.y].IsCorner || Tiles[toPosition.x, toPosition.y].IsBorder) return false;
+            if (isStartPosition) return false;
 
-            // Already explored path
-            if (Tiles[toPosition.x, toPosition.y].Type == TileType.Path && Tiles[toPosition.x, toPosition.y].IsConnectedToDirection(fromDirection.Opposite())) return false;
+            var tile = Tiles.GetTileByPosition(toPosition);
+
+            bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.ConnectionType == TileConnectionType.Corner;
+
+            if (isInvalidTile) return false;
+
+            bool isAlreadyExplored = tile.StateData.Type == TileType.Path && tile.IsConnectedToDirection(fromDirection.Opposite());
+
+            if (isAlreadyExplored) return false;
 
             return true;
         }
@@ -174,7 +171,7 @@ namespace PathGeneration
         {
             return relativeDirection switch
             {
-                RelativeMove.Forward => facingDirection,
+                RelativeMove.Forward => facingDirection.LocalForward(),
                 RelativeMove.Right => facingDirection.LocalRight(),
                 RelativeMove.Left => facingDirection.LocalLeft(),
                 RelativeMove.Backtrack => facingDirection.Opposite(),
@@ -200,94 +197,6 @@ namespace PathGeneration
             }
 
             return moves[^1];
-        }
-
-        public void Merge(Path other)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (other.GetTileByPosition(x, y).Type == TileType.Path && Tiles[x, y] == null)
-                    {
-                        SetTile(x, y, TileType.Path);
-                    }
-                }
-            }
-        }
-
-        public HashSet<Vector2Int> GetOccupiedPositions()
-        {
-            var positions = new HashSet<Vector2Int>();
-
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (Tiles[x, y].Type == TileType.Path)
-                        positions.Add(new Vector2Int(x, y));
-                }
-            }
-
-            return positions;
-        }
-
-        public IEnumerable<(Vector2Int, Tile)> GetCornerTiles()
-        {
-            for (int x = 1; x < Width - 1; x++)
-            {
-                for (int y = 1; y < Height - 1; y++)
-                {
-                    if (Tiles[x, y].IsCorner == true)
-                        yield return (new Vector2Int(x, y), Tiles[x, y]);
-                }
-            }
-        }
-
-        private void SetupTiles()
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    Tiles[x, y] = new Tile(TileType.Wall);
-
-                    if (x < BorderSize.x || y < BorderSize.y || x >= (Width - BorderSize.x) || y >= (Height - BorderSize.y))
-                    {
-                        Tiles[x, y].SetAsBorder();
-                    }
-                }
-            }
-        }
-
-        public void SetTile(int x, int y, TileType type)
-        {
-            Tiles[x, y].SwitchType(type);
-
-            SetupAdjacentConnections(x, y);
-        }
-
-        private void SetupAdjacentConnections(int x, int y)
-        {
-            foreach (var direction in DirectionExtentions.AllDirections)
-            {
-                int newX = x + direction.ToVector().x;
-                int newY = y + direction.ToVector().y;
-
-                if (newX < 0 || newY < 0 || newX >= Width || newY >= Height) continue;
-
-                if (Tiles[newX, newY].Type == TileType.Path)
-                {
-                    Tiles[x, y].AddConnection(direction);
-                    Tiles[newX, newY].AddConnection(direction.Opposite());
-                }
-
-                if (Tiles[newX, newY].Type == TileType.Wall)
-                {
-                    Tiles[x, y].RemoveConnection(direction);
-                    Tiles[newX, newY].RemoveConnection(direction.Opposite());
-                }
-            }
         }
     }
 }
