@@ -53,13 +53,21 @@ namespace PathGeneration
                                         break;
                                     }
 
-                                    if (path.Tiles.GetTileByPosition(posX, posY).StateData.IsIncludedInDungeonRoom || path.Tiles.GetTileByPosition(posX, posY).StateData.IsBorder)
+                                    var tile = path.Tiles.GetTileByPosition(posX, posY);
+
+                                    if (tile.StateData.IsIncludedInDungeonRoom || tile.StateData.IsBorder)
                                     {
                                         candidateValid = false;
                                         break;
                                     }
 
-                                    if (path.Tiles.GetTileByPosition(posX, posY).StateData.Type == TileType.Path && path.Tiles.GetTileByPosition(posX, posY).StateData.ConnectionType == TileConnectionType.Single)
+                                    if (tile.StateData.ConnectionType == TileConnectionType.Corner && path.Tiles.IsOnBounds(posX, posY, bottomLeft.x + path.Tiles.StemLength, bottomLeft.y + path.Tiles.StemLength, topRight.x -  path.Tiles.StemLength, topRight.y -  path.Tiles.StemLength))
+                                    {
+                                        candidateValid = false;
+                                        break;
+                                    }
+
+                                    if (tile.StateData.Type == TileType.Path && tile.StateData.ConnectionType == TileConnectionType.Single)
                                     {
                                         singlePathTileCount++;
                                     }

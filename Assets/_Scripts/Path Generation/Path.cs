@@ -37,7 +37,7 @@ namespace PathGeneration
 
         private bool _shouldLog = false;
 
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, int stemLength = 2, int routeIndex = 1, bool shouldLog = false)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction initialFacingDirection = Direction.None, int stemLength = 2, int routeIndex = 1, bool shouldLog = false)
         {
             StemLength = stemLength;
 
@@ -52,12 +52,12 @@ namespace PathGeneration
 
             if (Tiles.GetTileByPosition(StartPosition).StateData.Type != TileType.Path)
             {
-                Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, Direction.None); 
+                Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, initialFacingDirection); 
             }
 
             Tiles.SetTileRouteIndex(StartPosition.x, StartPosition.y, Tiles.CurrentLargestRouteIndex);
 
-            _currentState = (StartPosition, Direction.None);
+            _currentState = (StartPosition, initialFacingDirection);
 
             _shouldLog = shouldLog;
         }
@@ -96,8 +96,12 @@ namespace PathGeneration
                 PathValidator.ReleaseInvalidationStreak();
 
                 RelativeMove chosenMove = WeightedChoice(validMoves);
-
                 Direction newFacingDirection = ApplyRelativeTurnToDirection(_currentState.facingDirection, chosenMove);
+
+                if (i == 1 && _currentState.facingDirection != Direction.None && CanMoveInDirection(_currentState.position, _currentState.facingDirection))
+                {
+                    newFacingDirection = _currentState.facingDirection;
+                }
 
                 var exploreModification = new Explore(this, _currentState, newFacingDirection, RouteIndex);
 
@@ -145,7 +149,9 @@ namespace PathGeneration
 
         private bool IsValidMove(Vector2Int toPosition, Direction fromDirection)
         {
-            bool isOutOfBound = Tiles.IsOutOfBounds(toPosition);
+            if (toPosition == EndPosition) return true;
+
+            bool isOutOfBound = Tiles.IsOutOfBounds(toPosition) || Tiles.IsOnTheBorder(toPosition);
             
             // Out of bound
             if (isOutOfBound) return false;
@@ -157,11 +163,6 @@ namespace PathGeneration
 
             var tile = Tiles.GetTileByPosition(toPosition);
 
-            bool isEdge = Tiles.IsOnTheEdge(toPosition) && tile.StateData.Type == TileType.Path;
-
-            // Edge explored area
-            if (isEdge) return false;
-
             bool isInvalidTile = !tile.StateData.IsValid || tile.StateData.ConnectionType == TileConnectionType.Corner || tile.StateData.IsBorder;
 
             // Invalid tile
@@ -171,13 +172,6 @@ namespace PathGeneration
 
             // Already explored path
             if (isAlreadyExplored) return false;
-
-            // Debug.Log("isOutOfBound: " + isOutOfBound);
-            // Debug.Log("isStartPosition: " + isStartPosition);
-            // Debug.Log("isEdge: " + isEdge); 
-            // Debug.Log("isBanned: " + isBanned);
-            // Debug.Log("isInvalidTile: " + isInvalidTile);
-            // Debug.Log("isAlreadyExplored: " + isAlreadyExplored);
 
             return true;
         }

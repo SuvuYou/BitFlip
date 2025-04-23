@@ -22,9 +22,9 @@ namespace PathGeneration
             Vector2Int startPos = new (0 + gameDataSO.MapBorderSize.x, 0 + gameDataSO.MapBorderSize.y);
             Vector2Int endPos = new (gameDataSO.MapWidth - 1 - gameDataSO.MapBorderSize.x, gameDataSO.MapHeight - 1 - gameDataSO.MapBorderSize.y);
 
-            MapTiles = new TilesMatrix(gameDataSO.MapWidth, gameDataSO.MapHeight, gameDataSO.MapBorderSize);
+            MapTiles = new TilesMatrix(gameDataSO.MapWidth, gameDataSO.MapHeight, gameDataSO.MapStemLength, gameDataSO.MapBorderSize);
 
-            MapPath = new Path(MapTiles, startPos, endPos, gameDataSO.MapStemLength);
+            MapPath = new Path(MapTiles, startPos, endPos, Direction.None, gameDataSO.MapStemLength);
 
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
 
@@ -51,7 +51,7 @@ namespace PathGeneration
             {
                 if (_systemRandom.GetRandomFloat() > 0.5f)
                 {
-                    var newPath = new Path(MapPath.Tiles, pos, pos, MapPath.StemLength);
+                    var newPath = new Path(MapPath.Tiles, pos, pos, Direction.None, MapPath.StemLength);
                     newPath.RandomWalk();
                     MapPath.Tiles.MergeWithPath(newPath);
                 }

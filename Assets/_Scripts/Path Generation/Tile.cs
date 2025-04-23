@@ -79,9 +79,6 @@ namespace PathGeneration
         {
             nextPosition = new Vector2Int();
 
-            // Debug.Log(StateData.Type + " Type");
-            // Debug.Log(StateData.PreviousFacingDirection + " PreviousFacingDirection");
-
             foreach (var direction in _connections)
             {
                 if (direction == StateData.PreviousFacingDirection.Opposite()) continue;
@@ -89,6 +86,20 @@ namespace PathGeneration
                 nextPosition = currentPosition + direction.ToVector();
 
                 return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetAvailableTurnConnections(out Direction direction) 
+        {
+            direction = Direction.None;
+
+            foreach (var dir in DirectionExtentions.AllDirections)
+            {
+                direction = dir;
+
+                if (!_connections.Contains(dir) && direction != StateData.PreviousFacingDirection) return true;
             }
 
             return false;
