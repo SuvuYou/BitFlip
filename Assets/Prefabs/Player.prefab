@@ -144,6 +144,7 @@ GameObject:
   - component: {fileID: 4622945436161903338}
   - component: {fileID: 238743959841657671}
   - component: {fileID: 7123441124917299394}
+  - component: {fileID: 2449109696952374392}
   m_Layer: 0
   m_Name: Ws_Hand
   m_TagString: Untagged
@@ -252,6 +253,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 238743959841657671}
+--- !u!114 &2449109696952374392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7180061145022892543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3977a09abf4c48a48bdd602b0690765e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spriteRenderer: {fileID: 4622945436161903338}
 --- !u!1 &8894759876975678095
 GameObject:
   m_ObjectHideFlags: 0

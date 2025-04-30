@@ -4,17 +4,22 @@ using System;
 
 public class PlayerContextData : IContextData
 {
+    public Action<Direction> OnDirectionChanged;
+
     private Direction _currentDirection;
     public Direction CurrentDirection => _currentDirection;
+
+    private bool _isFacingRight;
+    public bool IsFacingRight => _isFacingRight;
 
     public void SetDirection(Direction direction) 
     {
         _currentDirection = direction;
+
+        _isFacingRight = direction == Direction.Right;
     
         OnDirectionChanged?.Invoke(direction);
     }
-
-    public Action<Direction> OnDirectionChanged;
 }
 
 public class PlayerContextProvider : ContextProvider<PlayerContextData>
