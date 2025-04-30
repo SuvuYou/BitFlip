@@ -1,8 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 {
+    public PlayerContextData Context { get; private set; }
+
+    public void Inject(PlayerContextData context) => Context = context;
+
     private Dictionary<Direction, Vector2> _directionsLookup = new()
     {
         { Direction.Up, Vector2.up },
@@ -27,7 +31,6 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector2 _currentVelocity = Vector2.zero;
     private Direction _nextDirection = Direction.Up;
-    private Direction _currentDirection;
 
     private void Start()
     {
@@ -60,7 +63,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_isIdle) return Vector2.zero;
 
-        return _directionsLookup[_currentDirection];
+        return _directionsLookup[Context.CurrentDirection];
     }
 
     private void GetInput()
@@ -85,7 +88,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void TryChangeDirection(Direction direction)
     {
-        if (_currentDirection == direction && !_isIdle) return;
+        if (Context.CurrentDirection == direction && !_isIdle) return;
 
         _nextDirection = direction;
 
@@ -108,7 +111,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (!_isIdle) return;
 
-        _currentDirection = _nextDirection;
+        Context.SetDirection(_nextDirection);
         _currentVelocity = Vector2.zero;
         SnapToGrid();
 
@@ -118,7 +121,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void CollisionCheck() 
     { 
-        if (IsFacingWall(_directionsLookup[_currentDirection]))
+        if (IsFacingWall(_directionsLookup[Context.CurrentDirection]))
         {
             _isIdle = true;
 
@@ -142,6 +145,6 @@ public class PlayerMovement : MonoBehaviour
     private void OnDrawGizmos() 
     { 
         Gizmos.color = Color.red; 
-        Gizmos.DrawSphere(_colliderTransform.position + _directionsLookup[_currentDirection].ToVector3WithZ(z: 0) * (_raycastDistance - 0.25f), 0.1f);
+        Gizmos.DrawSphere(_colliderTransform.position + _directionsLookup[Context.CurrentDirection].ToVector3WithZ(z: 0) * (_raycastDistance - 0.25f), 0.1f);
     }
 }

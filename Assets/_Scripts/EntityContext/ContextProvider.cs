@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class ContextProvider<TContext> : MonoBehaviour where TContext : IContextData
 {
-    [SerializeField] private TContext _contextData;
+    [SerializeField] protected TContext _contextData;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         var consumers = GetComponentsInChildren<IConsumer<TContext>>();
 
