@@ -27,8 +27,6 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private Timer _cayoteTimer;
 
-    private bool _isIdle = true;
-
     private Vector2 _currentVelocity = Vector2.zero;
     private Direction _nextDirection = Direction.Up;
 
@@ -61,7 +59,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private Vector2 GetMovementDirection()
     {
-        if (_isIdle) return Vector2.zero;
+        if (Context.IsIdle) return Vector2.zero;
 
         return _directionsLookup[Context.CurrentDirection];
     }
@@ -88,7 +86,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private void TryChangeDirection(Direction direction)
     {
-        if (Context.CurrentDirection == direction && !_isIdle) return;
+        if (Context.CurrentDirection == direction && !Context.IsIdle) return;
 
         _nextDirection = direction;
 
@@ -109,13 +107,13 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
             return;
         }
 
-        if (!_isIdle) return;
+        if (!Context.IsIdle) return;
 
         Context.SetDirection(_nextDirection);
         _currentVelocity = Vector2.zero;
         SnapToGrid();
 
-        _isIdle = false;
+        Context.SetIdle(false);
         _cayoteTimer.Stop();
     }
 
@@ -123,10 +121,10 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
     { 
         if (IsFacingWall(_directionsLookup[Context.CurrentDirection]))
         {
-            _isIdle = true;
+            Context.SetIdle(true);
 
             _currentVelocity = Vector2.zero;
-            SnapToGrid();
+            // SnapToGrid();
         }
     }
 
@@ -145,6 +143,6 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
     private void OnDrawGizmos() 
     { 
         Gizmos.color = Color.red; 
-        Gizmos.DrawSphere(_colliderTransform.position + _directionsLookup[Context.CurrentDirection].ToVector3WithZ(z: 0) * (_raycastDistance - 0.25f), 0.1f);
+        Gizmos.DrawSphere(_colliderTransform.position + _directionsLookup[Context.CurrentDirection].ToVector3WithZ(z: 0) * _raycastDistance, 0.1f);
     }
 }

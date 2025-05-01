@@ -9,25 +9,40 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
         Context = context;
 
         context.OnDirectionChanged += SwitchMoventAnimation;
+        context.OnIdleChanged += SwitchIdleAnimation;
     }
 
-    private static readonly int IDLE = Animator.StringToHash("Idle");
-    private static readonly int DASH_RIGHT = Animator.StringToHash("Fly Side Right");
-    private static readonly int DASH_LEFT = Animator.StringToHash("Fly Side Right");
-    private static readonly int DASH_UP = Animator.StringToHash("Fly Up");
-    private static readonly int DASH_DOWN = Animator.StringToHash("Fly Down");
-
-    public void Idle() => _switchAnimationState(IDLE);
-    public void DashRight() => _switchAnimationState(DASH_RIGHT);
+    private static readonly int IDLE_RIGHT = Animator.StringToHash("Idle_Right");
+    private static readonly int IDLE_UP  = Animator.StringToHash("Idle_Up");
+    private static readonly int IDLE_DOWN = Animator.StringToHash("Idle_Down");
+    private static readonly int DASH_RIGHT = Animator.StringToHash("Fly_Right");
+    private static readonly int DASH_UP = Animator.StringToHash("Fly_Up");
+    private static readonly int DASH_DOWN = Animator.StringToHash("Fly_Down");
 
     private void SwitchMoventAnimation(Direction newDirection) => _switchAnimationState(
         newDirection switch 
         { 
             Direction.Up => DASH_UP, 
             Direction.Down => DASH_DOWN, 
-            Direction.Left => DASH_LEFT, 
+            Direction.Left => DASH_RIGHT, 
             Direction.Right => DASH_RIGHT,
-            _ => IDLE
+            _ => DASH_UP
         }
     );
+
+     private void SwitchIdleAnimation(bool isIdle) 
+     {
+        if(!isIdle) return;
+
+        _switchAnimationState(
+            Context.CurrentDirection switch 
+            { 
+                Direction.Up => IDLE_UP, 
+                Direction.Down => IDLE_DOWN, 
+                Direction.Left => IDLE_RIGHT, 
+                Direction.Right => IDLE_RIGHT,
+                _ => DASH_UP
+            }
+        );
+     }
 }
