@@ -18,7 +18,19 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
     private void Start()
     {
-        SwapSystem.SwappableEntitiesManager.Instance.OnSwapAtYLevelComplete += (int yLevel) => RenderTilemap(); 
+        SwapSystem.SwappableEntitiesManager.Instance.OnSwapAtYLevelComplete += (int yLevel) => RenderTilemapYLevel(yLevel); 
+    }
+
+    public void RenderTilemapYLevel(int yLevel)
+    {
+        Vector3Int tilePosition = new (0, yLevel, 0);
+
+        for (int x = 0; x < _swappableTiles.GetLength(0); x++)
+        {
+            tilePosition.x = x;
+
+            RenderTile(tilePosition);
+        }
     }
 
     public void RenderTilemap()
@@ -29,22 +41,30 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
         for (int x = 0; x < _swappableTiles.GetLength(0); x++)
         {
+            tilePosition.x = x;
+
             for (int y = 0; y < _swappableTiles.GetLength(1); y++)
             {
-                tilePosition.x = x;
                 tilePosition.y = y;
 
-                _tilemap.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
-
-                if (_map.MapPath.Tiles.GetTileByPosition(x, y).StateData.IsIncludedInDungeonRoom)
-                {
-                    _tilemap.SetColor(tilePosition, Color.red);
-                }
-
-                if (_swappableTiles[x, y].IsCollidable)
-                    _tilemapCollider.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
+                RenderTile(tilePosition);
             }
         }
+    }
+
+    private void RenderTile(Vector3Int tilePosition)
+    {
+        _tilemap.SetTile(tilePosition, _swappableTiles[tilePosition.x, tilePosition.y].GetActiveVariant());
+
+        if (_map.MapPath.Tiles.GetTileByPosition(tilePosition.x, tilePosition.y).StateData.IsIncludedInDungeonRoom)
+        {
+            _tilemap.SetColor(tilePosition, Color.red);
+        }
+
+        if (_swappableTiles[tilePosition.x, tilePosition.y].IsCollidable)
+        {
+            _tilemapCollider.SetTile(tilePosition, _swappableTiles[tilePosition.x, tilePosition.y].GetActiveVariant());
+        } 
     }
 
     public void ConstructSwappableTiles(PathGeneration.Map map)

@@ -9,7 +9,7 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
         Context = context;
 
         context.OnDirectionChanged += SwitchMoventAnimation;
-        context.OnIdleChanged += SwitchIdleAnimation;
+        context.OnHitWall += SwitchIdleAnimation;
     }
 
     private static readonly int IDLE_RIGHT = Animator.StringToHash("Idle_Right");
@@ -30,12 +30,10 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
         }
     );
 
-     private void SwitchIdleAnimation(bool isIdle) 
+     private void SwitchIdleAnimation(Direction fromDirection) 
      {
-        if(!isIdle) return;
-
         _switchAnimationState(
-            Context.CurrentDirection switch 
+            fromDirection switch 
             { 
                 Direction.Up => IDLE_UP, 
                 Direction.Down => IDLE_DOWN, 

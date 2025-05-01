@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
@@ -6,14 +5,6 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
     public PlayerContextData Context { get; private set; }
 
     public void Inject(PlayerContextData context) => Context = context;
-
-    private Dictionary<Direction, Vector2> _directionsLookup = new()
-    {
-        { Direction.Up, Vector2.up },
-        { Direction.Down, Vector2.down },
-        { Direction.Left, Vector2.left },
-        { Direction.Right, Vector2.right }
-    };
 
     [SerializeField] private Transform _playerTransform;
     [SerializeField] private Transform _colliderTransform;
@@ -27,6 +18,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private Timer _cayoteTimer;
 
+    private bool _isIdle = true;
     private Vector2 _currentVelocity = Vector2.zero;
     private Direction _nextDirection = Direction.Up;
 
@@ -38,8 +30,8 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
     private void Update()
     {
         GetInput();
-        CollisionCheck();
         UpdateDirection();
+        CollisionCheck();
 
         ApplyVelocity();
         Move();
@@ -59,9 +51,9 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private Vector2 GetMovementDirection()
     {
-        if (Context.IsIdle) return Vector2.zero;
+        if (_isIdle) return Vector2.zero;
 
-        return _directionsLookup[Context.CurrentDirection];
+        return Context.CurrentDirection.ToVector();
     }
 
     private void GetInput()
@@ -86,7 +78,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private void TryChangeDirection(Direction direction)
     {
-        if (Context.CurrentDirection == direction && !Context.IsIdle) return;
+        if (Context.CurrentDirection == direction && !_isIdle) return;
 
         _nextDirection = direction;
 
@@ -107,24 +99,27 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
             return;
         }
 
-        if (!Context.IsIdle) return;
+        if (!_isIdle || _nextDirection == Context.CurrentDirection) return;
 
         Context.SetDirection(_nextDirection);
-        _currentVelocity = Vector2.zero;
-        SnapToGrid();
+        _isIdle = false;
 
-        Context.SetIdle(false);
+        _currentVelocity = Vector2.zero;
+
+        SnapToGrid();
+        
         _cayoteTimer.Stop();
     }
 
     private void CollisionCheck() 
     { 
-        if (IsFacingWall(_directionsLookup[Context.CurrentDirection]))
+        if (IsFacingWall(Context.CurrentDirection.ToVector().ToVector3WithZ(z: 0)))
         {
-            Context.SetIdle(true);
+            _isIdle = true;
+            Context.HitWall(Context.CurrentDirection);
 
             _currentVelocity = Vector2.zero;
-            // SnapToGrid();
+            SnapToGrid();
         }
     }
 
@@ -137,12 +132,14 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
     {
         RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction, _raycastDistance, _layerMask);
 
+        Context.SetWallRaycastHit(hit);
+
         return hit.collider != null;
     }
 
     private void OnDrawGizmos() 
     { 
         Gizmos.color = Color.red; 
-        Gizmos.DrawSphere(_colliderTransform.position + _directionsLookup[Context.CurrentDirection].ToVector3WithZ(z: 0) * _raycastDistance, 0.1f);
+        Gizmos.DrawSphere(_colliderTransform.position + Context.CurrentDirection.ToVector().ToVector3WithZ(z: 0f) * _raycastDistance, 0.1f);
     }
 }

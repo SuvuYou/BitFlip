@@ -1,17 +1,18 @@
 
 
 using System;
+using UnityEngine;
 
 public class PlayerContextData : IContextData
 {
     public Action<Direction> OnDirectionChanged;
-    public Action<bool> OnIdleChanged;
+    public Action<Direction> OnHitWall;
 
     private Direction _currentDirection;
     public Direction CurrentDirection => _currentDirection;
 
-    private bool _isIdle = true;
-    public bool IsIdle => _isIdle;
+    private RaycastHit2D _wallRaycastHit;
+    public RaycastHit2D WallRaycastHit => _wallRaycastHit;
 
     private bool _isFacingRight;
     public bool IsFacingRight => _isFacingRight;
@@ -25,17 +26,14 @@ public class PlayerContextData : IContextData
         OnDirectionChanged?.Invoke(direction);
     }
 
-    public void SetIdle(bool newIdle)
+    public void HitWall(Direction fromDirection)
     {
-        _isIdle = newIdle;
+        _isFacingRight = fromDirection == Direction.Left;
 
-        if(_isIdle)
-        {
-            _isFacingRight = CurrentDirection == Direction.Left;
-        }
-
-        OnIdleChanged?.Invoke(newIdle);
+        OnHitWall?.Invoke(fromDirection);
     }
+
+    public void SetWallRaycastHit(RaycastHit2D raycastHit) => _wallRaycastHit = raycastHit;
 }
 
 public class PlayerContextProvider : ContextProvider<PlayerContextData>
