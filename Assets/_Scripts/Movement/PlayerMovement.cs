@@ -1,15 +1,10 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 {
-    private Dictionary<Direction, Vector2> _directionsLookup = new()
-    {
-        { Direction.Up, Vector2.up },
-        { Direction.Down, Vector2.down },
-        { Direction.Left, Vector2.left },
-        { Direction.Right, Vector2.right }
-    };
+    public PlayerContextData Context { get; private set; }
+
+    public void Inject(PlayerContextData context) => Context = context;
 
     [SerializeField] private Transform _playerTransform;
     [SerializeField] private Transform _colliderTransform;
@@ -24,10 +19,8 @@ public class PlayerMovement : MonoBehaviour
     private Timer _cayoteTimer;
 
     private bool _isIdle = true;
-
     private Vector2 _currentVelocity = Vector2.zero;
     private Direction _nextDirection = Direction.Up;
-    private Direction _currentDirection;
 
     private void Start()
     {
@@ -37,8 +30,8 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         GetInput();
-        CollisionCheck();
         UpdateDirection();
+        CollisionCheck();
 
         ApplyVelocity();
         Move();
@@ -60,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_isIdle) return Vector2.zero;
 
-        return _directionsLookup[_currentDirection];
+        return Context.CurrentDirection.ToVector();
     }
 
     private void GetInput()
@@ -85,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void TryChangeDirection(Direction direction)
     {
-        if (_currentDirection == direction && !_isIdle) return;
+        if (Context.CurrentDirection == direction && !_isIdle) return;
 
         _nextDirection = direction;
 
@@ -106,21 +99,24 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        if (!_isIdle) return;
+        if (!_isIdle || _nextDirection == Context.CurrentDirection) return;
 
-        _currentDirection = _nextDirection;
-        _currentVelocity = Vector2.zero;
-        SnapToGrid();
-
+        Context.SetDirection(_nextDirection);
         _isIdle = false;
+
+        _currentVelocity = Vector2.zero;
+
+        SnapToGrid();
+        
         _cayoteTimer.Stop();
     }
 
     private void CollisionCheck() 
     { 
-        if (IsFacingWall(_directionsLookup[_currentDirection]))
+        if (IsFacingWall(Context.CurrentDirection.ToVector().ToVector3WithZ(z: 0)))
         {
             _isIdle = true;
+            Context.HitWall(Context.CurrentDirection);
 
             _currentVelocity = Vector2.zero;
             SnapToGrid();
@@ -136,12 +132,14 @@ public class PlayerMovement : MonoBehaviour
     {
         RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction, _raycastDistance, _layerMask);
 
+        Context.SetWallRaycastHit(hit);
+
         return hit.collider != null;
     }
 
     private void OnDrawGizmos() 
     { 
         Gizmos.color = Color.red; 
-        Gizmos.DrawSphere(_colliderTransform.position + _directionsLookup[_currentDirection].ToVector3WithZ(z: 0) * (_raycastDistance - 0.25f), 0.1f);
+        Gizmos.DrawSphere(_colliderTransform.position + Context.CurrentDirection.ToVector().ToVector3WithZ(z: 0f) * _raycastDistance, 0.1f);
     }
 }
