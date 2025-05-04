@@ -12,7 +12,12 @@ public class EnemyContextData : IContextData
 
     public void SetVariantsLookup(Dictionary<SwapSystem.SwapVariant, SwappableEnemyStats> variantsLookup) => VariantsLookup = variantsLookup;
 
-    public void SetCurrentVariant(SwapSystem.SwapVariant currentVariant) => CurrentVariant = currentVariant;
+    public void SetCurrentVariant(SwapSystem.SwapVariant currentVariant) 
+    {
+        CurrentVariant = currentVariant;
+
+        OnSwap?.Invoke(currentVariant);
+    }
 }
 
 public class EnemyContextProvider : ContextProvider<EnemyContextData>
