@@ -8,12 +8,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] private MapRenderer _mapRenderer;
 
     [SerializeField] private PlayerSpawnManager _playerSpawnManager;
+    [SerializeField] private EnemySpawner _enemySpawner;
 
     [SerializeField] private SeedField _seedField;
+
+    private PathGeneration.Map _map;
 
     private void Awake()
     {
         SwapSystem.SwappableEntitiesManager.Instance.InitContainers(_gameData);
+
+        
     }
 
     public void Spawn()
@@ -22,9 +27,14 @@ public class GameManager : MonoBehaviour
 
         _seedField.SetSeedText(seed);
 
-        (Vector3Int startPosition, Vector3Int _) = _mapRenderer.Render();
+        _map = new PathGeneration.Map(_gameData);
 
-        _playerSpawnManager.Spawn(startPosition);
+        _map.Generate();
+
+        _mapRenderer.Render(_map);
+
+        _playerSpawnManager.Spawn(_map.MapPath.StartPosition.ToVector3WithZ(z: 0));
+        _enemySpawner.Spawn(_map.GetRandomDungeonRoom().GetRandomPathTilePosition());
     }
 
     private void Update()

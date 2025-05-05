@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PathGeneration
@@ -12,11 +13,12 @@ namespace PathGeneration
         private IDungeonRoomPathConstructor _dungeonRoomPathConstructor;
         private IDungeonRoomTransformer _dungeonRoomTransformer = new DungeonRoomTransformer();
 
+        private List<DungeonRoom> _dungeonRooms;
+
         public Vector2Int MaxRoomSize { get; private set; } 
         public Vector2Int MinRoomSize { get; private set; }
         public Vector2Int RoomBorderSize { get; private set; }
         public int MaxNumberOfDungeonRooms { get; private set; }
-        public int NumberOfDungeonRooms { get; private set; }
 
         public Map(GameDataSO gameDataSO)
         {
@@ -30,13 +32,13 @@ namespace PathGeneration
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
 
             MaxNumberOfDungeonRooms = gameDataSO.MaxNumberOfDungeonRooms;
-            NumberOfDungeonRooms = 0;
 
             MaxRoomSize = gameDataSO.MaxDungeonRoomSize;
             MinRoomSize = gameDataSO.MinDungeonRoomSize;
             RoomBorderSize = Vector2Int.one;
 
             _dungeonRoomPathConstructor = new DungeonRoomPathConstructor(gameDataSO);
+            _dungeonRooms = new List<DungeonRoom>(MaxNumberOfDungeonRooms);
         }
 
         public void Generate()
@@ -47,24 +49,11 @@ namespace PathGeneration
             GenerateDungeonRooms();
         }
 
-        private void ExpandCorners()
-        {
-            foreach (var pos in MapPath.Tiles.GetCornerTiles())
-            {
-                if (_systemRandom.GetRandomFloat() > 0.5f)
-                {
-                    var newPath = new Path(MapPath.Tiles, pos, pos, Direction.None, MapPath.StemLength);
-                    newPath.RandomWalk();
-                    MapPath.Tiles.MergeWithPath(newPath);
-                }
-            }
-        }
-
         private void GenerateDungeonRooms()
         {
             foreach (var pos in MapPath.Tiles.GetCornerTiles())
             {
-                if (_systemRandom.GetRandomFloat() > 0.5f && NumberOfDungeonRooms < MaxNumberOfDungeonRooms)
+                if (_systemRandom.GetRandomFloat() > 0.5f && _dungeonRooms.Count < MaxNumberOfDungeonRooms)
                 {
                     if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, MinRoomSize, MaxRoomSize, RoomBorderSize, out DungeonRoom dungeonRoom)) continue;
 
@@ -74,9 +63,11 @@ namespace PathGeneration
                     
                     MapPath.Tiles.MergeWithDungeonRoom(dungeonRoom);
 
-                    NumberOfDungeonRooms++;
+                    _dungeonRooms.Add(dungeonRoom);
                 }
             }
         }
+
+        public DungeonRoom GetRandomDungeonRoom() => _dungeonRooms[_systemRandom.GetRandomInt(0, _dungeonRooms.Count)];
     }
 }

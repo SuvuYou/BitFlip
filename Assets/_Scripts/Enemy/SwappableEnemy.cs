@@ -34,5 +34,24 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
     } 
 
     private void SwapSprite(Sprite newSprite) => _displaySpriteRenderer.sprite = newSprite;
+
+    enum EnemyState { Idle, Scout, Wander, Attack };
+
+    private EnemyState _state;
+
+    private void Update() 
+    {
+        switch (_state)
+        {
+            case EnemyState.Idle:
+                break;
+            case EnemyState.Scout:
+                break;
+            case EnemyState.Wander:
+                break;
+            case EnemyState.Attack:
+                break;
+        }
+    }
 }
 
