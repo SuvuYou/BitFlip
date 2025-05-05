@@ -53,5 +53,74 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
                 break;
         }
     }
+
+    private void Scout() 
+    {
+        // 1. search 4 directions for target
+        // 1.5 if target found, check if wall in front
+        // 2. if target found, transition to Attack, if not transition to Wander
+    }
+
+    private void Wander() 
+    {
+        // 1. search 4 directions for possible movement
+        // 2 choose random one
+        // 3. transition to Idle
+    }
+
+    private void Attack(Direction direction) 
+    {
+        // 1. dash in direction
+        // 2. transition to Scout
+    }
+
+    private void Idle() 
+    {
+        // 1. wait
+        // 2. transition to Scout
+    }
+
+    // Movement
+
+    [SerializeField] private LayerMask _wallMask;
+    [SerializeField] private LayerMask _searchTargetMask;
+
+    [SerializeField] private Transform _colliderTransform;
+
+    [SerializeField] private float _maxSpeed = 5f;
+    [SerializeField] private float _acceleration = 5f;
+    [SerializeField] private float _raycastDistance = 1f;
+    [SerializeField] private float _cayoteMovementTime = 0.1f;
+
+    private void SearchTarget() 
+    {
+        foreach (Direction direction in DirectionExtentions.AllDirections)
+        {
+            if (!IsFacingTarget(direction.ToVector())) return;
+        }
+    }
+
+    private void SeachPossibleMovementDirection()
+    {
+        foreach (Direction direction in DirectionExtentions.AllDirections)
+        {
+            if (!IsFacingWall(direction.ToVector())) return;
+        }
+    }
+
+    private bool IsFacingWall(Vector2 direction)
+    {
+        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction, _raycastDistance, _wallMask);
+
+        return hit.collider != null;
+    }
+
+    private bool IsFacingTarget(Vector2 direction)
+    {
+        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction, _raycastDistance, _searchTargetMask);
+
+        return hit.collider != null;
+    }
+
 }
 
