@@ -10,6 +10,13 @@ public class EnemyContextData : IContextData
     public Dictionary<SwapSystem.SwapVariant, SwappableEnemyStats> VariantsLookup { get; private set; }
     public SwapSystem.SwapVariant CurrentVariant { get; private set; }
 
+    public EntityMovementState MovementState { get; private set; }
+
+    public EnemyContextData() 
+    {
+        MovementState = new EntityMovementState();
+    }
+
     public void SetVariantsLookup(Dictionary<SwapSystem.SwapVariant, SwappableEnemyStats> variantsLookup) => VariantsLookup = variantsLookup;
 
     public void SetCurrentVariant(SwapSystem.SwapVariant currentVariant) 
