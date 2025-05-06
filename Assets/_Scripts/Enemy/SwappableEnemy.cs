@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using SwapSystem;
 using UnityEngine;
 
@@ -26,11 +27,15 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
     [SerializeField] private SpriteRenderer _displaySpriteRenderer;
     [SerializeField] private UglySerializableDictionary<SwapVariant, SwappableEnemyStats> _variants;
 
+    private PseudoRandom.SystemRandomManager _random;
+
     private void Awake() 
     {
         Context.SetVariantsLookup(_variants.ToDictionary());
 
         (this as ISwappable).Register();
+
+        _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
     } 
 
     private void SwapSprite(Sprite newSprite) => _displaySpriteRenderer.sprite = newSprite;
@@ -66,6 +71,19 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
         // 1. search 4 directions for possible movement
         // 2 choose random one
         // 3. transition to Idle
+
+        List<Direction> possibleDirections = new(4);
+
+        foreach (Direction direction in DirectionExtentions.AllDirections)
+        {
+            if (!IsFacingWall(direction.ToVector())) possibleDirections.Add(direction);
+        }
+
+        if (possibleDirections.Count == 0) return;
+
+        int randomDirectionIndex = _random.GetRandomInt(0, possibleDirections.Count);
+
+        Direction randomDirection = possibleDirections[randomDirectionIndex];
     }
 
     private void Attack(Direction direction) 
@@ -90,7 +108,6 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
     [SerializeField] private float _maxSpeed = 5f;
     [SerializeField] private float _acceleration = 5f;
     [SerializeField] private float _raycastDistance = 1f;
-    [SerializeField] private float _cayoteMovementTime = 0.1f;
 
     private void SearchTarget() 
     {

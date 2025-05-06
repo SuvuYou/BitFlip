@@ -49,8 +49,8 @@ MonoBehaviour:
   _maxSpeed: 35
   _acceleration: 250
   _raycastDistance: 0.5
-  _cayoteMovementTime: 0.1
-  _layerMask:
+  _cayoteMovementTime: 1
+  _wallLayerMask:
     serializedVersion: 2
     m_Bits: 64
 --- !u!1 &4997149072430812057
@@ -217,7 +217,7 @@ SpriteRenderer:
   m_Size: {x: 1.25, y: 1.25}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!95 &238743959841657671

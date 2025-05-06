@@ -9,7 +9,7 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
         Context = context;
 
         context.OnDirectionChanged += SwitchMoventAnimation;
-        context.OnHitWall += SwitchIdleAnimation;
+        context.MovementState.OnHitWall += SwitchIdleAnimation;
     }
 
     private static readonly int IDLE_RIGHT = Animator.StringToHash("Idle_Right");
