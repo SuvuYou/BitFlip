@@ -47,8 +47,6 @@ public class EntityMovement
     private void Move()
     {
         _stats.EntityTransform.position += (Vector3)_state.CurrentVelocity * Time.deltaTime;
-
-        Debug.Log(_state.CurrentVelocity);
     }
 
     private void OnFacingWall()

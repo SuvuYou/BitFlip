@@ -54,7 +54,6 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
 
     private void Update()
     {
-        // Debug.Log(_currentState);
         _currentState?.Update();
     }
 }
