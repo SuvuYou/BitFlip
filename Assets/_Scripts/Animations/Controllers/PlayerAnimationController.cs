@@ -30,7 +30,7 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
         }
     );
 
-     private void SwitchIdleAnimation(Direction fromDirection) 
+    private void SwitchIdleAnimation(Direction fromDirection) 
      {
         _switchAnimationState(
             fromDirection switch 

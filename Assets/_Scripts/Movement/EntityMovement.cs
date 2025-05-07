@@ -33,15 +33,37 @@ public class EntityMovement
         return;
     }
 
+    public void TryDashInDirection()
+    {
+        bool isCollidingWithWall = IsFacingWall();
+
+        if (isCollidingWithWall && _state.IsIdle) return;
+
+        if (isCollidingWithWall) 
+        {
+            OnFacingWall();
+
+            return;
+        }
+
+        ApplyVelocity(isDashing: true);
+        Move();
+
+        return;
+    }
+
     public void SetDirection(Direction direction) => _state.SetCurrentDirection(direction);
 
-    private void ApplyVelocity()
+    private void ApplyVelocity(bool isDashing = false)
     {
+        float maxSpeedMultiplier = isDashing ? _stats.DashMultiplier : 1f;
+        float accelerationMultiplier = isDashing ? _stats.DashMultiplier * 10 : 1f;
+
         _state.SetIsIdle(false);
 
-        var currentVelocity = _state.CurrentVelocity + _state.CurrentDirection.ToVectorFloat() * (_stats.Acceleration * Time.deltaTime);
+        var currentVelocity = _state.CurrentVelocity + _state.CurrentDirection.ToVectorFloat() * (_stats.Acceleration * accelerationMultiplier * Time.deltaTime);
 
-        _state.SetCurrentVelocity(Vector2.ClampMagnitude(currentVelocity, _stats.MaxSpeed));
+        _state.SetCurrentVelocity(Vector2.ClampMagnitude(currentVelocity, _stats.MaxSpeed * maxSpeedMultiplier));
     }
 
     private void Move()
@@ -80,16 +102,18 @@ public struct EntityMovementStats
 
     public float MaxSpeed;
     public float Acceleration;
+    public float DashMultiplier;
     public float RaycastDistance;
 
     public LayerMask WallLayerMask;
 
-    public EntityMovementStats(Transform entityTransform, Transform colliderTransform, float maxSpeed, float acceleration, float raycastDistance, LayerMask wallLayerMask)
+    public EntityMovementStats(Transform entityTransform, Transform colliderTransform, float maxSpeed, float acceleration, float dashMultiplier, float raycastDistance, LayerMask wallLayerMask)
     {
         EntityTransform = entityTransform;
         ColliderTransform = colliderTransform;
         MaxSpeed = maxSpeed;
         Acceleration = acceleration;
+        DashMultiplier = dashMultiplier;
         RaycastDistance = raycastDistance;
         WallLayerMask = wallLayerMask;
     }

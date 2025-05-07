@@ -3,49 +3,77 @@ using UnityEngine;
 
 public class IdleState : EnemyStateBase
 {
-    private float _idleTimer;
-    private const float _idleDuration = 2f;
+    private Timer _idleTimer;
 
-    public IdleState(SwappableEnemy enemy) : base(enemy) {}
+    public IdleState(SwappableEnemy enemy) : base(enemy) 
+    {
+        _idleTimer = new(enemy.Context.CurrentVariantStats.IdleTime);
+    }
 
     public override void Enter()
     {
-        _idleTimer = 0f;
+        _idleTimer.Start();
+        _idleTimer.Reset();
     }
 
     public override void Update()
     {
-        _idleTimer += Time.deltaTime;
+        _idleTimer.Update(Time.deltaTime);
 
-        if (_idleTimer >= _idleDuration) _enemy.SetState(new ScoutState(_enemy));
+        if (_idleTimer.IsFinished) _enemy.SetState(new ScoutState(_enemy));
     }
 }
 
 public class ScoutState : EnemyStateBase
 {
-    public ScoutState(SwappableEnemy enemy) : base(enemy) {}
-
     private Timer _scoutTimer = new();
+    private Timer _scoutIntervalTimer = new();
+
+    public ScoutState(SwappableEnemy enemy) : base(enemy) 
+    {
+        _scoutTimer = new(enemy.Context.CurrentVariantStats.ScoutTime);
+        _scoutIntervalTimer = new(enemy.Context.CurrentVariantStats.ScoutInterval);
+    }
 
     public override void Enter()
     {
         _scoutTimer.Reset();
         _scoutTimer.Start();
+        
+        _scoutIntervalTimer.Reset();
+        _scoutIntervalTimer.Start();
+    }
+
+    private List<Direction> SeachTargets()
+    {
+        List<Direction> possibleDirections = new(4);
+
+        foreach (var dir in DirectionExtentions.AllDirections)
+        {
+            if (_enemy.EnemyMovementComponent.IsFacingTarget(dir.ToVector())) possibleDirections.Add(dir);
+        }
+
+        return possibleDirections;
     }
 
     public override void Update()
     {
         _scoutTimer.Update(Time.deltaTime);
+        _scoutIntervalTimer.Update(Time.deltaTime);
 
-        // foreach (Direction dir in DirectionExtentions.AllDirections)
-        // {
-        //     if (_enemy.EnemyMovementComponent.IsFacingTarget(dir.ToVector()))
-        //     {
-        //         _enemy.SetState(new AttackState(_enemy, dir));
-                
-        //         return;
-        //     }
-        // }
+        if (_scoutIntervalTimer.IsFinished)
+        {
+            var possibleDirections = SeachTargets();
+
+            if (possibleDirections.Count > 0)
+            {
+                int idx = _enemy.Random.GetRandomInt(0, possibleDirections.Count);
+
+                _enemy.SetState(new AttackState(_enemy, possibleDirections[idx]));
+            }
+
+            _scoutIntervalTimer.Reset();
+        }
 
         if (_scoutTimer.IsFinished) 
         {
@@ -100,8 +128,11 @@ public class AttackState : EnemyStateBase
 
     public override void Enter()
     {
-        // Do attack movement
-        // _enemy.Dash(_direction);
-        _enemy.SetState(new ScoutState(_enemy));
+        _enemy.AttackComponent.StartAttack(_direction, onComplete: () => _enemy.SetState(new IdleState(_enemy)));
+    }
+
+    public override void Update() 
+    {
+        _enemy.AttackComponent.AttackTick();
     }
 }

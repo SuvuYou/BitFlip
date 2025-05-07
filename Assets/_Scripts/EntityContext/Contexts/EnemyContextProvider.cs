@@ -17,6 +17,8 @@ public class EnemyContextData : IContextData
         MovementState = new EntityMovementState();
     }
 
+    public SwappableEnemyStats CurrentVariantStats => VariantsLookup[CurrentVariant];
+
     public void SetVariantsLookup(Dictionary<SwapSystem.SwapVariant, SwappableEnemyStats> variantsLookup) => VariantsLookup = variantsLookup;
 
     public void SetCurrentVariant(SwapSystem.SwapVariant currentVariant) 

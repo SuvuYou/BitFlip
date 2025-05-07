@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2408855343830478662}
   - component: {fileID: 325743860598751114}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Movement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,6 +48,7 @@ MonoBehaviour:
   _colliderTransform: {fileID: 5558418681168633283}
   _maxSpeed: 35
   _acceleration: 250
+  _dashMultiplier: 2
   _raycastDistance: 0.5
   _cayoteMovementTime: 1
   _wallLayerMask:
@@ -62,7 +63,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5429109942704915205}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +96,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8311932509365598469}
   - component: {fileID: 7010223018005844937}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +147,7 @@ GameObject:
   - component: {fileID: 7123441124917299394}
   - component: {fileID: 2449109696952374392}
   - component: {fileID: 77983222867781396}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Ws_Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -299,7 +300,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5558418681168633283}
   - component: {fileID: 4916801692544586548}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

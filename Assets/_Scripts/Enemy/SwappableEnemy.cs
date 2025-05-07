@@ -7,6 +7,12 @@ public class SwappableEnemyStats : ScriptableObject
     public SwapVariant Variant;
     public Sprite DisplaySprite;
     public bool IsKillable;
+
+    // Timers
+    public float IdleTime;
+    public float ScoutTime;
+    public float ScoutInterval;
+    public float WanderTime;
 }
 
 public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextData>
@@ -24,6 +30,8 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
     public bool IsCurrentVariantEqualTo(SwapVariant variant) => Context.CurrentVariant == variant;
 
     [field: SerializeField] public EnemyMovement EnemyMovementComponent { get; private set; }
+    public IEnemyAttack AttackComponent { get; private set; }
+
     [SerializeField] private SpriteRenderer _displaySpriteRenderer;
     [SerializeField] private UglySerializableDictionary<SwapVariant, SwappableEnemyStats> _variants;
 
@@ -42,6 +50,7 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
 
         _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
 
+        AttackComponent = new EnemyAttackDash(this);
         _currentState = new IdleState(this);
     } 
 

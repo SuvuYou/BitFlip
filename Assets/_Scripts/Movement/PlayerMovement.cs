@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     [SerializeField] private float _maxSpeed = 5f;
     [SerializeField] private float _acceleration = 5f;
+    [SerializeField] private float _dashMultiplier = 2f;
     [SerializeField] private float _raycastDistance = 1f;
     [SerializeField] private float _cayoteMovementTime = 0.1f;
 
@@ -28,7 +29,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
         _movement = new EntityMovement
         (
-            new EntityMovementStats(_playerTransform, _colliderTransform, _maxSpeed, _acceleration, _raycastDistance, _wallLayerMask),
+            new EntityMovementStats(_playerTransform, _colliderTransform, _maxSpeed, _acceleration, _dashMultiplier, _raycastDistance, _wallLayerMask),
             Context.MovementState
         ); 
     }

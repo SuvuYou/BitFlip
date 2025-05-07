@@ -304,6 +304,7 @@ MonoBehaviour:
     m_Bits: 128
   _entityTransform: {fileID: 5923780553124736333}
   _colliderTransform: {fileID: 2621207857010286367}
-  _maxSpeed: 5
-  _acceleration: 5
+  _maxSpeed: 15
+  _acceleration: 100
+  _dashMultiplier: 5
   _raycastDistance: 0.5
