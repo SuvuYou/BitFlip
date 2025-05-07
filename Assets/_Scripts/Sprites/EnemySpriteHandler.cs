@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerSpriteHandler : MonoBehaviour, IConsumer<PlayerContextData>
+public class EnemySpriteHandler : MonoBehaviour, IConsumer<EnemyContextData>
 {
-    public PlayerContextData Context { get; private set; }
+    public EnemyContextData Context { get; private set; }
 
-    public void Inject(PlayerContextData context) => Context = context;
+    public void Inject(EnemyContextData context) => Context = context;
 
     [SerializeField] private Transform _spriteTransform;
     [SerializeField] private Vector3 _defaultLocalSpritePosition = Vector3.zero;
@@ -18,8 +18,12 @@ public class PlayerSpriteHandler : MonoBehaviour, IConsumer<PlayerContextData>
     {
         _spriteWallOffset = _spriteWallOffsetSerialized.ToDictionary();
 
-        Context.OnDirectionChanged += ResetSpritePotion;
         Context.MovementState.OnHitWall += SnapSpriteToWall;
+    }
+
+    private void Update()
+    {
+        if (!Context.MovementState.IsIdle) ResetSpritePotion(Context.MovementState.CurrentDirection);
     }
 
     private void SnapSpriteToWall(Direction direction) 

@@ -23,11 +23,16 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
     public void Swap(SwapVariant variant) => Context.SetCurrentVariant(variant);
     public bool IsCurrentVariantEqualTo(SwapVariant variant) => Context.CurrentVariant == variant;
 
+    [field: SerializeField] public EnemyMovement EnemyMovementComponent { get; private set; }
     [SerializeField] private SpriteRenderer _displaySpriteRenderer;
     [SerializeField] private UglySerializableDictionary<SwapVariant, SwappableEnemyStats> _variants;
 
     private PseudoRandom.SystemRandomManager _random;
     public PseudoRandom.SystemRandomManager Random => _random;
+
+    private void SwapSprite(Sprite newSprite) => _displaySpriteRenderer.sprite = newSprite;
+
+    private IEnemyState _currentState;
 
     private void Awake() 
     {
@@ -36,11 +41,9 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
         (this as ISwappable).Register();
 
         _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
+
+        _currentState = new IdleState(this);
     } 
-
-    private void SwapSprite(Sprite newSprite) => _displaySpriteRenderer.sprite = newSprite;
-
-    private IEnemyState _currentState;
 
     public void SetState(IEnemyState newState)
     {
@@ -51,44 +54,8 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
 
     private void Update()
     {
+        // Debug.Log(_currentState);
         _currentState?.Update();
-    }
-
-    // Movement
-    [SerializeField] private LayerMask _wallMask;
-    [SerializeField] private LayerMask _searchTargetMask;
-
-    [SerializeField] private Transform _colliderTransform;
-
-    [SerializeField] private float _maxSpeed = 5f;
-    [SerializeField] private float _acceleration = 5f;
-    [SerializeField] private float _raycastDistance = 1f;
-
-    private EntityMovement _movement;
-
-    private void Start()
-    {
-        _movement = new EntityMovement
-        (
-            new EntityMovementStats(transform, _colliderTransform, _maxSpeed, _acceleration, _raycastDistance, _wallMask),
-            Context.MovementState
-        );
-    }
-
-    public void MoveInDirection() => _movement.TryMoveInDirection();
-
-    public bool IsFacingWall(Vector2 direction)
-    {
-        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction, _raycastDistance, _wallMask);
-
-        return hit.collider != null;
-    }
-
-    public bool IsFacingTarget(Vector2 direction)
-    {
-        RaycastHit2D hit = Physics2D.BoxCast(_colliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction, _raycastDistance, _searchTargetMask);
-
-        return hit.collider != null;
     }
 }
 

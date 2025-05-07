@@ -37,15 +37,15 @@ public class ScoutState : EnemyStateBase
     {
         _scoutTimer.Update(Time.deltaTime);
 
-        foreach (Direction dir in DirectionExtentions.AllDirections)
-        {
-            if (_enemy.IsFacingTarget(dir.ToVector()))
-            {
-                _enemy.SetState(new AttackState(_enemy, dir));
+        // foreach (Direction dir in DirectionExtentions.AllDirections)
+        // {
+        //     if (_enemy.EnemyMovementComponent.IsFacingTarget(dir.ToVector()))
+        //     {
+        //         _enemy.SetState(new AttackState(_enemy, dir));
                 
-                return;
-            }
-        }
+        //         return;
+        //     }
+        // }
 
         if (_scoutTimer.IsFinished) 
         {
@@ -56,6 +56,8 @@ public class ScoutState : EnemyStateBase
 
 public class WanderState : EnemyStateBase
 {
+    private Direction _nextDirection;
+
     public WanderState(SwappableEnemy enemy) : base(enemy) {}
 
     public override void Enter()
@@ -64,7 +66,7 @@ public class WanderState : EnemyStateBase
 
         foreach (var dir in DirectionExtentions.AllDirections)
         {
-            if (!_enemy.IsFacingWall(dir.ToVector())) possibleDirections.Add(dir);
+            if (!_enemy.EnemyMovementComponent.IsFacingWall(dir.ToVector())) possibleDirections.Add(dir);
         }
 
         if (possibleDirections.Count == 0)
@@ -76,14 +78,12 @@ public class WanderState : EnemyStateBase
 
         int idx = _enemy.Random.GetRandomInt(0, possibleDirections.Count);
 
-        Direction chosenDirection = possibleDirections[idx];
-
-        _enemy.Context.MovementState.SetCurrentDirection(chosenDirection);        
+        _nextDirection = possibleDirections[idx]; 
     }
 
     public override void Update() 
     {
-        _enemy.MoveInDirection();
+        _enemy.EnemyMovementComponent.MoveInDirection(_nextDirection);
 
         if (_enemy.Context.MovementState.IsIdle) _enemy.SetState(new IdleState(_enemy));
     }
