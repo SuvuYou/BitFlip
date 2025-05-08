@@ -5,16 +5,18 @@ using System.Collections.Generic;
 
 public class EnemyContextData : IContextData
 {
-    public Action<SwapSystem.SwapVariant> OnSwap;
+    public Action<SwapSystem.SwapVariant, SwappableEnemyStats> OnSwap;
 
     public Dictionary<SwapSystem.SwapVariant, SwappableEnemyStats> VariantsLookup { get; private set; }
     public SwapSystem.SwapVariant CurrentVariant { get; private set; }
 
     public EntityMovementState MovementState { get; private set; }
+    public EntityHealthState HealthState { get; private set; }
 
     public EnemyContextData() 
     {
         MovementState = new EntityMovementState();
+        HealthState = new EntityHealthState();
     }
 
     public SwappableEnemyStats CurrentVariantStats => VariantsLookup[CurrentVariant];
@@ -25,7 +27,7 @@ public class EnemyContextData : IContextData
     {
         CurrentVariant = currentVariant;
 
-        OnSwap?.Invoke(currentVariant);
+        OnSwap?.Invoke(currentVariant, CurrentVariantStats);
     }
 }
 

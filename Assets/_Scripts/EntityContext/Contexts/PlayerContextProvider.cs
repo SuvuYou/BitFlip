@@ -10,12 +10,14 @@ public class PlayerContextData : IContextData
     public Queue<Direction> DirectionQueue { get; } = new (2);
 
     public EntityMovementState MovementState { get; private set; }
+    public EntityHealthState HealthState { get; private set; }
 
     private bool _isFacingRight;
     public bool IsFacingRight => _isFacingRight;
 
     public PlayerContextData() 
     {
+        HealthState = new EntityHealthState();
         MovementState = new EntityMovementState();
 
         MovementState.OnHitWall += SwitchFacingDirectionOnHitWall;

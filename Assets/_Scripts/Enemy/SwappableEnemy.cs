@@ -23,7 +23,7 @@ public class SwappableEnemy : MonoBehaviour, ISwappable, IConsumer<EnemyContextD
     {
         Context = context;
 
-        context.OnSwap += (SwapVariant newVariant) => SwapSprite(Context.VariantsLookup[newVariant].DisplaySprite);
+        context.OnSwap += (SwapVariant newVariant, SwappableEnemyStats newVariantStats) => SwapSprite(Context.VariantsLookup[newVariant].DisplaySprite);
     }
 
     public void Swap(SwapVariant variant) => Context.SetCurrentVariant(variant);
