@@ -35,8 +35,6 @@ public class EntityAttack
 
     public void HandleCollision(Collider2D other) 
     {
-        Debug.Log("Collided with: " + other.transform.root.name);
-        
         var targetAttack = other.transform.root.GetComponentInChildren<IEntityAttackComponent>(); 
         var targetHealth = other.transform.root.GetComponentInChildren<IEntityHealthComponent>(); 
 
@@ -51,7 +49,7 @@ public class EntityAttack
     }
 
     private bool CompareAttackType(AttackType initiator, AttackType target) => initiator > target;
-    private bool CompareAttackTypeToGuardType(AttackType initiator, GuardType target) => initiator.CompareTo(target) > 0;
+    private bool CompareAttackTypeToGuardType(AttackType initiator, GuardType target) => (int)initiator > (int)target;
 }
 
 public class EntityAttackStats
