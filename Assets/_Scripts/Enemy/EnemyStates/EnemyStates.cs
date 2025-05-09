@@ -85,8 +85,12 @@ public class ScoutState : EnemyStateBase
 public class WanderState : EnemyStateBase
 {
     private Direction _nextDirection;
+    private Timer _windupTimer = new();
 
-    public WanderState(SwappableEnemy enemy) : base(enemy) {}
+    public WanderState(SwappableEnemy enemy) : base(enemy) 
+    {
+        _windupTimer = new(enemy.Context.WindupTime);
+    }
 
     public override void Enter()
     {
@@ -107,10 +111,19 @@ public class WanderState : EnemyStateBase
         int idx = _enemy.Random.GetRandomInt(0, possibleDirections.Count);
 
         _nextDirection = possibleDirections[idx]; 
+
+        _windupTimer.Start();
+        _windupTimer.Reset();
+
+        _enemy.Context.TriggerWindupMovementEvent(_nextDirection);
     }
 
     public override void Update() 
     {
+        _windupTimer.Update(Time.deltaTime);
+
+        if (!_windupTimer.IsFinished) return;
+
         _enemy.EnemyMovementComponent.MoveInDirection(_nextDirection);
 
         if (_enemy.Context.MovementState.IsIdle) _enemy.SetState(new IdleState(_enemy));

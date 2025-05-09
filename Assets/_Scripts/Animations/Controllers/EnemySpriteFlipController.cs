@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerSpriteFlipController : ConsumerBase<PlayerContextData>
+public class EnemySpriteFlipController : ConsumerBase<EnemyContextData>
 {
     [SerializeField] private SpriteRenderer _spriteRenderer;
 

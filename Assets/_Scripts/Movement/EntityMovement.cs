@@ -121,20 +121,35 @@ public struct EntityMovementStats
 
 public class EntityMovementState
 {
+    public event Action<Direction> OnChangeDirection;
     public event Action<Direction> OnHitWall;
 
     public Direction CurrentDirection { get; private set; }
     public Vector2 ClosestWallPoint { get; private set; }
     public Vector2 CurrentVelocity { get; private set; }
     public bool IsIdle { get; private set; }
-    
+    public bool IsFacingRight { get; private set; }
+
     public void SetIsIdle(bool isIdle) => IsIdle = isIdle;
-
-    public void SetCurrentDirection(Direction direction) => CurrentDirection = direction;
-
     public void SetClosestWallPoint(Vector2 closestWallPoint) => ClosestWallPoint = closestWallPoint;
-
-    public void TriggerOnHitWall(Direction direction) => OnHitWall?.Invoke(direction);
-
     public void SetCurrentVelocity(Vector2 velocity) => CurrentVelocity = velocity;
+
+    public void SetCurrentDirection(Direction direction) 
+    {
+        if (IsIdle && CurrentDirection != direction) 
+        {
+            OnChangeDirection?.Invoke(direction);
+        }
+
+        CurrentDirection = direction;
+
+        IsFacingRight = CurrentDirection == Direction.Right;
+    }
+
+    public void TriggerOnHitWall(Direction fromDirection) 
+    {
+        IsFacingRight = fromDirection == Direction.Left;
+
+        OnHitWall?.Invoke(fromDirection);
+    }
 }

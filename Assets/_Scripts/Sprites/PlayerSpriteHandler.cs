@@ -18,7 +18,7 @@ public class PlayerSpriteHandler : MonoBehaviour, IConsumer<PlayerContextData>
     {
         _spriteWallOffset = _spriteWallOffsetSerialized.ToDictionary();
 
-        Context.OnDirectionChanged += ResetSpritePotion;
+        Context.MovementState.OnChangeDirection += ResetSpritePotion;
         Context.MovementState.OnHitWall += SnapSpriteToWall;
     }
 

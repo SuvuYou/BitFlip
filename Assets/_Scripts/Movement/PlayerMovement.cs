@@ -88,7 +88,6 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
         if (!Context.MovementState.IsIdle || _nextDirection == Context.MovementState.CurrentDirection) return;
 
         _movement.SetDirection(_nextDirection);
-        Context.SetDirection(_nextDirection);
 
         _cayoteTimer.Stop();
     }
