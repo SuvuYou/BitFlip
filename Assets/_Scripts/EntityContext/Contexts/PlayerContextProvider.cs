@@ -1,39 +1,17 @@
-
-
-using System;
-using UnityEngine;
+using System.Collections.Generic;
 
 public class PlayerContextData : IContextData
 {
-    public Action<Direction> OnDirectionChanged;
-    public Action<Direction> OnHitWall;
+    public Queue<Direction> DirectionQueue { get; } = new (2);
 
-    private Direction _currentDirection;
-    public Direction CurrentDirection => _currentDirection;
+    public EntityMovementState MovementState { get; private set; }
+    public EntityHealthState HealthState { get; private set; }
 
-    private RaycastHit2D _wallRaycastHit;
-    public RaycastHit2D WallRaycastHit => _wallRaycastHit;
-
-    private bool _isFacingRight;
-    public bool IsFacingRight => _isFacingRight;
-
-    public void SetDirection(Direction direction) 
+    public PlayerContextData() 
     {
-        _currentDirection = direction;
-
-        _isFacingRight = direction == Direction.Right;
-    
-        OnDirectionChanged?.Invoke(direction);
+        HealthState = new EntityHealthState();
+        MovementState = new EntityMovementState();
     }
-
-    public void HitWall(Direction fromDirection)
-    {
-        _isFacingRight = fromDirection == Direction.Left;
-
-        OnHitWall?.Invoke(fromDirection);
-    }
-
-    public void SetWallRaycastHit(RaycastHit2D raycastHit) => _wallRaycastHit = raycastHit;
 }
 
 public class PlayerContextProvider : ContextProvider<PlayerContextData>

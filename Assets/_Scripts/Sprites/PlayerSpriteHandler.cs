@@ -18,18 +18,15 @@ public class PlayerSpriteHandler : MonoBehaviour, IConsumer<PlayerContextData>
     {
         _spriteWallOffset = _spriteWallOffsetSerialized.ToDictionary();
 
-        Context.OnDirectionChanged += ResetSpritePotion;
-        Context.OnHitWall += SnapSpriteToWall;
+        Context.MovementState.OnChangeDirection += ResetSpritePotion;
+        Context.MovementState.OnHitWall += SnapSpriteToWall;
     }
 
     private void SnapSpriteToWall(Direction direction) 
-    { 
-        if (Context.WallRaycastHit.collider != null) 
-        { 
-            Vector3 offset = _spriteWallOffset.ContainsKey(direction) ? _spriteWallOffset[direction] : Vector3.zero;
+    {  
+        Vector3 offset = _spriteWallOffset.ContainsKey(direction) ? _spriteWallOffset[direction] : Vector3.zero;
 
-            _spriteTransform.position = new Vector3(Context.WallRaycastHit.point.x, Context.WallRaycastHit.point.y, 0) + offset;
-        }
+        _spriteTransform.position = new Vector3(Context.MovementState.ClosestWallPoint.x, Context.MovementState.ClosestWallPoint.y, 0) + offset;
     }
 
     private void ResetSpritePotion(Direction direction) => _spriteTransform.localPosition = _defaultLocalSpritePosition;

@@ -60,6 +60,17 @@ public static class DirectionExtentions
             Direction.None => new Vector2Int(0, 0),
             _ => new Vector2Int(0, 0)
         };
+
+    public static Vector2 ToVectorFloat(this Direction direction) =>
+        direction switch
+        {
+            Direction.Up => new Vector2(0, 1), 
+            Direction.Right => new Vector2(1, 0),
+            Direction.Down => new Vector2(0, -1),
+            Direction.Left => new Vector2(-1, 0),
+            Direction.None => new Vector2(0, 0),
+            _ => new Vector2(0, 0)
+        };
 }
 
 public static class TransformExtentions

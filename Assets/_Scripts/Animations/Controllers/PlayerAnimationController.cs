@@ -8,13 +8,14 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
     {
         Context = context;
 
-        context.OnDirectionChanged += SwitchMoventAnimation;
-        context.OnHitWall += SwitchIdleAnimation;
+        context.MovementState.OnChangeDirection += SwitchMoventAnimation;
+        context.MovementState.OnHitWall += SwitchIdleAnimation;
     }
 
     private static readonly int IDLE_RIGHT = Animator.StringToHash("Idle_Right");
     private static readonly int IDLE_UP  = Animator.StringToHash("Idle_Up");
     private static readonly int IDLE_DOWN = Animator.StringToHash("Idle_Down");
+
     private static readonly int DASH_RIGHT = Animator.StringToHash("Fly_Right");
     private static readonly int DASH_UP = Animator.StringToHash("Fly_Up");
     private static readonly int DASH_DOWN = Animator.StringToHash("Fly_Down");
@@ -30,8 +31,8 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
         }
     );
 
-     private void SwitchIdleAnimation(Direction fromDirection) 
-     {
+    private void SwitchIdleAnimation(Direction fromDirection) 
+    {
         _switchAnimationState(
             fromDirection switch 
             { 
@@ -42,5 +43,5 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
                 _ => DASH_UP
             }
         );
-     }
+    }
 }
