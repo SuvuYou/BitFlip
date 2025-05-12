@@ -1,5 +1,8 @@
+using System;
+
 public class PlayerContextData : IContextData
 {
+    public Action OnContextInjected { get; set; }
     public EntityMovementState MovementState { get; private set; }
 
     public PlayerContextData() 

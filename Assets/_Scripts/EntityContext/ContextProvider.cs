@@ -10,5 +10,9 @@ public class ContextProvider<TContext> : MonoBehaviour where TContext : IContext
         var consumers = GetComponentsInChildren<IConsumer<TContext>>();
 
         foreach (var c in consumers) c.Inject(_contextData);
+
+        Debug.Log( _contextData.OnContextInjected + "  " + this);
+
+        _contextData.OnContextInjected?.Invoke();
     }
 }

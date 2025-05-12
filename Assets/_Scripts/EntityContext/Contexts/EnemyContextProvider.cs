@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class EnemyContextData : IContextData
 {
+    public Action OnContextInjected { get; set; }
+    
     public event Action<SwapSystem.SwapVariant, SwappableEnemyStats> OnSwap;
 
     public Dictionary<SwapSystem.SwapVariant, SwappableEnemyStats> VariantsLookup { get; private set; }

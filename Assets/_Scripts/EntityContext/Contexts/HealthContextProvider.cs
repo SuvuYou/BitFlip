@@ -1,3 +1,5 @@
+using System;
+
 public interface IHealthContextData : IContextData
 {
     public EntityHealthState HealthState { get; }
@@ -7,6 +9,7 @@ public interface IHealthContextData : IContextData
 
 public class HealthContextData : IHealthContextData
 {
+    public Action OnContextInjected { get; set; }
     public EntityHealthState HealthState { get; private set; }
 
     public void SetHealthState(EntityHealthState state) => HealthState = state;

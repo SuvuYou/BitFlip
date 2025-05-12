@@ -19,6 +19,8 @@ public class EntityHealth
         if (state != null) State = state;
         else State = new EntityHealthState();
 
+        State.SetCurrentHealth(Stats.MaxHealth);
+
         State.SetupTimer(Stats.DamageCooldown);
         ResetHealth();
     }
@@ -32,8 +34,6 @@ public class EntityHealth
         State.StartDamageImmunityTimer();
 
         State.SetCurrentHealth(State.CurrentHealth - decrease);
-
-        State.TriggerOnGetHit(decrease);
     }
 
     public void TickDamageImmunityTimer() 
@@ -60,14 +60,16 @@ public class EntityHealthStats
 
 public class EntityHealthState
 {   
-    public Action<int> OnGetHit { get; set; }
+    public Action<int> OnCurrentHealthChanged { get; set; }
 
     public int CurrentHealth { get; private set; }
 
-    public void SetCurrentHealth(int health) => CurrentHealth = health;
-
-    public void TriggerOnGetHit(int decrease) => OnGetHit?.Invoke(decrease);
-
+    public void SetCurrentHealth(int health) 
+    {
+        CurrentHealth = health;
+        OnCurrentHealthChanged?.Invoke(CurrentHealth);
+    }
+    
     public Timer DamageImmunityTimer { get; private set; }
     public void SetupTimer(float damageCooldown) => DamageImmunityTimer = new Timer(damageCooldown);
     public void StartDamageImmunityTimer() 

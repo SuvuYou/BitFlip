@@ -1,21 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HealthBar: MonoBehaviour
+public class HealthBar : MonoBehaviour
 {
     [SerializeField] private HealthContextDataSO _healthContextDataSO;
     [SerializeField] private RectTransform _healthBarContainer;
     [SerializeField] private Image _heartPrefab;
 
-    private void Start() 
+    private void Start()
     {
-        _healthContextDataSO.HealthState.OnGetHit += OnGetHit;
+        _healthContextDataSO.OnContextInjected += SubscribeToGetHitEvent;
     }
 
-    private void OnGetHit(int decrease) 
+    private void SubscribeToGetHitEvent() 
+    {
+        _healthContextDataSO.HealthState.OnCurrentHealthChanged += OmChangeHealth;
+    }
+
+    private void OmChangeHealth(int currentHealth) 
     {
         RemoveAllChildren();
-        InstantiateHearts(_healthContextDataSO.HealthState.CurrentHealth);
+        InstantiateHearts(currentHealth);
     }
 
     private void RemoveAllChildren() 
