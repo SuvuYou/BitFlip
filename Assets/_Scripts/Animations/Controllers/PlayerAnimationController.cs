@@ -10,6 +10,9 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
 
         context.MovementState.OnChangeDirection += SwitchMoventAnimation;
         context.MovementState.OnHitWall += SwitchIdleAnimation;
+
+        context.OnEnterAttackMode += () => _switchAnimationState(IDLE_RIGHT);
+        context.OnExitAttackMode += () => SwitchMoventAnimation(Context.MovementState.CurrentDirection);
     }
 
     private static readonly int IDLE_RIGHT = Animator.StringToHash("Idle_Right");

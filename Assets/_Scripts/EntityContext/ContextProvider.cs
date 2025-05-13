@@ -11,8 +11,6 @@ public class ContextProvider<TContext> : MonoBehaviour where TContext : IContext
 
         foreach (var c in consumers) c.Inject(_contextData);
 
-        Debug.Log( _contextData.OnContextInjected + "  " + this);
-
         _contextData.OnContextInjected?.Invoke();
     }
 }
