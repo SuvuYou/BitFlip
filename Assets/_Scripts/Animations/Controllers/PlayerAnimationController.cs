@@ -11,8 +11,14 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
         context.MovementState.OnChangeDirection += SwitchMoventAnimation;
         context.MovementState.OnHitWall += SwitchIdleAnimation;
 
-        context.OnEnterAttackMode += () => _switchAnimationState(IDLE_RIGHT);
-        context.OnExitAttackMode += () => SwitchMoventAnimation(Context.MovementState.CurrentDirection);
+        context.OnEnterAttackMode += () => SwitchAttackAnimation(Context.MovementState.CurrentDirection);
+        context.OnExitAttackMode += () =>
+        {
+            if(!Context.MovementState.IsIdle)
+            {
+                SwitchMoventAnimation(Context.MovementState.CurrentDirection);
+            }
+        };
     }
 
     private static readonly int IDLE_RIGHT = Animator.StringToHash("Idle_Right");
@@ -22,6 +28,10 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
     private static readonly int DASH_RIGHT = Animator.StringToHash("Fly_Right");
     private static readonly int DASH_UP = Animator.StringToHash("Fly_Up");
     private static readonly int DASH_DOWN = Animator.StringToHash("Fly_Down");
+
+    private static readonly int ATTACK_RIGHT = Animator.StringToHash("Attack_Side");
+    private static readonly int ATTACK_UP = Animator.StringToHash("Attack_Up");
+    private static readonly int ATTACK_DOWN = Animator.StringToHash("Attack_Down");
 
     private void SwitchMoventAnimation(Direction newDirection) => _switchAnimationState(
         newDirection switch 
@@ -44,6 +54,20 @@ public class PlayerAnimationController : BaseAnimationController, IConsumer<Play
                 Direction.Left => IDLE_RIGHT, 
                 Direction.Right => IDLE_RIGHT,
                 _ => DASH_UP
+            }
+        );
+    }
+
+    private void SwitchAttackAnimation(Direction fromDirection) 
+    {
+        _switchAnimationState(
+            fromDirection switch 
+            { 
+                Direction.Up => ATTACK_UP, 
+                Direction.Down => ATTACK_DOWN, 
+                Direction.Left => ATTACK_RIGHT, 
+                Direction.Right => ATTACK_RIGHT,
+                _ => ATTACK_UP
             }
         );
     }

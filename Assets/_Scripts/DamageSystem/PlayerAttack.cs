@@ -11,6 +11,8 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
     [SerializeField] private int _damage = 1;
     [SerializeField] private float _attackDuration = 3f;
 
+    private bool _isInAttackMode = false;
+
     public EntityAttack Attack { get; private set; }
 
     private void Start()
@@ -31,14 +33,14 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
     {
         _attackDurationTimer.Update(Time.deltaTime);
 
-        if (_attackDurationTimer.IsFinished) ExitAttackMode();
+        if (_attackDurationTimer.IsFinished && _attackDurationTimer.IsRunning) ExitAttackMode();
 
         GetInput();
     }
 
     private void GetInput()
     {
-        if (Input.GetKeyDown(KeyCode.F) && !_attackDurationTimer.IsRunning)
+        if (Input.GetKeyDown(KeyCode.F) && !_attackDurationTimer.IsRunning && !Context.MovementState.IsIdle)
         {
             EnterAttackMode();
         }
@@ -46,11 +48,15 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
 
     private void ExitAttackMode() 
     {
+        if (!_isInAttackMode) return;
+
         Attack.State.SetAttackType(EntityAttack.AttackType.None);
 
         _attackDurationTimer.Stop();
 
         Context.OnExitAttackMode?.Invoke();
+
+        _isInAttackMode = false;
     } 
 
     private void EnterAttackMode() 
@@ -61,5 +67,7 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
         _attackDurationTimer.Start();
 
         Context.OnEnterAttackMode?.Invoke();
+
+        _isInAttackMode = true;
     }
 }

@@ -91,10 +91,4 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
         _cayoteTimer.Stop();
     }
-
-    private void OnDrawGizmos() 
-    { 
-        Gizmos.color = Color.red; 
-        Gizmos.DrawSphere(_colliderTransform.position + Context.MovementState.CurrentDirection.ToVector().ToVector3WithZ(z: 0f) * _raycastDistance, 0.1f);
-    }
 }

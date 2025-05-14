@@ -75,11 +75,11 @@ public class EntityMovement
     {
         SnapToGrid();
 
+        _state.SetIsIdle(true);
         _state.SetClosestWallPoint(_stats.ColliderTransform.position + _state.CurrentDirection.ToVector().ToVector3WithZ(z: 0f) * _stats.RaycastDistance);
 
         _state.TriggerOnHitWall(_state.CurrentDirection);
-        _state.SetCurrentVelocity(Vector2.zero);
-        _state.SetIsIdle(true);
+        _state.SetCurrentVelocity(Vector2.zero); 
     }
 
     private void SnapToGrid() 
