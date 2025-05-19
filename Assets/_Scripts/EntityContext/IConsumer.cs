@@ -2,9 +2,7 @@ using UnityEngine;
 
 public interface IConsumer<TContext>
 {
-    TContext Context { get; }
-
-    void Inject(TContext context);
+    public void Inject(TContext context);
 }
 
 public abstract class ConsumerBase<TContext> : MonoBehaviour, IConsumer<TContext>

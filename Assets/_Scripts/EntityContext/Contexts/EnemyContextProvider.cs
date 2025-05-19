@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class EnemyContextData : IContextData
 {
+    public Action OnContextInjected { get; set; }
+    
     public event Action<SwapSystem.SwapVariant, SwappableEnemyStats> OnSwap;
 
     public Dictionary<SwapSystem.SwapVariant, SwappableEnemyStats> VariantsLookup { get; private set; }
@@ -22,7 +24,6 @@ public class EnemyContextData : IContextData
     }
 
     public EntityMovementState MovementState { get; private set; }
-    public EntityHealthState HealthState { get; private set; }
 
     public event Action<Direction> OnWindupMovementStart;
     public float WindupTime { get; private set; }
@@ -34,7 +35,6 @@ public class EnemyContextData : IContextData
     public EnemyContextData() 
     {
         MovementState = new EntityMovementState();
-        HealthState = new EntityHealthState();
     }
 
 

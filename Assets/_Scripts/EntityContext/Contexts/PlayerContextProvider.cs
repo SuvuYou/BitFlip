@@ -1,16 +1,17 @@
-using System.Collections.Generic;
+using System;
 
 public class PlayerContextData : IContextData
 {
-    public Queue<Direction> DirectionQueue { get; } = new (2);
+    public Action OnContextInjected { get; set; }
+
+    public Action OnEnterAttackMode { get; set; }
+    public Action OnExitAttackMode { get; set; }
 
     public EntityMovementState MovementState { get; private set; }
-    public EntityHealthState HealthState { get; private set; }
 
     public PlayerContextData() 
     {
-        HealthState = new EntityHealthState();
-        MovementState = new EntityMovementState();
+        MovementState = new EntityMovementState();     
     }
 }
 

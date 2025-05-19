@@ -1,10 +1,12 @@
 using UnityEngine;
 
-public class EnemyHealth : MonoBehaviour, IEntityHealthComponent, IConsumer<EnemyContextData>
+public class EnemyHealth : MonoBehaviour, IEntityHealthComponent, IConsumer<EnemyContextData>, IConsumer<IHealthContextData>
 {
-    public EnemyContextData Context { get; private set; }
+    public EnemyContextData EnemyContext { get; private set; }
+    public IHealthContextData HealthContext { get; private set; }
 
-    public void Inject(EnemyContextData context) => Context = context;
+    void IConsumer<EnemyContextData>.Inject(EnemyContextData context) => EnemyContext = context;
+    void IConsumer<IHealthContextData>.Inject(IHealthContextData context) => HealthContext = context;
 
     [SerializeField] private int _maxHealth = 1;
     [SerializeField] private float _damageCooldown = 1;
@@ -13,7 +15,9 @@ public class EnemyHealth : MonoBehaviour, IEntityHealthComponent, IConsumer<Enem
 
     private void Start()
     {
-        Health = new EntityHealth(new EntityHealthStats(EntityType.Enemy, _maxHealth, _damageCooldown), Context.HealthState);
+        Health = new EntityHealth(new EntityHealthStats(EntityType.Enemy, _maxHealth, _damageCooldown), HealthContext.HealthState);
+
+        HealthContext.HealthState.OnDie += () => Destroy(transform.root.gameObject);
     }
 
     private void Update()

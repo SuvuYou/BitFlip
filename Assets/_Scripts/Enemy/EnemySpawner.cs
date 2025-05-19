@@ -6,7 +6,7 @@ public class EnemySpawner : MonoBehaviour
 
     public void Spawn(Vector3 spawnPoint)
     {
-        Instantiate(_enemyPrefab, spawnPoint, Quaternion.identity);
+        Instantiate(_enemyPrefab, new Vector3(24, 20, 0), Quaternion.identity);
     }
 }
 

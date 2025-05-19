@@ -11,8 +11,6 @@ public class EnemyAnimationController : BaseAnimationController, IConsumer<Enemy
 
         Context.SetWindupTime(_animator.GetClipLength("Idle_To_Fly_Right") - 0.25f);
 
-        Debug.Log(_animator.GetClipLength("Idle_To_Fly_Right"));
-
         context.OnWindupMovementStart += SwitchTransitionAnimation;
         context.MovementState.OnChangeDirection += SwitchMoventAnimation;
         context.MovementState.OnHitWall += SwitchIdleAnimation;

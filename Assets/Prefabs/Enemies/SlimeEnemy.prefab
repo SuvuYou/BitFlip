@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5923780553124736333}
   - component: {fileID: 8428097810821548201}
+  - component: {fileID: 184502406987743674}
   - component: {fileID: 7741829188572950279}
   m_Layer: 0
   m_Name: SlimeEnemy
@@ -49,6 +50,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e4f89cec35fd9f48b8aea58cd6d4b9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &184502406987743674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 801193960066380965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755a7a04fa4033a48aacdd19238cf7a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7741829188572950279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68,7 +81,7 @@ MonoBehaviour:
     - key: 0
       value: {fileID: 11400000, guid: 4df0725b52758b54c93ef388ddc3ce2e, type: 2}
     - key: 1
-      value: {fileID: 11400000, guid: 5e7d0072862d35c47b1025db863c5242, type: 2}
+      value: {fileID: 11400000, guid: 099eed017817a8b48823da155b98341d, type: 2}
 --- !u!1 &5251413440652872774
 GameObject:
   m_ObjectHideFlags: 0
