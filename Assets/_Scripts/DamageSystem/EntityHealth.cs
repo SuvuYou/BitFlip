@@ -60,6 +60,7 @@ public class EntityHealthStats
 
 public class EntityHealthState
 {   
+    public Action OnDie { get; set; }
     public Action<int> OnCurrentHealthChanged { get; set; }
 
     public int CurrentHealth { get; private set; }
@@ -68,6 +69,8 @@ public class EntityHealthState
     {
         CurrentHealth = health;
         OnCurrentHealthChanged?.Invoke(CurrentHealth);
+        
+        if (CurrentHealth <= 0) OnDie?.Invoke();
     }
     
     public Timer DamageImmunityTimer { get; private set; }

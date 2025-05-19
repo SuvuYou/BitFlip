@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, IConsumer<PlayerContextData>
@@ -7,6 +8,8 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
     private Timer _attackDurationTimer;
 
     public void Inject(PlayerContextData context) => Context = context;
+
+    private const float ATTACK_MODE_BUFFER_TIME = 0.05f;
 
     [SerializeField] private int _damage = 1;
     [SerializeField] private float _attackDuration = 3f;
@@ -50,7 +53,7 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
     {
         if (!_isInAttackMode) return;
 
-        Attack.State.SetAttackType(EntityAttack.AttackType.None);
+        StartCoroutine(DisableAttackTypeAfterBufferTime());
 
         _attackDurationTimer.Stop();
 
@@ -58,6 +61,13 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
 
         _isInAttackMode = false;
     } 
+
+    private IEnumerator DisableAttackTypeAfterBufferTime()
+    {
+        yield return new WaitForSeconds(ATTACK_MODE_BUFFER_TIME);
+
+        Attack.State.SetAttackType(EntityAttack.AttackType.None);
+    }
 
     private void EnterAttackMode() 
     {

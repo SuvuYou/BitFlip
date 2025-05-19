@@ -16,6 +16,8 @@ public class EnemyHealth : MonoBehaviour, IEntityHealthComponent, IConsumer<Enem
     private void Start()
     {
         Health = new EntityHealth(new EntityHealthStats(EntityType.Enemy, _maxHealth, _damageCooldown), HealthContext.HealthState);
+
+        HealthContext.HealthState.OnDie += () => Destroy(transform.root.gameObject);
     }
 
     private void Update()
