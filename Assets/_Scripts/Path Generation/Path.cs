@@ -31,16 +31,20 @@ namespace PathGeneration
         public Vector2Int StartPosition  { get; private set; }
         public Vector2Int EndPosition  { get; private set; }
 
+        public Direction LockedInitialFacingDirection  { get; private set; }
+
         private (Vector2Int position, Direction facingDirection) _currentState;
 
         public void SetCurrentState((Vector2Int position, Direction facingDirection) newState) => _currentState = newState;
 
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction initialFacingDirection = Direction.None, int stemLength = 2, int routeIndex = 1)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction lockedInitialFacingDirection = Direction.None, int stemLength = 2, int routeIndex = 1)
         {
             StemLength = stemLength;
 
             StartPosition = startPosition;
             EndPosition = endPosition;
+
+            LockedInitialFacingDirection = lockedInitialFacingDirection;
 
             RouteIndex = routeIndex;
 
@@ -50,12 +54,12 @@ namespace PathGeneration
 
             if (Tiles.GetTileByPosition(StartPosition).StateData.Type != TileType.Path)
             {
-                Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, initialFacingDirection); 
+                Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, lockedInitialFacingDirection); 
             }
 
             Tiles.SetTileRouteIndex(StartPosition.x, StartPosition.y, Tiles.CurrentLargestRouteIndex);
 
-            _currentState = (StartPosition, initialFacingDirection);
+            _currentState = (StartPosition, lockedInitialFacingDirection);
         }
 
         public void RandomWalk()
@@ -92,14 +96,17 @@ namespace PathGeneration
                 RelativeMove chosenMove = WeightedChoice(validMoves);
                 Direction newFacingDirection = ApplyRelativeTurnToDirection(_currentState.facingDirection, chosenMove);
 
-                if (i == 1 && _currentState.facingDirection != Direction.None && !CanMoveInDirection(_currentState.position, _currentState.facingDirection))
+                if (LockedInitialFacingDirection != Direction.None && _currentState.position == StartPosition)
                 {
-                    break;
-                }
+                    if (!CanMoveInDirection(_currentState.position, LockedInitialFacingDirection))
+                    {
+                        break;
+                    }
 
-                if (i == 1 && _currentState.facingDirection != Direction.None && CanMoveInDirection(_currentState.position, _currentState.facingDirection))
-                {
-                    newFacingDirection = _currentState.facingDirection;
+                    if (CanMoveInDirection(_currentState.position, LockedInitialFacingDirection))
+                    {
+                        newFacingDirection = _currentState.facingDirection;
+                    }
                 }
 
                 var exploreModification = new Explore(this, _currentState, newFacingDirection, RouteIndex);

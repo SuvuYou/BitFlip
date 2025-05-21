@@ -57,7 +57,7 @@ namespace PathGeneration
                 {
                     if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, MinRoomSize, MaxRoomSize, RoomBorderSize, out DungeonRoom dungeonRoom)) continue;
 
-                    // dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
+                    dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
 
                     // dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
                     
