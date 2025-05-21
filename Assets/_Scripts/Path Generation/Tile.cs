@@ -75,6 +75,29 @@ namespace PathGeneration
 
         #region Connections
 
+        public bool TryGetFollowingTilePosition(Vector2Int currentPosition, out Vector2Int nextPosition) 
+        {
+            nextPosition = new Vector2Int();
+
+            if (_connections.Contains(StateData.PreviousFacingDirection))
+            {
+                nextPosition = currentPosition + StateData.PreviousFacingDirection.ToVector();
+
+                return true;
+            }
+ 
+            foreach (var direction in _connections)
+            {
+                if (direction == StateData.PreviousFacingDirection.Opposite()) continue;
+
+                nextPosition = currentPosition + direction.ToVector();
+
+                return true;
+            }
+
+            return false;
+        }
+
         public bool TryGetNextConnectedTilePosition(Vector2Int currentPosition, out Vector2Int nextPosition) 
         {
             nextPosition = new Vector2Int();

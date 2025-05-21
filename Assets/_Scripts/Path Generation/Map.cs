@@ -9,7 +9,7 @@ namespace PathGeneration
         public readonly Path MapPath;
         public readonly PseudoRandom.SystemRandomManager _systemRandom;
 
-        private IDungeonRoomFinder _dungeonRoomFinder = new DungeonRoomFinder();
+        private IDungeonRoomFinder _dungeonRoomFinder = new VarietyDungeonRoomFinder();
         private IDungeonRoomPathConstructor _dungeonRoomPathConstructor;
         private IDungeonRoomTransformer _dungeonRoomTransformer = new DungeonRoomTransformer();
 
@@ -37,7 +37,7 @@ namespace PathGeneration
             MinRoomSize = gameDataSO.MinDungeonRoomSize;
             RoomBorderSize = Vector2Int.one;
 
-            _dungeonRoomPathConstructor = new DungeonRoomPathConstructor(gameDataSO);
+            _dungeonRoomPathConstructor = new SimpleExtensionDungeonRoomPathConstructor(gameDataSO);
             _dungeonRooms = new List<DungeonRoom>(MaxNumberOfDungeonRooms);
         }
 
@@ -53,11 +53,11 @@ namespace PathGeneration
         {
             foreach (var pos in MapPath.Tiles.GetCornerTiles())
             {
-                if (_systemRandom.GetRandomFloat() > 0.5f && _dungeonRooms.Count < MaxNumberOfDungeonRooms)
+                if (_dungeonRooms.Count < MaxNumberOfDungeonRooms)
                 {
                     if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, MinRoomSize, MaxRoomSize, RoomBorderSize, out DungeonRoom dungeonRoom)) continue;
 
-                    dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
+                    // dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
 
                     // dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
                     
@@ -65,6 +65,8 @@ namespace PathGeneration
 
                     _dungeonRooms.Add(dungeonRoom);
                 }
+
+                Debug.Log($"Dungeon rooms: {_dungeonRooms.Count}");
             }
         }
 

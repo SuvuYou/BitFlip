@@ -57,6 +57,9 @@ namespace PathGeneration
         public bool IsWithinStemLengthOfBorder(Vector2Int tilePosition) => BoundsHelper.IsWithinBounds(tilePosition, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds);
         public bool IsWithinStemLengthOfBorder(int x, int y) => BoundsHelper.IsWithinBounds(x, y, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds);
 
+        public bool IsOnTheEdge(Vector2Int tilePosition) => tilePosition.x == MatrixLowerBounds.x || tilePosition.x == MatrixUpperBounds.x || tilePosition.y == MatrixLowerBounds.y || tilePosition.y == MatrixUpperBounds.y;
+        public bool IsOnTheEdge(int x, int y) => x == MatrixLowerBounds.x || x == MatrixUpperBounds.x || y == MatrixLowerBounds.y || y == MatrixUpperBounds.y;
+
         public void SetTileRouteIndex(int x, int y, int routeIndex) 
         {
             if (Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single || Tiles[x, y].StateData.ConnectionType == TileConnectionType.Corner) Tiles[x, y].SetRouteIndex(routeIndex);
@@ -292,6 +295,34 @@ namespace PathGeneration
                     stack.Push(nextPos);
 
                     onTileVisited(nextPos.x, nextPos.y, Tiles[nextPos.x, nextPos.y]);
+                }
+            }
+        }
+
+        public void FollowPath(Vector2Int startPosition, HashSet<Vector2Int> blockedPositions, Action<int, int, Tile> onTileVisited)
+        {
+            var visited = new HashSet<Vector2Int>();
+            var stack = new Stack<Vector2Int>();
+
+            stack.Push(startPosition);
+            visited.Add(startPosition);
+            visited.Concat(blockedPositions);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                var currentTile = Tiles[current.x, current.y];
+
+                if (currentTile.TryGetFollowingTilePosition(current, out var nextPosition))
+                {
+                    if (IsOutOfBounds(nextPosition) || visited.Contains(nextPosition)) continue;
+
+                    if (GetTileByPosition(nextPosition).StateData.Type != TileType.Path) continue;
+
+                    visited.Add(nextPosition);
+                    stack.Push(nextPosition);
+
+                    onTileVisited(nextPosition.x, nextPosition.y, Tiles[nextPosition.x, nextPosition.y]);
                 }
             }
         }
