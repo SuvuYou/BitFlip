@@ -61,8 +61,6 @@ namespace PathGeneration
 
                     // dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
                     
-                    MapPath.Tiles.MergeWithDungeonRoom(dungeonRoom);
-
                     _dungeonRooms.Add(dungeonRoom);
                 }
 

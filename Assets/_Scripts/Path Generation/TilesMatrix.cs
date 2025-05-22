@@ -81,7 +81,7 @@ namespace PathGeneration
 
             SetupAdjacentConnections(x, y);
         }
-
+        
         public TilesMatrix(int width, int height, int stemLength, Vector2Int borderSize = default, int currentLargestRouteIndex = 1, bool shouldSetupDefaultTiles = true)
         {
             Width = width;
@@ -110,28 +110,6 @@ namespace PathGeneration
 
             StemLengthBorderLowerBounds = new (BorderSize.x + (StemLength - 1), BorderSize.y + (StemLength - 1));
             StemLengthBorderUpperBounds = new (Width - 1 - BorderSize.x - (StemLength - 1), Height - 1 - BorderSize.y - (StemLength - 1));
-        }
-
-        public void MergeWithPath(Path other)
-        {
-            var SetPathTileFunction = ConstructSetPathTileFunction(other.Tiles);
-
-            LoopThroughTiles(SetPathTileFunction, LoopType.All);
-        }
-
-        public void MergeWithDungeonRoom(DungeonRoom dungeonRoom)
-        {
-            (Vector2Int lowerBound, Vector2Int upperBound) = dungeonRoom.Bounds;
-
-            for (int x = lowerBound.x; x < upperBound.x; x++)
-            {
-                for (int y = lowerBound.y; y < upperBound.y; y++)
-                {
-                    SetTile(x, y, dungeonRoom.Tiles.GetTileByPosition(x - lowerBound.x, y - lowerBound.y));
-
-                    Tiles[x,y].SetAsDungeonRoomTile();
-                }
-            }
         }
 
         public HashSet<Vector2Int> GetOccupiedPositions()
@@ -403,17 +381,6 @@ namespace PathGeneration
                 int posY = y + bottomLeft.y;
 
                 clonedRegion.SetTileReference(x, y, GetTileByPosition(posX, posY));
-            };
-        }
-
-        private Action<int, int, Tile> ConstructSetPathTileFunction(TilesMatrix otherMatrix)
-        { 
-            return (int x, int y, Tile tile) => 
-            {
-                if (otherMatrix.GetTileByPosition(x, y).StateData.Type == TileType.Path)
-                {
-                    SetTile(x, y, otherMatrix.GetTileByPosition(x, y));
-                }
             };
         }
 
