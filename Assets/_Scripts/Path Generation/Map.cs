@@ -37,7 +37,7 @@ namespace PathGeneration
             MinRoomSize = gameDataSO.MinDungeonRoomSize;
             RoomBorderSize = Vector2Int.one;
 
-            _dungeonRoomPathConstructor = new SimpleExtensionDungeonRoomPathConstructor(gameDataSO);
+            _dungeonRoomPathConstructor = new VarietyDungeonRoomPathConstructor(gameDataSO);
             _dungeonRooms = new List<DungeonRoom>(MaxNumberOfDungeonRooms);
         }
 

@@ -81,7 +81,7 @@ namespace PathGeneration
 
             SetupAdjacentConnections(x, y);
         }
-        
+
         public TilesMatrix(int width, int height, int stemLength, Vector2Int borderSize = default, int currentLargestRouteIndex = 1, bool shouldSetupDefaultTiles = true)
         {
             Width = width;
@@ -222,12 +222,22 @@ namespace PathGeneration
 
         private void SetupAdjacentConnections(int x, int y)
         {
+            bool isWall = Tiles[x, y].StateData.Type == TileType.Wall;
+
             foreach (var direction in DirectionExtentions.AllDirections)
             {
                 int newX = x + direction.ToVector().x;
                 int newY = y + direction.ToVector().y;
 
                 if (newX < 0 || newY < 0 || newX >= Width || newY >= Height) continue;
+
+                if (isWall)
+                {
+                    Tiles[x, y].RemoveConnection(direction);
+                    Tiles[newX, newY].RemoveConnection(direction.Opposite());
+
+                    continue;
+                }
 
                 if (Tiles[newX, newY].StateData.Type == TileType.Path)
                 {

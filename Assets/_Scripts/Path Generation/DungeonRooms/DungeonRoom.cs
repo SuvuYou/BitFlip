@@ -48,39 +48,20 @@ namespace PathGeneration
 
         public void FindEnterExitPositionPairs() 
         {
-            List<Vector2Int> exitPositionsbuffer = new(ExitPositions.Count);
-
-            foreach (var exitPosition in ExitPositions)
+            for (int i = 0; i < ExitPositions.Count; i++)
             {
-                exitPositionsbuffer.Add(new Vector2Int(exitPosition.x - Bounds.Item1.x, exitPosition.y - Bounds.Item1.y));
-            }
+                Vector2Int currentExitPosition = new (ExitPositions[i].x - Bounds.Item1.x, ExitPositions[i].y - Bounds.Item1.y);
 
-            for (int i = 0; i < exitPositionsbuffer.Count; i++)
-            {
-                Tiles.FollowPath(exitPositionsbuffer[i], Tiles.GetOccupiedPositions(), (int x, int y, Tile tile) => 
+                Tiles.FollowPath(currentExitPosition, Tiles.GetOccupiedPositions(), (int x, int y, Tile tile) => 
                 { 
-                    if (exitPositionsbuffer.Any(pos => pos.x == x && pos.y == y) && exitPositionsbuffer[i].x != x && exitPositionsbuffer[i].y != y)
+                    if (currentExitPosition.x == x && currentExitPosition.y == y) return;
+
+                    if (ExitPositions.Any(pos => pos.x - Bounds.Item1.x == x && pos.y - Bounds.Item1.y == y))
                     {   
-                        EnterExitPositionPairs.Add((exitPositionsbuffer[i], new Vector2Int(x, y)));
-                        exitPositionsbuffer.Remove(exitPositionsbuffer[i]);
-                        exitPositionsbuffer.Remove(new Vector2Int(x, y));
+                        EnterExitPositionPairs.Add((currentExitPosition, new Vector2Int(x, y)));
                     } 
                 });
             }
-
-            Debug.Log("Strarasdtsdagfewsgf");
-
-            foreach (var exit in ExitPositions)
-            {
-                Debug.Log($"Exit: {new Vector2Int(exit.x - Bounds.Item1.x, exit.y - Bounds.Item1.y)}");
-            }
-
-            foreach (var pair in EnterExitPositionPairs)
-            {
-                Debug.Log($"Enter: {pair.Item1}, Exit: {pair.Item2}");
-            }
-
-            Debug.Log("Endnndnasegfnesrg");
         }
     }
 }

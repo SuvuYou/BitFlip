@@ -27,16 +27,16 @@ namespace PathGeneration
         {
             int pathCounter = 0;
 
-            while (dungeonRoom.Tiles.GetPathPercentage() < MIN_PATH_PERCENTAGE && pathCounter < MAX_PATH_ATTEMPTS)
-            {
-                pathCounter++;
+            // while (dungeonRoom.Tiles.GetPathPercentage() < MIN_PATH_PERCENTAGE && pathCounter < MAX_PATH_ATTEMPTS)
+            // {
+            //     pathCounter++;
 
-                if (!dungeonRoom.Tiles.TryGetTwoConnectiveTiles(_random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)) break;
+            //     if (!dungeonRoom.Tiles.TryGetTwoConnectiveTiles(_random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)) break;
                 
-                var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength, dungeonRoom.Tiles.CurrentLargestRouteIndex);
+            //     var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength, dungeonRoom.Tiles.CurrentLargestRouteIndex);
 
-                newPath.RandomWalk();
-            }
+            //     newPath.RandomWalk();
+            // }
 
             return dungeonRoom;
         }
