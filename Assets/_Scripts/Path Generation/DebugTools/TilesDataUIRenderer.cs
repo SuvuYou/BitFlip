@@ -16,7 +16,7 @@ public class TilesDataUIRenderer : MonoBehaviour
     public void RenderTileDataUnitAt(int x, int y, PathGeneration.Tile tile)
     {
         var tileDataUnitUI = Instantiate(_tileDataUnitUIPrefab, _parent);
-        tileDataUnitUI.transform.localPosition = new Vector3(x * 10, y * 10, 0);
+        tileDataUnitUI.transform.localPosition = new Vector3(x * 15, y * 15, 0);
         tileDataUnitUI.Setup(_tileDataDisplayUI, tile);
     }
 }

@@ -36,7 +36,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 10, y: 10}
+  m_SizeDelta: {x: 15, y: 15}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &7795823894990250130
 CanvasRenderer:
@@ -58,7 +58,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0917b71dc45721438f847eedd401678, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileDataDisplayUI: {fileID: 0}
   _button: {fileID: 2779265528661728183}
   _tileImage: {fileID: 1124060837274191940}
   _pathTileSprite: {fileID: 1148063047, guid: ed4edcc13cc60764181cc25a7679faf6, type: 3}
@@ -100,7 +99,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 10, y: 10}
+  m_SizeDelta: {x: 15, y: 15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3937800513020071301
 CanvasRenderer:
