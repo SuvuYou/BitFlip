@@ -63,8 +63,6 @@ namespace PathGeneration
             while (_currentState.position != EndPosition || i == 0)
             {
                 i++;
-                
-                Tiles.TilesSnapshotManager.Snapshot();
 
                 var validMoves = GetValidRelativeMoves(_currentState.position, _currentState.facingDirection);
 

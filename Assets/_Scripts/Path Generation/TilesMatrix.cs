@@ -5,24 +5,9 @@ using UnityEngine;
 
 namespace PathGeneration
 {
-    public class TilesMatrix : ISnapshotable<Tile[,]>
+    public class TilesMatrix
     {
         public enum LoopType { All, WithoutEdges, OnlyEdges, WithoutBorders, OnlyBorders };
-
-        public Tile[,] TakeSnapshot()
-        {
-            var clone = new Tile[Width, Height];
-
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    clone[i, j] = Tiles[i, j].Clone() as Tile;
-                }
-            }
-
-            return clone;
-        }
 
         public int Width { get; }
         public int Height { get; }
@@ -32,7 +17,6 @@ namespace PathGeneration
         public readonly Tile[,] Tiles;
 
         public readonly Validator PathValidator = new();
-        public readonly SnapshotManager<Tile[,]> TilesSnapshotManager;
 
         public Tile GetTileByPosition(Vector2Int position) => Tiles[position.x, position.y];
         public Tile GetTileByPosition(int x, int y) => Tiles[x, y];
@@ -79,15 +63,11 @@ namespace PathGeneration
             StemLength = stemLength;
             BorderSize = borderSize;
 
-            TilesSnapshotManager = new (this);
-
             Tiles = new Tile[width, height];
 
             if (shouldSetupDefaultTiles)
             {
                 SetupTiles();
-
-                TilesSnapshotManager.Snapshot();
             }
 
             MatrixLowerBounds = Vector2Int.zero;
