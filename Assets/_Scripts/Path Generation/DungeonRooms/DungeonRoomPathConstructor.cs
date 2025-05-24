@@ -33,7 +33,7 @@ namespace PathGeneration
 
             //     if (!dungeonRoom.Tiles.TryGetTwoConnectiveTiles(_random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)) break;
                 
-            //     var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength, dungeonRoom.Tiles.CurrentLargestRouteIndex);
+            //     var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength);
 
             //     newPath.RandomWalk();
             // }
@@ -68,7 +68,7 @@ namespace PathGeneration
 
                 if (!dungeonRoom.Tiles.TryGetTwoConnectiveTiles(_random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)) break;
 
-                var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength, dungeonRoom.Tiles.CurrentLargestRouteIndex);
+                var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength);
 
                 newPath.RandomWalk();
             }

@@ -28,6 +28,8 @@ namespace PathGeneration
         public List<Vector2Int> ExitPositions { get; private set; }
         public List<(Vector2Int, Vector2Int)> EnterExitPositionPairs { get; private set; } = new();
 
+        public Dictionary<Vector2Int, DungeonRoom> VariantsPerEnter;
+
         public void SetTiles(TilesMatrix tiles)
         {
             Tiles = tiles;

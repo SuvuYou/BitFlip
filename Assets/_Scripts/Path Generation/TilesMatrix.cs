@@ -30,8 +30,6 @@ namespace PathGeneration
         public int StemLength { get; }
 
         public readonly Tile[,] Tiles;
-        
-        public int CurrentLargestRouteIndex { get; private set; }
 
         public readonly Validator PathValidator = new();
         public readonly SnapshotManager<Tile[,]> TilesSnapshotManager;
@@ -60,19 +58,11 @@ namespace PathGeneration
         public bool IsOnTheEdge(Vector2Int tilePosition) => tilePosition.x == MatrixLowerBounds.x || tilePosition.x == MatrixUpperBounds.x || tilePosition.y == MatrixLowerBounds.y || tilePosition.y == MatrixUpperBounds.y;
         public bool IsOnTheEdge(int x, int y) => x == MatrixLowerBounds.x || x == MatrixUpperBounds.x || y == MatrixLowerBounds.y || y == MatrixUpperBounds.y;
 
-        public void SetTileRouteIndex(int x, int y, int routeIndex) 
-        {
-            if (Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single || Tiles[x, y].StateData.ConnectionType == TileConnectionType.Corner) Tiles[x, y].SetRouteIndex(routeIndex);
-            else Tiles[x, y].AddRouteIndex(routeIndex);
-        }
-
-        public void SetTile(int x, int y, TileType type, Direction facingDirection, int routeIndex = 1)
+        public void SetTile(int x, int y, TileType type, Direction facingDirection)
         {
             Tiles[x, y].SwitchType(type, facingDirection);
 
             SetupAdjacentConnections(x, y);
-
-            SetTileRouteIndex(x, y, routeIndex);
         }
 
         public void SetTile(int x, int y, Tile tile)
@@ -82,14 +72,12 @@ namespace PathGeneration
             SetupAdjacentConnections(x, y);
         }
 
-        public TilesMatrix(int width, int height, int stemLength, Vector2Int borderSize = default, int currentLargestRouteIndex = 1, bool shouldSetupDefaultTiles = true)
+        public TilesMatrix(int width, int height, int stemLength, Vector2Int borderSize = default, bool shouldSetupDefaultTiles = true)
         {
             Width = width;
             Height = height;
             StemLength = stemLength;
             BorderSize = borderSize;
-
-            CurrentLargestRouteIndex = currentLargestRouteIndex;
 
             TilesSnapshotManager = new (this);
 
@@ -196,7 +184,7 @@ namespace PathGeneration
             int width = topRight.x - bottomLeft.x;
             int height = topRight.y - bottomLeft.y;
 
-            var clonedRegion = new TilesMatrix(width, height, StemLength, borderSize, CurrentLargestRouteIndex, shouldSetupDefaultTiles: false);
+            var clonedRegion = new TilesMatrix(width, height, StemLength, borderSize, shouldSetupDefaultTiles: false);
 
             var SetRegionTileFunction = ConstructSetRegionTileFunction(bounds, clonedRegion);
 
@@ -249,40 +237,6 @@ namespace PathGeneration
                 {
                     Tiles[x, y].RemoveConnection(direction);
                     Tiles[newX, newY].RemoveConnection(direction.Opposite());
-                }
-            }
-        }
-
-        public void TraversePath(Vector2Int startPosition, HashSet<Vector2Int> blockedPositions, int routeIndex, Action<int, int, Tile> onTileVisited)
-        {
-            var visited = new HashSet<Vector2Int>();
-            var stack = new Stack<Vector2Int>();
-
-            stack.Push(startPosition);
-            visited.Add(startPosition);
-            visited.Concat(blockedPositions);
-
-            while (stack.Count > 0)
-            {
-                var current = stack.Pop();
-                var currentTile = Tiles[current.x, current.y];
-
-                foreach (var direction in DirectionExtentions.AllDirections)
-                {
-                    if (!currentTile.IsConnectedToDirection(direction)) continue;
-
-                    var nextPos = current + direction.ToVector();
-
-                    if (IsOutOfBounds(nextPos) || visited.Contains(nextPos)) continue;
-
-                    if (GetTileByPosition(nextPos).StateData.Type != TileType.Path) continue;
-
-                    if (!GetTileByPosition(nextPos).HasRouteIndex(routeIndex)) continue;
-
-                    visited.Add(nextPos);
-                    stack.Push(nextPos);
-
-                    onTileVisited(nextPos.x, nextPos.y, Tiles[nextPos.x, nextPos.y]);
                 }
             }
         }

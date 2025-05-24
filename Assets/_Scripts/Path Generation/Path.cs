@@ -20,9 +20,7 @@ namespace PathGeneration
         public int StemLength { get; }
 
         public readonly TilesMatrix Tiles;
-        
-        public int RouteIndex { get; private set; }
-
+    
         public readonly PseudoRandom.SystemRandomManager _systemRandom;
         public readonly Validator PathValidator = new();
 
@@ -37,7 +35,7 @@ namespace PathGeneration
 
         public void SetCurrentState((Vector2Int position, Direction facingDirection) newState) => _currentState = newState;
 
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction lockedInitialFacingDirection = Direction.None, int stemLength = 2, int routeIndex = 1)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction lockedInitialFacingDirection = Direction.None, int stemLength = 2)
         {
             StemLength = stemLength;
 
@@ -45,8 +43,6 @@ namespace PathGeneration
             EndPosition = endPosition;
 
             LockedInitialFacingDirection = lockedInitialFacingDirection;
-
-            RouteIndex = routeIndex;
 
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
 
@@ -56,8 +52,6 @@ namespace PathGeneration
             {
                 Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, lockedInitialFacingDirection); 
             }
-
-            Tiles.SetTileRouteIndex(StartPosition.x, StartPosition.y, Tiles.CurrentLargestRouteIndex);
 
             _currentState = (StartPosition, lockedInitialFacingDirection);
         }
@@ -109,7 +103,7 @@ namespace PathGeneration
                     }
                 }
 
-                var exploreModification = new Explore(this, _currentState, newFacingDirection, RouteIndex);
+                var exploreModification = new Explore(this, _currentState, newFacingDirection);
 
                 exploreModification.Modify();
 

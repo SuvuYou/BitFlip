@@ -20,12 +20,11 @@ namespace PathGeneration
         public bool IsIncludedInDungeonRoom;
         public bool IsValid;
 
-        public TileData(TileType type, Direction previousFacingDirection, int routeIndex, TileConnectionType connectionType, bool isBorder, bool isIncludedInDungeonRoom)
+        public TileData(TileType type, Direction previousFacingDirection, TileConnectionType connectionType, bool isBorder, bool isIncludedInDungeonRoom)
         {
             Type = type;
             PreviousFacingDirection = previousFacingDirection;
 
-            RouteIndices = routeIndex;
             ConnectionType = connectionType;
 
             IsBorder = isBorder;
@@ -40,9 +39,9 @@ namespace PathGeneration
 
         private HashSet<Direction> _connections = new();
 
-        public Tile(TileType type, Direction previousFacingDirection, int routeIndex = 1)
+        public Tile(TileType type, Direction previousFacingDirection)
         {
-            StateData = new TileData(type, previousFacingDirection, routeIndex, TileConnectionType.Single, false, false);
+            StateData = new TileData(type, previousFacingDirection, TileConnectionType.Single, false, false);
         }
 
         public void Invalidate() => StateData.IsValid = false;
@@ -62,16 +61,6 @@ namespace PathGeneration
             StateData.Type = newType;
             StateData.PreviousFacingDirection = previousFacingDirection;
         }
-
-        #region Routes
-
-        public void AddRouteIndex(int routeBit) => StateData.RouteIndices |= routeBit;
-
-        public void SetRouteIndex(int routeBit) => StateData.RouteIndices = routeBit;
-
-        public bool HasRouteIndex(int bit) => (StateData.RouteIndices & bit) != 0;
-        
-        #endregion
 
         #region Connections
 

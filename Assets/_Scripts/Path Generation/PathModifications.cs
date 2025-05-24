@@ -19,14 +19,11 @@ namespace PathGeneration
 
         private readonly Direction _exploreDirection;
 
-        private readonly int _routeIndex;
-
-        public Explore(Path path, (Vector2Int currentPos, Direction currentFacingDirection) cachedState, Direction exploreDirection, int routeIndex)
+        public Explore(Path path, (Vector2Int currentPos, Direction currentFacingDirection) cachedState, Direction exploreDirection)
         {
             this._path = path;
             this._cachedState = cachedState;
             this._exploreDirection = exploreDirection;
-            this._routeIndex = routeIndex;
 
             _cachedRouteIndices = new int[path.StemLength];
             _cachedTypes = new TileType[path.StemLength];
@@ -45,7 +42,7 @@ namespace PathGeneration
                 _cachedTypes[i] = _path.Tiles.GetTileByPosition(nextPos).StateData.Type;
                 _cachedDirections[i] = _path.Tiles.GetTileByPosition(nextPos).StateData.PreviousFacingDirection;
 
-                _path.Tiles.SetTile(nextPos.x, nextPos.y, TileType.Path, _exploreDirection, _routeIndex);
+                _path.Tiles.SetTile(nextPos.x, nextPos.y, TileType.Path, _exploreDirection);
 
                 currentPos = nextPos;
 
@@ -62,12 +59,11 @@ namespace PathGeneration
 
             for (int i = 0; i < _path.StemLength; i++)
             {
-                var routeIndex = _cachedRouteIndices[i];
                 var tileType = _cachedTypes[i];
                 var direction = _cachedDirections[i];
 
                 Vector2Int nextPos = currentPos + _exploreDirection.ToVector();
-                _path.Tiles.SetTile(nextPos.x, nextPos.y, tileType, direction, routeIndex);
+                _path.Tiles.SetTile(nextPos.x, nextPos.y, tileType, direction);
 
                 currentPos = nextPos;
 
