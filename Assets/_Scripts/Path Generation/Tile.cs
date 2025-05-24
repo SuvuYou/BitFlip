@@ -13,7 +13,6 @@ namespace PathGeneration
 
         public Direction PreviousFacingDirection;
 
-        public int RouteIndices;
         public TileConnectionType ConnectionType;
 
         public bool IsBorder;
@@ -165,7 +164,7 @@ namespace PathGeneration
 
         public object Clone()
         {
-            Tile clone = new (this.StateData.Type, this.StateData.PreviousFacingDirection, this.StateData.RouteIndices)
+            Tile clone = new (this.StateData.Type, this.StateData.PreviousFacingDirection)
             {
                 StateData = this.StateData,
             };

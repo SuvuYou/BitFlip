@@ -14,7 +14,6 @@ namespace PathGeneration
         
         private readonly TileType[] _cachedTypes;
         private readonly Direction[] _cachedDirections;
-        private readonly int[] _cachedRouteIndices;
         private readonly (Vector2Int currentPos, Direction currentFacingDirection) _cachedState;
 
         private readonly Direction _exploreDirection;
@@ -25,7 +24,6 @@ namespace PathGeneration
             this._cachedState = cachedState;
             this._exploreDirection = exploreDirection;
 
-            _cachedRouteIndices = new int[path.StemLength];
             _cachedTypes = new TileType[path.StemLength];
             _cachedDirections = new Direction[path.StemLength];
         }
@@ -38,7 +36,6 @@ namespace PathGeneration
             {
                 Vector2Int nextPos = currentPos + _exploreDirection.ToVector();
 
-                _cachedRouteIndices[i] = _path.Tiles.GetTileByPosition(nextPos).StateData.RouteIndices;
                 _cachedTypes[i] = _path.Tiles.GetTileByPosition(nextPos).StateData.Type;
                 _cachedDirections[i] = _path.Tiles.GetTileByPosition(nextPos).StateData.PreviousFacingDirection;
 
