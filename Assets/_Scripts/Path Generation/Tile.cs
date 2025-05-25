@@ -32,7 +32,7 @@ namespace PathGeneration
         }
     }
 
-    public class Tile : ICloneable
+    public class Tile
     {
         public TileData StateData;
 
@@ -162,7 +162,7 @@ namespace PathGeneration
             StateData = tile.StateData;
         }
 
-        public object Clone()
+        public Tile Clone()
         {
             Tile clone = new (this.StateData.Type, this.StateData.PreviousFacingDirection)
             {

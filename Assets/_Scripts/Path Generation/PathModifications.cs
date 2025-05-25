@@ -39,7 +39,7 @@ namespace PathGeneration
                 _cachedTypes[i] = _path.Tiles.GetTileByPosition(nextPos).StateData.Type;
                 _cachedDirections[i] = _path.Tiles.GetTileByPosition(nextPos).StateData.PreviousFacingDirection;
 
-                _path.Tiles.SetTile(nextPos.x, nextPos.y, TileType.Path, _exploreDirection);
+                _path.Tiles.SetTileData(nextPos.x, nextPos.y, TileType.Path, _exploreDirection);
 
                 currentPos = nextPos;
 
@@ -60,7 +60,7 @@ namespace PathGeneration
                 var direction = _cachedDirections[i];
 
                 Vector2Int nextPos = currentPos + _exploreDirection.ToVector();
-                _path.Tiles.SetTile(nextPos.x, nextPos.y, tileType, direction);
+                _path.Tiles.SetTileData(nextPos.x, nextPos.y, tileType, direction);
 
                 currentPos = nextPos;
 

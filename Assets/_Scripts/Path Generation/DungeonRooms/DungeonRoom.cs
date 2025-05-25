@@ -12,11 +12,11 @@ namespace PathGeneration
 
         public DungeonRoomType Type { get; private set; }
 
-        public DungeonRoom(DungeonRoomType type, (Vector2Int, Vector2Int) bounds, List<Vector2Int> exitPositionPairs)
+        public DungeonRoom(DungeonRoomType type, (Vector2Int, Vector2Int) bounds, List<Vector2Int> exitPositions)
         {
             Type = type;
             Bounds = bounds;
-            ExitPositions = exitPositionPairs;
+            ExitPositions = exitPositions;
 
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
         }
@@ -24,11 +24,28 @@ namespace PathGeneration
         public TilesMatrix Tiles { get; private set; }
 
         public (Vector2Int, Vector2Int) Bounds { get; private set; }
+        public int Width => Bounds.Item2.x - Bounds.Item1.x + 1;
+        public int Height => Bounds.Item2.y - Bounds.Item1.y + 1;
 
         public List<Vector2Int> ExitPositions { get; private set; }
         public List<(Vector2Int, Vector2Int)> EnterExitPositionPairs { get; private set; } = new();
 
-        public Dictionary<Vector2Int, DungeonRoom> VariantsPerEnter;
+        public DungeonRoomVariant OriginalVariant { get; private set; }
+        public Dictionary<(Vector2Int, Vector2Int), DungeonRoomVariant> VariantsPerEnter = new();
+
+        int currentVariantIndex = 0;
+
+        public void SetDungeonRoomVariant()
+        {
+            currentVariantIndex += 1;
+
+            if (currentVariantIndex > VariantsPerEnter.Count)
+                currentVariantIndex = 0;
+
+            DungeonRoomVariant variantToSet = currentVariantIndex == 0 ? OriginalVariant : VariantsPerEnter.ElementAt(currentVariantIndex - 1).Value;
+
+            Tiles.SetTilesDataFromMatrix(variantToSet.Tiles);
+        }
 
         public void SetTiles(TilesMatrix tiles)
         {
@@ -37,6 +54,10 @@ namespace PathGeneration
             Tiles.LoopThroughTiles(SetTileToDungeonRoomTile, TilesMatrix.LoopType.All);
 
             Tiles.InvalidateBorders();
+
+            OriginalVariant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero));
+
+            OriginalVariant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width -1, Height -1)), shouldCloneTiles: true));
         }
 
         private void SetTileToDungeonRoomTile (int x, int y, Tile tile) => tile.SetAsDungeonRoomTile();
@@ -63,6 +84,24 @@ namespace PathGeneration
                         EnterExitPositionPairs.Add((currentExitPosition, new Vector2Int(x, y)));
                     } 
                 });
+            }
+        }
+
+        public void SetupDungeonRoomVariants() 
+        {
+            VariantsPerEnter.Clear();
+
+            foreach ((Vector2Int enter, Vector2Int exit) in EnterExitPositionPairs)
+            {
+                var variant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero), enter, exit);
+
+                variant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width - 1, Height - 1)), shouldCloneTiles: true), shouldResetTiles: true);
+
+                var newPath = new Path(variant.Tiles, enter, exit);
+
+                newPath.RandomWalk();
+
+                VariantsPerEnter.Add((enter, exit), variant);
             }
         }
     }

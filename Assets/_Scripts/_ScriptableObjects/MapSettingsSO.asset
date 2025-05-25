@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 979bc773e60ec714384150f975d22715, type: 3}
-  m_Name: GameData
+  m_Script: {fileID: 11500000, guid: 2ccb11f7c8b4f76489def1f67d9c1af4, type: 3}
+  m_Name: MapSettingsSO
   m_EditorClassIdentifier: 
   MapWidth: 51
   MapHeight: 51
@@ -19,3 +19,4 @@ MonoBehaviour:
   MinDungeonRoomSize: {x: 8, y: 8}
   MaxDungeonRoomSize: {x: 25, y: 25}
   MapBorderSize: {x: 10, y: 4}
+  DungeonRoomBorderSize: {x: 1, y: 1}

@@ -3,8 +3,6 @@ using UnityEngine;
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameDataSO _gameData;
-
     [SerializeField] private MapRenderer _mapRenderer;
 
     [SerializeField] private PlayerSpawnManager _playerSpawnManager;
@@ -16,9 +14,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        SwapSystem.SwappableEntitiesManager.Instance.InitContainers(_gameData);
-
-        
+        SwapSystem.SwappableEntitiesManager.Instance.InitContainers();
     }
 
     public void Spawn()
@@ -27,7 +23,7 @@ public class GameManager : MonoBehaviour
 
         _seedField.SetSeedText(seed);
 
-        _map = new PathGeneration.Map(_gameData);
+        _map = new PathGeneration.Map();
 
         _map.Generate();
 
@@ -42,6 +38,12 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SwapSystem.SwappableEntitiesManager.Instance.SwapEntities(layerSwapInterval: 0.01f);
+        }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            _map.SetupDungeonRoomVariants();
+            _mapRenderer.Render(_map);
         }
     }
 }

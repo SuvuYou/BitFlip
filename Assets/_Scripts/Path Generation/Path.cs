@@ -35,9 +35,9 @@ namespace PathGeneration
 
         public void SetCurrentState((Vector2Int position, Direction facingDirection) newState) => _currentState = newState;
 
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction lockedInitialFacingDirection = Direction.None, int stemLength = 2)
+        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction lockedInitialFacingDirection = Direction.None)
         {
-            StemLength = stemLength;
+            StemLength = MapSettingsProvider.Instance.MapSettings.MapStemLength;
 
             StartPosition = startPosition;
             EndPosition = endPosition;
@@ -48,9 +48,12 @@ namespace PathGeneration
 
             Tiles = tiles;
 
+            Debug.Log($"StartPosition: {StartPosition}");
+            Debug.Log($"Width: {Tiles.Width}");
+            Debug.Log($"Height: {Tiles.Height}");
             if (Tiles.GetTileByPosition(StartPosition).StateData.Type != TileType.Path)
             {
-                Tiles.SetTile(StartPosition.x, StartPosition.y, TileType.Path, lockedInitialFacingDirection); 
+                Tiles.SetTileData(StartPosition.x, StartPosition.y, TileType.Path, lockedInitialFacingDirection); 
             }
 
             _currentState = (StartPosition, lockedInitialFacingDirection);

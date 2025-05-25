@@ -15,29 +15,24 @@ namespace PathGeneration
 
         private List<DungeonRoom> _dungeonRooms;
 
-        public Vector2Int MaxRoomSize { get; private set; } 
-        public Vector2Int MinRoomSize { get; private set; }
-        public Vector2Int RoomBorderSize { get; private set; }
         public int MaxNumberOfDungeonRooms { get; private set; }
 
-        public Map(GameDataSO gameDataSO)
+        public Map()
         {
-            Vector2Int startPos = new (0 + gameDataSO.MapBorderSize.x, 0 + gameDataSO.MapBorderSize.y);
-            Vector2Int endPos = new (gameDataSO.MapWidth - 1 - gameDataSO.MapBorderSize.x, gameDataSO.MapHeight - 1 - gameDataSO.MapBorderSize.y);
+            var mapSettings = MapSettingsProvider.Instance.MapSettings;
 
-            MapTiles = new TilesMatrix(gameDataSO.MapWidth, gameDataSO.MapHeight, gameDataSO.MapStemLength, gameDataSO.MapBorderSize);
+            Vector2Int startPos = new (0 + mapSettings.MapBorderSize.x, 0 + mapSettings.MapBorderSize.y);
+            Vector2Int endPos = new (mapSettings.MapWidth - 1 - mapSettings.MapBorderSize.x, mapSettings.MapHeight - 1 - mapSettings.MapBorderSize.y);
 
-            MapPath = new Path(MapTiles, startPos, endPos, Direction.None, gameDataSO.MapStemLength);
+            MapTiles = new TilesMatrix(mapSettings.MapWidth, mapSettings.MapHeight, mapSettings.MapStemLength);
+
+            MapPath = new Path(MapTiles, startPos, endPos);
 
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
 
-            MaxNumberOfDungeonRooms = gameDataSO.MaxNumberOfDungeonRooms;
+            MaxNumberOfDungeonRooms = mapSettings.MaxNumberOfDungeonRooms;
 
-            MaxRoomSize = gameDataSO.MaxDungeonRoomSize;
-            MinRoomSize = gameDataSO.MinDungeonRoomSize;
-            RoomBorderSize = Vector2Int.one;
-
-            _dungeonRoomPathConstructor = new VarietyDungeonRoomPathConstructor(gameDataSO);
+            _dungeonRoomPathConstructor = new VarietyDungeonRoomPathConstructor();
             _dungeonRooms = new List<DungeonRoom>(MaxNumberOfDungeonRooms);
         }
 
@@ -49,13 +44,21 @@ namespace PathGeneration
             GenerateDungeonRooms();
         }
 
+        public void SetupDungeonRoomVariants()
+        {
+            foreach (var dungeonRoom in _dungeonRooms)
+            {
+                dungeonRoom.SetDungeonRoomVariant();
+            }
+        }
+
         private void GenerateDungeonRooms()
         {
             foreach (var pos in MapPath.Tiles.GetCornerTiles())
             {
                 if (_dungeonRooms.Count < MaxNumberOfDungeonRooms)
                 {
-                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, MinRoomSize, MaxRoomSize, RoomBorderSize, out DungeonRoom dungeonRoom)) continue;
+                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, out DungeonRoom dungeonRoom)) continue;
 
                     dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
 

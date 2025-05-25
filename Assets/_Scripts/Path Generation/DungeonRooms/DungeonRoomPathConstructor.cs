@@ -14,18 +14,16 @@ namespace PathGeneration
 
         private PseudoRandom.SystemRandomManager _random;
 
-        private int _stemLength;
-
-        public VarietyDungeonRoomPathConstructor(GameDataSO gameDataSO) 
+        public VarietyDungeonRoomPathConstructor() 
         {
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
-
-            _stemLength = gameDataSO.MapStemLength;
         }
 
         public DungeonRoom ConstructPath(DungeonRoom dungeonRoom)
         {
             int pathCounter = 0;
+
+            
 
             // while (dungeonRoom.Tiles.GetPathPercentage() < MIN_PATH_PERCENTAGE && pathCounter < MAX_PATH_ATTEMPTS)
             // {
@@ -33,7 +31,7 @@ namespace PathGeneration
 
             //     if (!dungeonRoom.Tiles.TryGetTwoConnectiveTiles(_random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)) break;
                 
-            //     var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength);
+            //     var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection);
 
             //     newPath.RandomWalk();
             // }
@@ -49,13 +47,9 @@ namespace PathGeneration
 
         private PseudoRandom.SystemRandomManager _random;
 
-        private int _stemLength;
-
-        public SimpleExtensionDungeonRoomPathConstructor(GameDataSO gameDataSO) 
+        public SimpleExtensionDungeonRoomPathConstructor() 
         {
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
-
-            _stemLength = gameDataSO.MapStemLength;
         }
 
         public DungeonRoom ConstructPath(DungeonRoom dungeonRoom)
@@ -68,7 +62,7 @@ namespace PathGeneration
 
                 if (!dungeonRoom.Tiles.TryGetTwoConnectiveTiles(_random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)) break;
 
-                var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection, _stemLength);
+                var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection);
 
                 newPath.RandomWalk();
             }
