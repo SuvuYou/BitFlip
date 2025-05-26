@@ -48,9 +48,6 @@ namespace PathGeneration
 
             Tiles = tiles;
 
-            Debug.Log($"StartPosition: {StartPosition}");
-            Debug.Log($"Width: {Tiles.Width}");
-            Debug.Log($"Height: {Tiles.Height}");
             if (Tiles.GetTileByPosition(StartPosition).StateData.Type != TileType.Path)
             {
                 Tiles.SetTileData(StartPosition.x, StartPosition.y, TileType.Path, lockedInitialFacingDirection); 

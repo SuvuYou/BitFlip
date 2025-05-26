@@ -27,13 +27,17 @@ namespace PathGeneration
 
             List<((Vector2Int bottomLeft, Vector2Int topRight), List<Vector2Int> exitPositions)> validCandidates = new();
 
-            for (int width = mapSettings.MaxDungeonRoomSize.x; width >= mapSettings.MinDungeonRoomSize.x; width--)
+            // Increase by 2 to have StemLength-perfect setup where the edge tiles can be connected with the path
+            for (int width = mapSettings.MaxDungeonRoomSize.x; width >= mapSettings.MinDungeonRoomSize.x; width-=2)
             {
-                for (int height = mapSettings.MaxDungeonRoomSize.y; height >= mapSettings.MinDungeonRoomSize.y; height--)
+                for (int height = mapSettings.MaxDungeonRoomSize.y; height >= mapSettings.MinDungeonRoomSize.y; height-=2)
                 {
-                    for (int offsetX = 0; offsetX < width; offsetX++)
+                    if (width % 2 == 0) width--;
+                    if (height % 2 == 0) height--;
+
+                    for (int offsetX = 0; offsetX < width; offsetX+=2)
                     {
-                        for (int offsetY = 0; offsetY < height; offsetY++)
+                        for (int offsetY = 0; offsetY < height; offsetY+=2)
                         {
                             Vector2Int bottomLeft = new (forceContainPosition.x - offsetX, forceContainPosition.y - offsetY);
                             Vector2Int topRight = new (bottomLeft.x + width, bottomLeft.y + height);
@@ -44,18 +48,41 @@ namespace PathGeneration
                             bool candidateValid = true;
                             int singlePathTileCount = 0;
 
+                            if (bottomLeft.x < 0 || bottomLeft.x + width >= path.Tiles.Width || bottomLeft.y < 0 || bottomLeft.y + height >= path.Tiles.Height)
+                            {
+                                continue;
+                            }
+
                             for (int i = 0; i < width; i++)
                             {
-                                for (int j = 0; j < height; j++)
-                                {
-                                    int posX = bottomLeft.x + i;
-                                    int posY = bottomLeft.y + j;
+                                int posX = bottomLeft.x + i;
+                                
+                                var bottomTile = path.Tiles.GetTileByPosition(posX, bottomLeft.y);
+                                var topTile = path.Tiles.GetTileByPosition(posX, bottomLeft.y + height - 1);
 
-                                    if (posX < 0 || posY < 0 || posX >= path.Tiles.Width || posY >= path.Tiles.Height)
+                                if (bottomTile.StateData.Type == TileType.Path)
+                                {
+                                    if (bottomTile.IsConnectedToDirection(Direction.Left) ||
+                                        bottomTile.IsConnectedToDirection(Direction.Right))
                                     {
                                         candidateValid = false;
                                         break;
                                     }
+                                }
+
+                                if (topTile.StateData.Type == TileType.Path)
+                                {
+                                    if (topTile.IsConnectedToDirection(Direction.Left) ||
+                                        topTile.IsConnectedToDirection(Direction.Right))
+                                    {
+                                        candidateValid = false;
+                                        break;
+                                    }
+                                }
+
+                                for (int j = 0; j < height; j++)
+                                {
+                                    int posY = bottomLeft.y + j;
 
                                     var tile = path.Tiles.GetTileByPosition(posX, posY);
 
@@ -65,7 +92,7 @@ namespace PathGeneration
                                         break;
                                     }
 
-                                    if (tile.StateData.ConnectionType == TileConnectionType.Corner && !BoundsHelper.IsWithinBounds(posX, posY, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds))
+                                    if (tile.StateData.ConnectionType != TileConnectionType.Single && !BoundsHelper.IsWithinBounds(posX, posY, StemLengthBorderLowerBounds, StemLengthBorderUpperBounds))
                                     {
                                         candidateValid = false;
                                         break;
@@ -86,6 +113,29 @@ namespace PathGeneration
                                             break;
                                         }
                                     }
+
+                                    var leftTile = path.Tiles.GetTileByPosition(bottomLeft.x, posY);
+                                    var rightTile = path.Tiles.GetTileByPosition(bottomLeft.x + width - 1, posY);
+
+                                    if (leftTile.StateData.Type == TileType.Path)
+                                    {
+                                        if (leftTile.IsConnectedToDirection(Direction.Up) ||
+                                            leftTile.IsConnectedToDirection(Direction.Down))
+                                        {
+                                            candidateValid = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (rightTile.StateData.Type == TileType.Path)
+                                    {
+                                        if (rightTile.IsConnectedToDirection(Direction.Up) ||
+                                            rightTile.IsConnectedToDirection(Direction.Down))
+                                        {
+                                            candidateValid = false;
+                                            break;
+                                        }
+                                    }    
                                 }
 
                                 if (!candidateValid)

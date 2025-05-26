@@ -24,11 +24,14 @@ namespace PathGeneration
         public TilesMatrix Tiles { get; private set; }
 
         public (Vector2Int, Vector2Int) Bounds { get; private set; }
-        public int Width => Bounds.Item2.x - Bounds.Item1.x + 1;
-        public int Height => Bounds.Item2.y - Bounds.Item1.y + 1;
+        public Vector2Int LowerBounds => Bounds.Item1;
+        public Vector2Int UpperBounds => Bounds.Item2;
+
+        public int Width => UpperBounds.x - LowerBounds.x + 1;
+        public int Height => UpperBounds.y - LowerBounds.y + 1;
 
         public List<Vector2Int> ExitPositions { get; private set; }
-        public List<(Vector2Int, Vector2Int)> EnterExitPositionPairs { get; private set; } = new();
+        public List<(Vector2Int, Vector2Int, Direction)> EnterExitPositionPairs { get; private set; } = new();
 
         public DungeonRoomVariant OriginalVariant { get; private set; }
         public Dictionary<(Vector2Int, Vector2Int), DungeonRoomVariant> VariantsPerEnter = new();
@@ -66,22 +69,22 @@ namespace PathGeneration
         {
             var pathTiles = Tiles.GetOccupiedPositions();
 
-            return (Bounds.Item1 + pathTiles.ElementAt(_random.GetRandomInt(0, pathTiles.Count))).ToVector3WithZ(z: 0);
+            return (LowerBounds + pathTiles.ElementAt(_random.GetRandomInt(0, pathTiles.Count))).ToVector3WithZ(z: 0);
         }
 
         public void FindEnterExitPositionPairs() 
         {
             for (int i = 0; i < ExitPositions.Count; i++)
             {
-                Vector2Int currentExitPosition = new (ExitPositions[i].x - Bounds.Item1.x, ExitPositions[i].y - Bounds.Item1.y);
+                Vector2Int currentExitPosition = new (ExitPositions[i].x - LowerBounds.x, ExitPositions[i].y - LowerBounds.y);
 
                 Tiles.FollowPath(currentExitPosition, Tiles.GetOccupiedPositions(), (int x, int y, Tile tile) => 
                 { 
                     if (currentExitPosition.x == x && currentExitPosition.y == y) return;
 
-                    if (ExitPositions.Any(pos => pos.x - Bounds.Item1.x == x && pos.y - Bounds.Item1.y == y))
+                    if (ExitPositions.Any(pos => pos.x - LowerBounds.x == x && pos.y - LowerBounds.y == y))
                     {   
-                        EnterExitPositionPairs.Add((currentExitPosition, new Vector2Int(x, y)));
+                        EnterExitPositionPairs.Add((currentExitPosition, new Vector2Int(x, y), Tiles.GetTileByPosition(currentExitPosition).StateData.PreviousFacingDirection));
                     } 
                 });
             }
@@ -91,14 +94,15 @@ namespace PathGeneration
         {
             VariantsPerEnter.Clear();
 
-            foreach ((Vector2Int enter, Vector2Int exit) in EnterExitPositionPairs)
+            foreach ((Vector2Int enter, Vector2Int exit, Direction lockedDiirectiion) in EnterExitPositionPairs)
             {
                 var variant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero), enter, exit);
 
                 variant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width - 1, Height - 1)), shouldCloneTiles: true), shouldResetTiles: true);
 
-                var newPath = new Path(variant.Tiles, enter, exit);
+                var newPath = new Path(variant.Tiles, enter, exit, lockedDiirectiion);
 
+                Debug.Log($"Generating path from {enter} to {exit}");
                 newPath.RandomWalk();
 
                 VariantsPerEnter.Add((enter, exit), variant);

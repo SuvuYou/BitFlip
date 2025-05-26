@@ -66,8 +66,6 @@ namespace PathGeneration
                     
                     _dungeonRooms.Add(dungeonRoom);
                 }
-
-                Debug.Log($"Dungeon rooms: {_dungeonRooms.Count}");
             }
         }
 
