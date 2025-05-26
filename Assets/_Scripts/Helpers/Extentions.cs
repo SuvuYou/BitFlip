@@ -14,6 +14,7 @@ public static class DirectionExtentions
             Direction.Down => Direction.Up,
             Direction.Left => Direction.Right,
             Direction.Right => Direction.Left,
+            Direction.None => Direction.Down,
             _ => Direction.None
         };
 

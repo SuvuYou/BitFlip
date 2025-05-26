@@ -27,12 +27,12 @@ namespace SwapSystem
 
         private Coroutine _swapCoroutine;
 
-        public void InitContainers(GameDataSO gameData)
+        public void InitContainers()
         {
-            for (int i = 0; i < gameData.MapHeight; i++) _staticSwappableEntities.Add(i, new List<ISwappable>());
+            for (int i = 0; i < MapSettingsProvider.Instance.MapSettings.MapHeight; i++) _staticSwappableEntities.Add(i, new List<ISwappable>());
 
             _startStaticPositionY = 0;
-            _endStaticPositionY = gameData.MapHeight - 1;
+            _endStaticPositionY = MapSettingsProvider.Instance.MapSettings.MapHeight - 1;
         }
 
         public void SwapEntities(float layerSwapInterval = 0.01f)

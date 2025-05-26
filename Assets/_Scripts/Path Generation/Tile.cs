@@ -13,19 +13,17 @@ namespace PathGeneration
 
         public Direction PreviousFacingDirection;
 
-        public int RouteIndices;
         public TileConnectionType ConnectionType;
 
         public bool IsBorder;
         public bool IsIncludedInDungeonRoom;
         public bool IsValid;
 
-        public TileData(TileType type, Direction previousFacingDirection, int routeIndex, TileConnectionType connectionType, bool isBorder, bool isIncludedInDungeonRoom)
+        public TileData(TileType type, Direction previousFacingDirection, TileConnectionType connectionType, bool isBorder, bool isIncludedInDungeonRoom)
         {
             Type = type;
             PreviousFacingDirection = previousFacingDirection;
 
-            RouteIndices = routeIndex;
             ConnectionType = connectionType;
 
             IsBorder = isBorder;
@@ -34,15 +32,15 @@ namespace PathGeneration
         }
     }
 
-    public class Tile : ICloneable
+    public class Tile
     {
         public TileData StateData;
 
         private HashSet<Direction> _connections = new();
 
-        public Tile(TileType type, Direction previousFacingDirection, int routeIndex = 1)
+        public Tile(TileType type, Direction previousFacingDirection)
         {
-            StateData = new TileData(type, previousFacingDirection, routeIndex, TileConnectionType.Single, false, false);
+            StateData = new TileData(type, previousFacingDirection, TileConnectionType.Single, false, false);
         }
 
         public void Invalidate() => StateData.IsValid = false;
@@ -63,17 +61,37 @@ namespace PathGeneration
             StateData.PreviousFacingDirection = previousFacingDirection;
         }
 
-        #region Routes
-
-        public void AddRouteIndex(int routeBit) => StateData.RouteIndices |= routeBit;
-
-        public void SetRouteIndex(int routeBit) => StateData.RouteIndices = routeBit;
-
-        public bool HasRouteIndex(int bit) => (StateData.RouteIndices & bit) != 0;
-        
-        #endregion
-
         #region Connections
+
+        public bool TryGetFollowingTilePosition(Vector2Int currentPosition, out Vector2Int nextPosition, Direction previousTileDirection = Direction.None) 
+        {
+            nextPosition = new Vector2Int();
+
+            if (StateData.ConnectionType == TileConnectionType.Intersection && previousTileDirection != Direction.None && _connections.Contains(previousTileDirection))
+            {
+                nextPosition = currentPosition + previousTileDirection.ToVector();
+
+                return true;
+            }
+
+            if (_connections.Contains(StateData.PreviousFacingDirection))
+            {
+                nextPosition = currentPosition + StateData.PreviousFacingDirection.ToVector();
+
+                return true;
+            }
+ 
+            foreach (var direction in _connections)
+            {
+                if (direction == StateData.PreviousFacingDirection.Opposite()) continue;
+
+                nextPosition = currentPosition + direction.ToVector();
+
+                return true;
+            }
+
+            return false;
+        }
 
         public bool TryGetNextConnectedTilePosition(Vector2Int currentPosition, out Vector2Int nextPosition) 
         {
@@ -151,9 +169,9 @@ namespace PathGeneration
             StateData = tile.StateData;
         }
 
-        public object Clone()
+        public Tile Clone()
         {
-            Tile clone = new (this.StateData.Type, this.StateData.PreviousFacingDirection, this.StateData.RouteIndices)
+            Tile clone = new (this.StateData.Type, this.StateData.PreviousFacingDirection)
             {
                 StateData = this.StateData,
             };

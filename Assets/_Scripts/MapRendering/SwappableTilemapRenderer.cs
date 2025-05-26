@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,7 +13,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
     [SerializeField] private SwapSystem.SwappableRuleTile _wallSwappableTilePrefab;
     [SerializeField] private SwapSystem.SwappableRuleTile _deadlyWallSwappableTilePrefab;
 
-    [SerializeField] private RouteIndexUIRenderer _routeIndexUIRenderer;
+    public event Action<int, int, PathGeneration.Tile> OnRenderTile;
 
     private SwapSystem.SwappableRuleTile[,] _swappableTiles;
 
@@ -80,7 +81,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
             for (int y = 0; y <  map.MapPath.Tiles.Height; y++)
             {
                 Vector3Int tilePosition = new (x, y, 0);
-                _routeIndexUIRenderer.RenderRouteAt(map.MapPath.Tiles.GetTileByPosition(x, y).StateData.RouteIndices, x, y);
+                OnRenderTile?.Invoke(x, y, map.MapPath.Tiles.GetTileByPosition(x, y));
 
                 switch (map.MapPath.Tiles.GetTileByPosition(x, y).StateData.Type)
                 {

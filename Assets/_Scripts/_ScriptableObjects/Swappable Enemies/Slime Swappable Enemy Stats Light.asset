@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: db5d2ddf2c535204bba1e5874dc4c683, type: 3}
   m_Name: Slime Swappable Enemy Stats Light
-  m_EditorClassIdentifier: Scripts::SwappableEnemyStats
+  m_EditorClassIdentifier: 
   Variant: 0
   DisplaySprite: {fileID: 0}
   IsKillable: 1
