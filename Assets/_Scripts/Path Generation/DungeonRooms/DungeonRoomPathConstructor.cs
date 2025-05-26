@@ -4,7 +4,8 @@ namespace PathGeneration
 {
     public interface IDungeonRoomPathConstructor
     {
-        public abstract DungeonRoom ConstructPath(DungeonRoom dungeonRoom);
+        public abstract IDungeonRoom ConstructPath(DungeonRoom dungeonRoom);
+        public virtual IDungeonRoom ConstructPath(IDungeonRoom dungeonRoom) { return null; }
     }
 
     public class VarietyDungeonRoomPathConstructor : IDungeonRoomPathConstructor
@@ -14,27 +15,22 @@ namespace PathGeneration
 
         private PseudoRandom.SystemRandomManager _random;
 
+        private SimpleExtensionDungeonRoomPathConstructor _simpleExtensionDungeonRoomPathConstructor = new ();
+
         public VarietyDungeonRoomPathConstructor() 
         {
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
         }
 
-        public DungeonRoom ConstructPath(DungeonRoom dungeonRoom)
+        public IDungeonRoom ConstructPath(DungeonRoom dungeonRoom)
         {
-            int pathCounter = 0;
+            dungeonRoom.FindEnterExitPositionPairs();
+            dungeonRoom.SetupDungeonRoomVariants();
 
-            
-
-            // while (dungeonRoom.Tiles.GetPathPercentage() < MIN_PATH_PERCENTAGE && pathCounter < MAX_PATH_ATTEMPTS)
-            // {
-            //     pathCounter++;
-
-            //     if (!dungeonRoom.Tiles.TryGetTwoConnectiveTiles(_random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)) break;
-                
-            //     var newPath = new Path(dungeonRoom.Tiles, cornerTilePosition, singleTilePosition, lockedDirection);
-
-            //     newPath.RandomWalk();
-            // }
+            foreach (var variant in dungeonRoom.VariantsPerEnter.Values)
+            {
+                _simpleExtensionDungeonRoomPathConstructor.ConstructPath(variant);
+            }
 
             return dungeonRoom;
         }
@@ -52,7 +48,7 @@ namespace PathGeneration
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
         }
 
-        public DungeonRoom ConstructPath(DungeonRoom dungeonRoom)
+        public IDungeonRoom ConstructPath(IDungeonRoom dungeonRoom)
         {
             int pathCounter = 0;
 
@@ -68,6 +64,11 @@ namespace PathGeneration
             }
 
             return dungeonRoom;
+        }
+
+        public IDungeonRoom ConstructPath(DungeonRoom dungeonRoom)
+        {
+            return ConstructPath(dungeonRoom);
         }
     }
 }

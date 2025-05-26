@@ -191,9 +191,6 @@ namespace PathGeneration
 
                 dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(bounds));
 
-                dungeonRoom.FindEnterExitPositionPairs();
-                dungeonRoom.SetupDungeonRoomVariants();
-
                 return true;
             }
 

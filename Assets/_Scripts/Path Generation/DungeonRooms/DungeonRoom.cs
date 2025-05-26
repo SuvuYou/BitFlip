@@ -6,7 +6,7 @@ namespace PathGeneration
 {
     public enum DungeonRoomType { DedlyWall, Doorswitch, FlipPuzzle }
 
-    public class DungeonRoom
+    public class DungeonRoom : IDungeonRoom
     {
         private PseudoRandom.SystemRandomManager _random;
 

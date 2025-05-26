@@ -60,7 +60,7 @@ namespace PathGeneration
                 {
                     if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, out DungeonRoom dungeonRoom)) continue;
 
-                    dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom);
+                    dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom) as DungeonRoom;
 
                     // dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
                     

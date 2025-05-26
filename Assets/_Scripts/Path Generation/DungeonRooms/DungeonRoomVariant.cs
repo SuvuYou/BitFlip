@@ -2,17 +2,13 @@ using UnityEngine;
 
 namespace PathGeneration
 {
-    public class DungeonRoomVariant
+    public class DungeonRoomVariant : IDungeonRoom
     {
-        private PseudoRandom.SystemRandomManager _random;
-
         public DungeonRoomVariant((Vector2Int, Vector2Int) bounds, Vector2Int enterPosition = default, Vector2Int exitPosition = default)
         {
             Bounds = bounds;
             EnterPosition = enterPosition;
             ExitPosition = exitPosition;
-
-            _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
         }
 
         public TilesMatrix Tiles { get; private set; }
