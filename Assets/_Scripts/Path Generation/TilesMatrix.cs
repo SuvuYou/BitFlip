@@ -245,12 +245,14 @@ namespace PathGeneration
             visited.Add(startPosition);
             visited.Concat(blockedPositions);
 
+            Direction previousTileDirection = Direction.None;
+
             while (stack.Count > 0)
             {
                 var current = stack.Pop();
                 var currentTile = Tiles[current.x, current.y];
 
-                if (currentTile.TryGetFollowingTilePosition(current, out var nextPosition))
+                if (currentTile.TryGetFollowingTilePosition(current, out var nextPosition, previousTileDirection))
                 {
                     if (IsOutOfBounds(nextPosition) || visited.Contains(nextPosition)) continue;
 
@@ -259,8 +261,10 @@ namespace PathGeneration
                     visited.Add(nextPosition);
                     stack.Push(nextPosition);
 
+                    previousTileDirection = currentTile.StateData.PreviousFacingDirection;
+
                     onTileVisited(nextPosition.x, nextPosition.y, Tiles[nextPosition.x, nextPosition.y]);
-                }
+                }                
             }
         }
 

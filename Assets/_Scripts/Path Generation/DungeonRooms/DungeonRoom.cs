@@ -74,17 +74,24 @@ namespace PathGeneration
 
         public void FindEnterExitPositionPairs() 
         {
-            for (int i = 0; i < ExitPositions.Count; i++)
+            List<int> occupiedIndecies = new();
+
+            for (int enterIndex = 0; enterIndex < ExitPositions.Count; enterIndex++)
             {
-                Vector2Int currentExitPosition = new (ExitPositions[i].x - LowerBounds.x, ExitPositions[i].y - LowerBounds.y);
+                Vector2Int currentExitPosition = new (ExitPositions[enterIndex].x - LowerBounds.x, ExitPositions[enterIndex].y - LowerBounds.y);
 
                 Tiles.FollowPath(currentExitPosition, Tiles.GetOccupiedPositions(), (int x, int y, Tile tile) => 
                 { 
                     if (currentExitPosition.x == x && currentExitPosition.y == y) return;
 
-                    if (ExitPositions.Any(pos => pos.x - LowerBounds.x == x && pos.y - LowerBounds.y == y))
+                    var exitIndex = ExitPositions.FindIndex(pos => pos.x - LowerBounds.x == x && pos.y - LowerBounds.y == y);
+
+                    if (!occupiedIndecies.Contains(exitIndex) && exitIndex != -1)
                     {   
                         EnterExitPositionPairs.Add((currentExitPosition, new Vector2Int(x, y), Tiles.GetTileByPosition(currentExitPosition).StateData.PreviousFacingDirection));
+
+                        occupiedIndecies.Add(exitIndex);
+                        occupiedIndecies.Add(enterIndex);
                     } 
                 });
             }
