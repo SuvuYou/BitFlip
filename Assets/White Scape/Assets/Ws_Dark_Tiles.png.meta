@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ed4edcc13cc60764181cc25a7679faf6
+guid: d1adcf1beb3bb22408b3d001f45ad3a9
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -126,9 +126,9 @@ TextureImporter:
       name: 15
       rect:
         serializedVersion: 2
-        x: 175
+        x: 176
         y: 185
-        width: 17
+        width: 16
         height: 22
       alignment: 9
       pivot: {x: 0.5, y: 0.45454547}
@@ -149,7 +149,7 @@ TextureImporter:
         serializedVersion: 2
         x: 240
         y: 185
-        width: 17
+        width: 16
         height: 22
       alignment: 9
       pivot: {x: 0.5, y: 0.45454547}
@@ -236,7 +236,7 @@ TextureImporter:
         width: 18
         height: 21
       alignment: 9
-      pivot: {x: 0.55, y: 0.4285714}
+      pivot: {x: 0.5555556, y: 0.4285714}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -648,7 +648,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: -2
+      name: -1
       rect:
         serializedVersion: 2
         x: 112
@@ -669,7 +669,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: -1
+      name: -2
       rect:
         serializedVersion: 2
         x: 144
@@ -966,9 +966,9 @@ TextureImporter:
       name: 19
       rect:
         serializedVersion: 2
-        x: 270
+        x: 272
         y: 186
-        width: 18
+        width: 16
         height: 21
       alignment: 9
       pivot: {x: 0.5, y: 0.4285714}
@@ -989,7 +989,7 @@ TextureImporter:
         serializedVersion: 2
         x: 336
         y: 186
-        width: 18
+        width: 16
         height: 21
       alignment: 9
       pivot: {x: 0.5, y: 0.4285714}
@@ -1141,8 +1141,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      -1: -1795554502
-      -2: 1445135734
+      -1: 1445135734
+      -2: -1795554502
       1: -1850481346
       10: -1532627825
       11: 591949968
