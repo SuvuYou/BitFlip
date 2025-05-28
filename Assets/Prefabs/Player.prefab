@@ -279,7 +279,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ea4475c4ef196d8428d5d7ceeb66a014, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -392,8 +392,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd980ff15ab134345a0191beec4ae4a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _inEditorPaletteSwapSO: {fileID: 11400000, guid: 999a0a079a5a31e4e9339b52a338679c, type: 2}
   _sprite: {fileID: 4622945436161903338}
+  _inEditorPaletteSwapSO: {fileID: 11400000, guid: 999a0a079a5a31e4e9339b52a338679c, type: 2}
 --- !u!1 &8894759876975678095
 GameObject:
   m_ObjectHideFlags: 0

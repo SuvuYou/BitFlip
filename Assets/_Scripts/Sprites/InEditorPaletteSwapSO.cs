@@ -1,11 +1,11 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "InEditorPaletteSwapSO", menuName = "ScriptableObjects/InEditorPaletteSwapSO")]
 public class InEditorPaletteSwapSO : ScriptableObject
 {
-    [SerializeField] private Material _material; 
+    [field: SerializeField] public Material PaletteMaterial;
+
     [SerializeField] private List<Color> _palette = new ();
 
     private readonly int PALETTE_PROPERTY_ID = Shader.PropertyToID("_PaletteTexture");
@@ -18,7 +18,12 @@ public class InEditorPaletteSwapSO : ScriptableObject
 
         Texture = GenerateTexture();
 
-        _material.SetTexture(PALETTE_PROPERTY_ID, Texture);
+        UpdateTexture();
+    }
+
+    public void UpdateTexture() 
+    {
+        PaletteMaterial.SetTexture(PALETTE_PROPERTY_ID, Texture);
     }
 
     private Texture2D GenerateTexture()
