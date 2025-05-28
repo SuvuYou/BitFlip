@@ -236,6 +236,7 @@ GameObject:
   - component: {fileID: 7123441124917299394}
   - component: {fileID: 2449109696952374392}
   - component: {fileID: 77983222867781396}
+  - component: {fileID: 664809844590543990}
   m_Layer: 7
   m_Name: Ws_Hand
   m_TagString: Untagged
@@ -278,7 +279,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: ea4475c4ef196d8428d5d7ceeb66a014, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -299,7 +300,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
-  m_Sprite: {fileID: -124738873, guid: 1c584910617d0e549922888098860af2, type: 3}
+  m_Sprite: {fileID: 1865624325, guid: 3d259645cf4c4294db32395420fa589a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -379,6 +380,20 @@ MonoBehaviour:
       value: {x: 0, y: 0.25, z: 0}
     - key: 2
       value: {x: 0, y: 0.25, z: 0}
+--- !u!114 &664809844590543990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7180061145022892543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd980ff15ab134345a0191beec4ae4a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _inEditorPaletteSwapSO: {fileID: 11400000, guid: 999a0a079a5a31e4e9339b52a338679c, type: 2}
+  _sprite: {fileID: 4622945436161903338}
 --- !u!1 &8894759876975678095
 GameObject:
   m_ObjectHideFlags: 0
