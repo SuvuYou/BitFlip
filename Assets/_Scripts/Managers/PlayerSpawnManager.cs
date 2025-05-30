@@ -6,11 +6,15 @@ public class PlayerSpawnManager : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera _playerCamera;
     [SerializeField] private GameObject _playerPrefab;
 
+    private GameObject _player;
+
     public void Spawn(Vector3 spawnPoint)
     {
-        var player = Instantiate(_playerPrefab, spawnPoint, Quaternion.identity);
+        if (_player != null) Destroy(_player);
 
-        _playerCamera.Follow = player.transform;
-        _playerCamera.LookAt = player.transform;
+        _player = Instantiate(_playerPrefab, spawnPoint, Quaternion.identity);
+
+        _playerCamera.Follow = _player.transform;
+        _playerCamera.LookAt = _player.transform;
     }
 }

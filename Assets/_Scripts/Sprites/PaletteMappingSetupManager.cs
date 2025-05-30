@@ -4,7 +4,7 @@ public class PaletteMappingSetupManager : MonoBehaviour
 {
     [SerializeField] private BasePaletteMappingSO _paletteMappingSO;
 
-    private void Start()
+    private void Awake()
     {
         _paletteMappingSO.SetupMaterial();
     }

@@ -5,11 +5,11 @@ public class PaletteMappingMaterialSetup : MonoBehaviour
     [SerializeField] private Renderer _renderer;
     [SerializeField] private BasePaletteMappingSO _paletteMappingSO;
 
-    private void OnEnable()
+    private void Start()
     {
         if (_renderer != null && _paletteMappingSO != null)
         {
-            _renderer.material = _paletteMappingSO.PaletteMaterial;
+            _renderer.sharedMaterial = _paletteMappingSO.PaletteMaterial;
         }
     }
 }

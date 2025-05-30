@@ -392,8 +392,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd980ff15ab134345a0191beec4ae4a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sprite: {fileID: 4622945436161903338}
-  _inEditorPaletteSwapSO: {fileID: 11400000, guid: 999a0a079a5a31e4e9339b52a338679c, type: 2}
+  _renderer: {fileID: 4622945436161903338}
+  _paletteMappingSO: {fileID: 11400000, guid: 0cfae3c446eea52439d5c41fb17b9198, type: 2}
 --- !u!1 &8894759876975678095
 GameObject:
   m_ObjectHideFlags: 0

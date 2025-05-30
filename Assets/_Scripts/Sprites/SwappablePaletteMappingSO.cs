@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PaletteMappingSwapSO", menuName = "ScriptableObjects/PaletteMappingSwapSO")]
-public class PaletteMappingSwapSO : BasePaletteMappingSO
+[CreateAssetMenu(fileName = "SwappablePaletteMappingSO", menuName = "ScriptableObjects/SwappablePaletteMappingSO")]
+public class SwappablePaletteMappingSO : BasePaletteMappingSO
 {
     private readonly int PALETTE_PROPERTY_ID = Shader.PropertyToID("_PaletteTexture");
 
@@ -17,9 +17,11 @@ public class PaletteMappingSwapSO : BasePaletteMappingSO
 
     private void OnValidate()
     {
-        if (_palettesLookup.Count == 0) return;
+        _palettesLookup = _paletteVarients.ToDictionary();
+        
+        if (!_palettesLookup.ContainsKey(_currentVariant) || _palettesLookup[_currentVariant].Count == 0) return;
 
-        foreach (var kvp in _texturesLookup)
+        foreach (var kvp in _palettesLookup)
         {
             _texturesLookup[kvp.Key] = GenerateTexture(_palettesLookup[kvp.Key]); 
         }

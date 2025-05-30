@@ -1,7 +1,7 @@
 using SwapSystem;
 using UnityEngine;
 
-public class PaletteMappingSwap : MonoBehaviour, ISwappable
+public class SwappablePaletteMapping : MonoBehaviour, ISwappable
 {
     public void Swap(SwapVariant variant) 
     {
@@ -16,7 +16,7 @@ public class PaletteMappingSwap : MonoBehaviour, ISwappable
     
     public bool IsCurrentVariantEqualTo(SwapVariant variant) => _currentVariant == variant;
 
-    [SerializeField] private PaletteMappingSwapSO _paletteMappingSwapSO;
+    [SerializeField] private SwappablePaletteMappingSO _paletteMappingSwapSO;
 
     private SwapVariant _currentVariant;
 
