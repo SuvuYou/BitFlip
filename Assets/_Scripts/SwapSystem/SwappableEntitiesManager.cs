@@ -7,6 +7,7 @@ namespace SwapSystem
 {
     public class SwappableEntitiesManager : Singleton<SwappableEntitiesManager>
     {
+        private List<ISwappable> _initialSwappableEntities = new ();
         private List<ISwappable> _dynamicSwappableEntities = new ();
         private Dictionary<int, List<ISwappable>> _staticSwappableEntities = new ();
 
@@ -24,6 +25,9 @@ namespace SwapSystem
 
         public void Register(ISwappable swappableEntity, int staticPositionY) => _staticSwappableEntities[staticPositionY].Add(swappableEntity);
         public void Unregister(ISwappable swappableEntity, int staticPositionY) => _staticSwappableEntities[staticPositionY].Remove(swappableEntity);
+
+        public void RegisterAsInitial(ISwappable swappableEntity) => _initialSwappableEntities.Add(swappableEntity);
+        public void UnregisterAsInitial(ISwappable swappableEntity) => _initialSwappableEntities.Remove(swappableEntity);
 
         private Coroutine _swapCoroutine;
 
@@ -68,6 +72,11 @@ namespace SwapSystem
         private IEnumerator SwapVariantInRange(float layerSwapInterval)
         {
             CurrentSupposedVariant = CurrentSupposedVariant.Opposite();
+
+            foreach (ISwappable swappableEntity in _initialSwappableEntities)
+            {
+                swappableEntity.Swap(CurrentSupposedVariant);
+            }
 
             for (int i = _startStaticPositionY; i <= _endStaticPositionY; i++)
             {

@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
 
         _mapRenderer.Render(_map);
 
-        _playerSpawnManager.Spawn(_map.MapPath.StartPosition.ToVector3WithZ(z: 0));
+        // _playerSpawnManager.Spawn(_map.MapPath.StartPosition.ToVector3WithZ(z: 0));
         // _enemySpawner.Spawn(_map.GetRandomDungeonRoom().GetRandomPathTilePosition());
     }
 

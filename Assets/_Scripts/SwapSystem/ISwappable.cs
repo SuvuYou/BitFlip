@@ -28,8 +28,14 @@ namespace SwapSystem
         public virtual void Register(int staticPositionY) => SwappableEntitiesManager.Instance.Register(this, staticPositionY);
         public virtual void Unregister(int staticPositionY) => SwappableEntitiesManager.Instance.Unregister(this, staticPositionY);
 
-        // Conditioning
+        public virtual void RegisterAsInitial() => SwappableEntitiesManager.Instance.RegisterAsInitial(this);
+        public virtual void UnregisterAsInitial() => SwappableEntitiesManager.Instance.UnregisterAsInitial(this);
+
+        #region Conditioning
+
         // Used to determine if the swappable entity should be swapped
         public virtual bool ConditionByGameobject(Func<GameObject, bool> condition) => false;
+
+        #endregion
     }
 }
