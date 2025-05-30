@@ -1858,7 +1858,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 7.4074073
+  orthographic size: 7.435185
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2183,7 +2183,7 @@ Transform:
   m_GameObject: {fileID: 731819520}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25, y: 25, z: 0}
+  m_LocalPosition: {x: 25, y: 150, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -4077,6 +4077,7 @@ Transform:
   - {fileID: 1179915371}
   - {fileID: 293970724}
   - {fileID: 288889027}
+  - {fileID: 1766973527}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1485138512
@@ -4714,6 +4715,79 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1482456532572784482, guid: 3abc97c30b9df864597e42c221f12d14, type: 3}
   m_PrefabInstance: {fileID: 1354356692510917150}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1766973526
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1766973527}
+  - component: {fileID: 1766973529}
+  - component: {fileID: 1766973528}
+  - component: {fileID: 1766973530}
+  m_Layer: 0
+  m_Name: Palette Swaps
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1766973527
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766973526}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1444652687}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1766973528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766973526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13d24e6f88936d64ab77211d225aa40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _paletteMappingSO: {fileID: 0}
+--- !u!114 &1766973529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766973526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13d24e6f88936d64ab77211d225aa40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _paletteMappingSO: {fileID: 0}
+--- !u!114 &1766973530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766973526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13d24e6f88936d64ab77211d225aa40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _paletteMappingSO: {fileID: 0}
 --- !u!1 &1820420182
 GameObject:
   m_ObjectHideFlags: 0
@@ -5109,6 +5183,7 @@ GameObject:
   - component: {fileID: 1979538196}
   - component: {fileID: 1979538198}
   - component: {fileID: 1979538197}
+  - component: {fileID: 1979538199}
   m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
@@ -5151,7 +5226,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5348,6 +5423,20 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &1979538199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979538195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd980ff15ab134345a0191beec4ae4a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _renderer: {fileID: 1979538197}
+  _paletteMappingSO: {fileID: 11400000, guid: e21c6c01299d7c6469209312c48b9049, type: 2}
 --- !u!1 &1986838972
 GameObject:
   m_ObjectHideFlags: 0

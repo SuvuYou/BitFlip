@@ -1,30 +1,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "InEditorPaletteSwapSO", menuName = "ScriptableObjects/InEditorPaletteSwapSO")]
-public class InEditorPaletteSwapSO : ScriptableObject
+[CreateAssetMenu(fileName = "PaletteMappingSO", menuName = "ScriptableObjects/PaletteMappingSO")]
+public class PaletteMappingSO : BasePaletteMappingSO
 {
-    [field: SerializeField] public Material PaletteMaterial;
-
     [SerializeField] private List<Color> _palette = new ();
 
     private readonly int PALETTE_PROPERTY_ID = Shader.PropertyToID("_PaletteTexture");
 
-    public Texture2D Texture { get; private set; }
+    private Texture2D _texture;
 
     private void OnValidate()
     {
         if (_palette.Count == 0) return;
 
-        Texture = GenerateTexture();
+        _texture = GenerateTexture();
 
-        UpdateTexture();
+        UpdateMaterial();
     }
 
-    public void UpdateTexture() 
-    {
-        PaletteMaterial.SetTexture(PALETTE_PROPERTY_ID, Texture);
-    }
+    public override void SetupMaterial() => UpdateMaterial();
+
+    public void UpdateMaterial() => PaletteMaterial.SetTexture(PALETTE_PROPERTY_ID, _texture);
 
     private Texture2D GenerateTexture()
     {

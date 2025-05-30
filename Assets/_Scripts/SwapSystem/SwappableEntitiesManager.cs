@@ -75,6 +75,8 @@ namespace SwapSystem
 
             foreach (ISwappable swappableEntity in _initialSwappableEntities)
             {
+                if (swappableEntity.IsCurrentVariantEqualTo(CurrentSupposedVariant)) continue;
+                
                 swappableEntity.Swap(CurrentSupposedVariant);
             }
 
