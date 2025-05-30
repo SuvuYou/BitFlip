@@ -237,6 +237,7 @@ GameObject:
   - component: {fileID: 2449109696952374392}
   - component: {fileID: 77983222867781396}
   - component: {fileID: 664809844590543990}
+  - component: {fileID: 6328399533130285737}
   m_Layer: 7
   m_Name: Ws_Hand
   m_TagString: Untagged
@@ -394,6 +395,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _renderer: {fileID: 4622945436161903338}
   _paletteMappingSO: {fileID: 11400000, guid: 0cfae3c446eea52439d5c41fb17b9198, type: 2}
+--- !u!114 &6328399533130285737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7180061145022892543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 605ac4d24f488de4492ceecb0eb51643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _paletteMappingSwapSO: {fileID: 11400000, guid: 0cfae3c446eea52439d5c41fb17b9198, type: 2}
 --- !u!1 &8894759876975678095
 GameObject:
   m_ObjectHideFlags: 0

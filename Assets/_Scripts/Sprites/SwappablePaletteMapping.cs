@@ -11,7 +11,6 @@ public class SwappablePaletteMapping : MonoBehaviour, ISwappable
 
             _paletteMappingSwapSO.UpdateMaterial(_currentVariant);
         }
-        
     } 
     
     public bool IsCurrentVariantEqualTo(SwapVariant variant) => _currentVariant == variant;
