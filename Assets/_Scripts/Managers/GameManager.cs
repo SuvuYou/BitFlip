@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour
 
         _mapRenderer.Render(_map);
 
+        Debug.Log(_map.MapPath.StartPosition);
+
         _playerSpawnManager.Spawn(_map.MapPath.StartPosition.ToVector3WithZ(z: 0));
         // _enemySpawner.Spawn(_map.GetRandomDungeonRoom().GetRandomPathTilePosition());
     }

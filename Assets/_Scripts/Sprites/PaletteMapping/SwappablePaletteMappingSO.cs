@@ -17,21 +17,19 @@ public class SwappablePaletteMappingSO : BasePaletteMappingSO
 
     private void OnValidate()
     {
+        SetupMaterial();
+    }
+
+    public override void SetupMaterial() 
+    {
         _palettesLookup = _paletteVarients.ToDictionary();
-        
+
         if (!_palettesLookup.ContainsKey(_currentVariant) || _palettesLookup[_currentVariant].Count == 0) return;
 
         foreach (var kvp in _palettesLookup)
         {
             _texturesLookup[kvp.Key] = GenerateTexture(_palettesLookup[kvp.Key]); 
         }
-        
-        UpdateMaterial(_currentVariant);
-    }
-
-    public override void SetupMaterial() 
-    {
-        _palettesLookup = _paletteVarients.ToDictionary();
 
         UpdateMaterial(_defaultVariant);
     } 

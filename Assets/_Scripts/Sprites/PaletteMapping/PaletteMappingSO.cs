@@ -12,14 +12,17 @@ public class PaletteMappingSO : BasePaletteMappingSO
 
     private void OnValidate()
     {
+        SetupMaterial();
+    }
+
+    public override void SetupMaterial() 
+    {
         if (_palette.Count == 0) return;
 
         _texture = GenerateTexture();
 
         UpdateMaterial();
-    }
-
-    public override void SetupMaterial() => UpdateMaterial();
+    } 
 
     public void UpdateMaterial() => PaletteMaterial.SetTexture(PALETTE_PROPERTY_ID, _texture);
 

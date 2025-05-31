@@ -7,9 +7,12 @@ public class PaletteMappingMaterialSetup : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log($"PaletteMappingMaterialSetup {_renderer} {_paletteMappingSO}");
+
         if (_renderer != null && _paletteMappingSO != null)
         {
-            _renderer.sharedMaterial = _paletteMappingSO.PaletteMaterial;
+            _renderer.material = _paletteMappingSO.PaletteMaterial;
+            
         }
     }
 }
