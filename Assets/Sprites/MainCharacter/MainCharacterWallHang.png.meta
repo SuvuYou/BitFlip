@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 834f7ed73a1b9bf4c853c2f4c3618884
+guid: 6ec9eb2313a18624cb8551de7c0f8cbc
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -100,19 +100,19 @@ TextureImporter:
       name: MainCharacterWallHang_0
       rect:
         serializedVersion: 2
-        x: 26
+        x: 27
         y: 24
-        width: 12
+        width: 11
         height: 19
-      alignment: 4
-      pivot: {x: 0, y: 0.5}
+      alignment: 5
+      pivot: {x: 1, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1567e4ba235725b49b94a623afc78960
-      internalID: -2038885656
+      spriteID: 4ae257770ae43d744b43da61b85cda90
+      internalID: 415375131
       vertices: []
       indices: 
       edges: []
@@ -121,19 +121,19 @@ TextureImporter:
       name: MainCharacterWallHang_1
       rect:
         serializedVersion: 2
-        x: 90
+        x: 91
         y: 24
-        width: 12
+        width: 11
         height: 19
-      alignment: 4
-      pivot: {x: 0, y: 0.5}
+      alignment: 5
+      pivot: {x: 1, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 85654b080a6e14a4291d20371963bed9
-      internalID: 1865220595
+      spriteID: cd5ab32afdf8f0f4ba41f582f2c0a31c
+      internalID: -1278740125
       vertices: []
       indices: 
       edges: []
@@ -142,19 +142,19 @@ TextureImporter:
       name: MainCharacterWallHang_2
       rect:
         serializedVersion: 2
-        x: 154
+        x: 155
         y: 24
-        width: 12
+        width: 11
         height: 19
-      alignment: 4
-      pivot: {x: 0, y: 0.5}
+      alignment: 5
+      pivot: {x: 1, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5a0ed2fb88f345a4598404a5b5308608
-      internalID: 1691067931
+      spriteID: 3b687e48de5a9674285ef663a2d96826
+      internalID: -1242530854
       vertices: []
       indices: 
       edges: []
@@ -163,19 +163,19 @@ TextureImporter:
       name: MainCharacterWallHang_3
       rect:
         serializedVersion: 2
-        x: 218
+        x: 219
         y: 24
-        width: 12
+        width: 11
         height: 19
-      alignment: 4
-      pivot: {x: 0, y: 0.5}
+      alignment: 5
+      pivot: {x: 1, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9f8aa118accc5d54d830c2b76987448b
-      internalID: 332142272
+      spriteID: 20a8085c16a01cb4784ea1edc105100a
+      internalID: -1368840252
       vertices: []
       indices: 
       edges: []
@@ -191,10 +191,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      MainCharacterWallHang_0: -2038885656
-      MainCharacterWallHang_1: 1865220595
-      MainCharacterWallHang_2: 1691067931
-      MainCharacterWallHang_3: 332142272
+      MainCharacterWallHang_0: 415375131
+      MainCharacterWallHang_1: -1278740125
+      MainCharacterWallHang_2: -1242530854
+      MainCharacterWallHang_3: -1368840252
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

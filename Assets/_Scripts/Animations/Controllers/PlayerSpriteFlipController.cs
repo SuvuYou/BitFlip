@@ -11,7 +11,7 @@ public class PlayerSpriteFlipController : ConsumerBase<PlayerContextData>
         _spriteFlipController = new SpriteFlipController();
         _spriteFlipController.Init(_spriteRenderer);
     }
-
+    
     private void Update()
     {
         _spriteFlipController.Flip(Context.MovementState.IsFacingRight);

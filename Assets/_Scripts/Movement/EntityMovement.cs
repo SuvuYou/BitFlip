@@ -124,6 +124,7 @@ public class EntityMovementState
     public Direction CurrentDirection { get; private set; } = Direction.None;
     public Vector2 ClosestWallPoint { get; private set; }
     public Vector2 CurrentVelocity { get; private set; }
+
     public bool IsIdle { get; private set; } = true;
     public bool IsFacingRight { get; private set; }
 
@@ -136,16 +137,16 @@ public class EntityMovementState
         if (IsIdle && CurrentDirection != direction) 
         {
             OnChangeDirection?.Invoke(direction);
+            
+            CurrentDirection = direction;
+
+            IsFacingRight = CurrentDirection == Direction.Right;
         }
-
-        CurrentDirection = direction;
-
-        IsFacingRight = CurrentDirection == Direction.Right;
     }
 
     public void TriggerOnHitWall(Direction fromDirection) 
     {
-        IsFacingRight = fromDirection == Direction.Left;
+        IsFacingRight = fromDirection == Direction.Right;
 
         OnHitWall?.Invoke(fromDirection);
     }
