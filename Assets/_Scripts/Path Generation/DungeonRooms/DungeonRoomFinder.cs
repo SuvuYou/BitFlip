@@ -189,7 +189,7 @@ namespace PathGeneration
 
                 dungeonRoom = new DungeonRoom(DungeonRoomType.DedlyWall, bounds, exitPositions);
 
-                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(bounds));
+                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(bounds, mapSettings.DungeonRoomBorderSize));
 
                 return true;
             }
@@ -354,7 +354,7 @@ namespace PathGeneration
 
                 dungeonRoom = new DungeonRoom(DungeonRoomType.DedlyWall, (bounds.bottomLeft, bounds.topRight), exitPositions);
 
-                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(bounds));
+                dungeonRoom.SetTiles(path.Tiles.CopyTilesRegion(bounds, mapSettings.DungeonRoomBorderSize));
 
                 return true;
             }

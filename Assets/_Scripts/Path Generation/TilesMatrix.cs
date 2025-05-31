@@ -59,12 +59,12 @@ namespace PathGeneration
             SetupAdjacentConnections(x, y);
         }
 
-        public TilesMatrix(int width, int height, int stemLength, bool shouldSetupDefaultTiles = true)
+        public TilesMatrix(int width, int height, int stemLength, Vector2Int borderSize, bool shouldSetupDefaultTiles = true)
         {
             Width = width;
             Height = height;
             StemLength = stemLength;
-            BorderSize = MapSettingsProvider.Instance.MapSettings.DungeonRoomBorderSize;
+            BorderSize = borderSize;
 
             Tiles = new Tile[width, height];
 
@@ -160,14 +160,14 @@ namespace PathGeneration
             return false;
         }
 
-        public TilesMatrix CopyTilesRegion((Vector2Int, Vector2Int) bounds, bool shouldCloneTiles = false)
+        public TilesMatrix CopyTilesRegion((Vector2Int, Vector2Int) bounds, Vector2Int borderSize, bool shouldCloneTiles = false)
         {
             var (bottomLeft, topRight) = bounds;
 
             int width = topRight.x - bottomLeft.x;
             int height = topRight.y - bottomLeft.y;
 
-            var copiedRegion = new TilesMatrix(width, height, StemLength, shouldSetupDefaultTiles: false);
+            var copiedRegion = new TilesMatrix(width, height, StemLength, borderSize, shouldSetupDefaultTiles: false);
 
             var SetRegionTileFunction = ConstructSetRegionTileFunction(bounds, copiedRegion, shouldCloneTiles);
 

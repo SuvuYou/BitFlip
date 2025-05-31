@@ -60,7 +60,7 @@ namespace PathGeneration
 
             OriginalVariant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero));
 
-            OriginalVariant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width -1, Height -1)), shouldCloneTiles: true));
+            OriginalVariant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width -1, Height -1)), Vector2Int.one, shouldCloneTiles: true));
         }
 
         private void SetTileToDungeonRoomTile (int x, int y, Tile tile) => tile.SetAsDungeonRoomTile();
@@ -105,7 +105,7 @@ namespace PathGeneration
             {
                 var variant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero), enter, exit);
 
-                variant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width - 1, Height - 1)), shouldCloneTiles: true), shouldResetTiles: true);
+                variant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width - 1, Height - 1)), Vector2Int.one, shouldCloneTiles: true), shouldResetTiles: true);
 
                 var newPath = new Path(variant.Tiles, enter, exit, lockedDiirectiion);
 

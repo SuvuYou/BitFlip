@@ -24,7 +24,7 @@ namespace PathGeneration
             Vector2Int startPos = new (0 + mapSettings.MapBorderSize.x, 0 + mapSettings.MapBorderSize.y);
             Vector2Int endPos = new (mapSettings.MapWidth - 1 - mapSettings.MapBorderSize.x, mapSettings.MapHeight - 1 - mapSettings.MapBorderSize.y);
 
-            MapTiles = new TilesMatrix(mapSettings.MapWidth, mapSettings.MapHeight, mapSettings.MapStemLength);
+            MapTiles = new TilesMatrix(mapSettings.MapWidth, mapSettings.MapHeight, mapSettings.MapStemLength, mapSettings.MapBorderSize);
 
             MapPath = new Path(MapTiles, startPos, endPos);
 
