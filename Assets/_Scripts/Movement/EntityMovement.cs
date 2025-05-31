@@ -20,21 +20,21 @@ public class EntityMovement
 
     private void MoveInDirection(bool isDashing = false)
     {
-        if (_state.CurrentDirection == Direction.None) 
+        if (_state.CurrentDirection == Direction.None)
         {
             ResetMovement();
 
             return;
         }
 
-        if (_state.IsIdle) return;
-
-        if (IsFacingWall()) 
+        if (IsFacingWall(_state.CurrentDirection)) 
         {
             OnFacingWall();
 
             return;
         }
+
+        if (_state.IsIdle) return;
 
         ApplyVelocity(isDashing);
         Move();
@@ -44,7 +44,7 @@ public class EntityMovement
     {
         _state.SetCurrentDirection(direction);
 
-        _state.SetIsIdle(false);
+        _state.SetIsIdle(IsFacingWall(direction));
     }
 
     private void ResetMovement()
@@ -84,9 +84,9 @@ public class EntityMovement
         _stats.EntityTransform.position = new Vector3(Mathf.Round(_stats.EntityTransform.position.x), Mathf.Round(_stats.EntityTransform.position.y), _stats.EntityTransform.position.z); 
     }
 
-    private bool IsFacingWall()
+    private bool IsFacingWall(Direction direction)
     {
-        RaycastHit2D hit = Physics2D.BoxCast(_stats.ColliderTransform.position, new Vector2(0.25f, 0.25f), 0, _state.CurrentDirection.ToVector(), _stats.RaycastDistance, _stats.WallLayerMask);
+        RaycastHit2D hit = Physics2D.BoxCast(_stats.ColliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction.ToVector(), _stats.RaycastDistance, _stats.WallLayerMask);
 
         return hit.collider != null;
     }
@@ -120,6 +120,7 @@ public class EntityMovementState
 {
     public event Action<Direction> OnChangeDirection;
     public event Action<Direction> OnHitWall;
+    public event Action<bool> OnIdleChange;
 
     public Direction CurrentDirection { get; private set; } = Direction.None;
     public Vector2 ClosestWallPoint { get; private set; }
@@ -128,7 +129,12 @@ public class EntityMovementState
     public bool IsIdle { get; private set; } = true;
     public bool IsFacingRight { get; private set; }
 
-    public void SetIsIdle(bool isIdle) => IsIdle = isIdle;
+    public void SetIsIdle(bool isIdle) 
+    {
+        IsIdle = isIdle;
+        OnIdleChange?.Invoke(isIdle);
+    } 
+
     public void SetClosestWallPoint(Vector2 closestWallPoint) => ClosestWallPoint = closestWallPoint;
     public void SetCurrentVelocity(Vector2 velocity) => CurrentVelocity = velocity;
 
