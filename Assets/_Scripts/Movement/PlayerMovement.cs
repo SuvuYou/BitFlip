@@ -19,7 +19,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private Timer _cayoteTimer;
 
-    private Direction _nextDirection = Direction.Up;
+    private Direction _nextDirection = Direction.None;
 
     private EntityMovement _movement;
 
@@ -86,7 +86,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
         }
 
         if (!Context.MovementState.IsIdle || _nextDirection == Context.MovementState.CurrentDirection) return;
-
+        
         _movement.SetDirection(_nextDirection);
 
         _cayoteTimer.Stop();

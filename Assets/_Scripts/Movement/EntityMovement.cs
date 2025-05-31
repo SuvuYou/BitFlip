@@ -14,52 +14,49 @@ public class EntityMovement
         else _state = new EntityMovementState();
     }
 
-    public void TryMoveInDirection()
+    public void TryMoveInDirection() => MoveInDirection(isDashing: false);
+
+    public void TryDashInDirection() => MoveInDirection(isDashing: true);
+
+    private void MoveInDirection(bool isDashing = false)
     {
-        bool isCollidingWithWall = IsFacingWall();
+        if (_state.CurrentDirection == Direction.None) 
+        {
+            ResetMovement();
 
-        if (isCollidingWithWall && _state.IsIdle) return;
+            return;
+        }
 
-        if (isCollidingWithWall) 
+        if (_state.IsIdle) return;
+
+        if (IsFacingWall()) 
         {
             OnFacingWall();
 
             return;
         }
 
-        ApplyVelocity();
+        ApplyVelocity(isDashing);
         Move();
-
-        return;
     }
 
-    public void TryDashInDirection()
+    public void SetDirection(Direction direction) 
     {
-        bool isCollidingWithWall = IsFacingWall();
-
-        if (isCollidingWithWall && _state.IsIdle) return;
-
-        if (isCollidingWithWall) 
-        {
-            OnFacingWall();
-
-            return;
-        }
-
-        ApplyVelocity(isDashing: true);
-        Move();
-
-        return;
-    }
-
-    public void SetDirection(Direction direction) => _state.SetCurrentDirection(direction);
-
-    private void ApplyVelocity(bool isDashing = false)
-    {
-        float maxSpeedMultiplier = isDashing ? _stats.DashMultiplier : 1f;
-        float accelerationMultiplier = isDashing ? _stats.DashMultiplier * 10 : 1f;
+        _state.SetCurrentDirection(direction);
 
         _state.SetIsIdle(false);
+    }
+
+    private void ResetMovement()
+    {
+        _state.SetIsIdle(true);
+        _state.SetCurrentVelocity(Vector2.zero);
+    }
+
+    private void ApplyVelocity(bool isDashing = false)
+    {   
+        float maxSpeedMultiplier = isDashing ? _stats.DashMultiplier : 1f;
+        float accelerationMultiplier = isDashing ? _stats.DashMultiplier * 10 : 1f;
 
         var currentVelocity = _state.CurrentVelocity + _state.CurrentDirection.ToVectorFloat() * (_stats.Acceleration * accelerationMultiplier * Time.deltaTime);
 
@@ -124,10 +121,10 @@ public class EntityMovementState
     public event Action<Direction> OnChangeDirection;
     public event Action<Direction> OnHitWall;
 
-    public Direction CurrentDirection { get; private set; }
+    public Direction CurrentDirection { get; private set; } = Direction.None;
     public Vector2 ClosestWallPoint { get; private set; }
     public Vector2 CurrentVelocity { get; private set; }
-    public bool IsIdle { get; private set; }
+    public bool IsIdle { get; private set; } = true;
     public bool IsFacingRight { get; private set; }
 
     public void SetIsIdle(bool isIdle) => IsIdle = isIdle;
