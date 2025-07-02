@@ -1,11 +1,9 @@
 using UnityEngine;
 
-public class EnemyHealth : MonoBehaviour, IEntityHealthComponent, IConsumer<EnemyContextData>, IConsumer<IHealthContextData>
+public class EnemyHealth : MonoBehaviour, IEntityHealthComponent, IConsumer<IHealthContextData>
 {
-    public EnemyContextData EnemyContext { get; private set; }
     public IHealthContextData HealthContext { get; private set; }
 
-    void IConsumer<EnemyContextData>.Inject(EnemyContextData context) => EnemyContext = context;
     void IConsumer<IHealthContextData>.Inject(IHealthContextData context) => HealthContext = context;
 
     [SerializeField] private int _maxHealth = 1;

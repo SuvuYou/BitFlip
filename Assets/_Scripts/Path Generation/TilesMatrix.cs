@@ -87,9 +87,10 @@ namespace PathGeneration
         {
             var positions = new HashSet<Vector2Int>();
 
-            var GetCornerTileFunction = ConstructGetOccupiedPositionsFunction(positions);
-
-            LoopThroughTiles(GetCornerTileFunction, LoopType.All);
+            foreach ((int x, int y, Tile _) in GetEnumerableTiles(LoopType.All))
+            {
+                if (IsOccupiedPosition(x, y)) positions.Add(new Vector2Int(x, y));
+            }
 
             return positions;
         }
@@ -98,27 +99,35 @@ namespace PathGeneration
         {
             var positions = new HashSet<Vector2Int>();
 
-            var GetSingleTileFunction = ConstructGetSingleOccupiedPositionFunction(positions);
-
-            LoopThroughTiles(GetSingleTileFunction, LoopType.All);
+            foreach ((int x, int y, Tile _) in GetEnumerableTiles(LoopType.All))
+            {
+                if (IsSingleOccupiedPosition(x, y)) positions.Add(new Vector2Int(x, y));
+            }
 
             return positions;
         }
 
         public HashSet<Vector2Int> GetCornerTiles()
         {
-            var corners = new HashSet<Vector2Int>();
+            var positions = new HashSet<Vector2Int>();
 
-            var GetCornerTileFunction = ConstructGetCornerTileFunction(corners);
-
-            LoopThroughTiles(GetCornerTileFunction, LoopType.WithoutEdges);
-
-            return corners;
+            foreach ((int x, int y, Tile _) in GetEnumerableTiles(LoopType.WithoutEdges))
+            {
+                if (IsCornerTile(x, y)) positions.Add(new Vector2Int(x, y));
+            }
+            
+            return positions;
         }
 
         public float GetPathPercentage() => GetOccupiedPositions().Count / (float)(Width * Height);
 
-        public void InvalidateBorders() => LoopThroughTiles((int x, int y, Tile tile) => tile.SetAsBorder(), LoopType.OnlyBorders);
+        public void InvalidateBorders() 
+        {
+            foreach ((int x, int y, Tile tile) in GetEnumerableTiles(LoopType.OnlyBorders))
+            {
+                tile.SetAsBorder();
+            }      
+        }
 
         public bool TryGetTwoConnectiveTiles(PseudoRandom.SystemRandomManager random, out Vector2Int cornerTilePosition, out Vector2Int singleTilePosition, out Direction lockedDirection)
         {
@@ -169,9 +178,16 @@ namespace PathGeneration
 
             var copiedRegion = new TilesMatrix(width, height, StemLength, borderSize, shouldSetupDefaultTiles: false);
 
-            var SetRegionTileFunction = ConstructSetRegionTileFunction(bounds, copiedRegion, shouldCloneTiles);
+            foreach ((int x, int y, Tile tile) in GetEnumerableTiles(LoopType.All))
+            {
+                int posX = x + bottomLeft.x;
+                int posY = y + bottomLeft.y;
 
-            copiedRegion.LoopThroughTiles(SetRegionTileFunction, LoopType.All);
+                if (shouldCloneTiles)
+                    copiedRegion.SetTileClone(x, y, GetTileByPosition(posX, posY));
+                else
+                    copiedRegion.SetTileReference(x, y, GetTileByPosition(posX, posY));
+            }  
 
             return copiedRegion;
         }
@@ -183,24 +199,23 @@ namespace PathGeneration
                 throw new ArgumentException("Both matrices must have the same dimensions.");
             }
 
-            var SetTilesDataFromMatrixFunction = ConstructSetTilesDataFromMatrixFunction(otherMatrix);
-
-            LoopThroughTiles(SetTilesDataFromMatrixFunction, LoopType.All);
+            foreach ((int x, int y, Tile tile) in GetEnumerableTiles(LoopType.All))
+            {
+                SetTileData(x, y, otherMatrix.GetTileByPosition(x, y));
+            }  
         }
 
         public void ResetTiles(LoopType loopType = LoopType.All)
         {
-            LoopThroughTiles(ResetTileFunction, loopType);
-        }
-
-        private void ResetTileFunction(int x, int y, Tile tile)
-        {
-            Tiles[x, y] = new Tile(TileType.Wall, Direction.None);
-
-            if (x < BorderSize.x || y < BorderSize.y || x >= (Width - BorderSize.x) || y >= (Height - BorderSize.y))
+            foreach ((int x, int y, Tile tile) in GetEnumerableTiles(loopType))
             {
-                Tiles[x, y].SetAsBorder();
-            }
+                Tiles[x, y] = new Tile(TileType.Wall, Direction.None);
+
+                if (x < BorderSize.x || y < BorderSize.y || x >= (Width - BorderSize.x) || y >= (Height - BorderSize.y))
+                {
+                    Tiles[x, y].SetAsBorder();
+                }
+            }    
         }
 
         private void SetupAdjacentConnections(int x, int y)
@@ -268,7 +283,15 @@ namespace PathGeneration
             }
         }
 
-        public void LoopThroughTiles(Action<int, int, Tile> action, LoopType loopType = LoopType.All) 
+        public void LoopThroughTiles(Action<int, int, Tile> onTileVisited, LoopType loopType = LoopType.All) 
+        {
+            foreach ((int x, int y, Tile tile) in GetEnumerableTiles(loopType))
+            {
+                onTileVisited(x, y, tile);
+            }
+        }
+
+        public IEnumerable<(int, int, Tile)> GetEnumerableTiles(LoopType loopType = LoopType.All) 
         {
             switch (loopType)
             {                
@@ -277,7 +300,7 @@ namespace PathGeneration
                     {
                         for (int y = 0; y < Height; y++)
                         {
-                            action(x, y, Tiles[x, y]);
+                            yield return (x, y, Tiles[x, y]);
                         }
                     }
                     break;
@@ -286,21 +309,21 @@ namespace PathGeneration
                     {
                         for (int y = 1; y < Height - 1; y++)
                         {
-                            action(x, y, Tiles[x, y]);
+                            yield return (x, y, Tiles[x, y]);
                         }
                     }
                     break;
                 case LoopType.OnlyEdges:
                     for (int x = 0; x < Width; x++)
                     {
-                        action(x, 0, Tiles[x, 0]); 
-                        action(x, Height - 1, Tiles[x, Height - 1]); 
+                        yield return (x, 0, Tiles[x, 0]); 
+                        yield return (x, Height - 1, Tiles[x, Height - 1]); 
                     }
 
                     for (int y = 1; y < Height - 1; y++)
                     {
-                        action(0, y, Tiles[0, y]);
-                        action(Width - 1, y, Tiles[Width - 1, y]); 
+                        yield return (0, y, Tiles[0, y]);
+                        yield return (Width - 1, y, Tiles[Width - 1, y]); 
                     } 
                     break;
                 case LoopType.WithoutBorders:
@@ -308,7 +331,7 @@ namespace PathGeneration
                     {
                         for (int y = BorderSize.y; y < Height - BorderSize.y; y++)
                         {
-                            action(x, y, Tiles[x, y]);
+                            yield return (x, y, Tiles[x, y]);
                         }
                     }
                     break;
@@ -317,8 +340,8 @@ namespace PathGeneration
                     {
                         for (int y = 0; y < BorderSize.y; y++)
                         {
-                            action(x, y, Tiles[x, y]); 
-                            action(x, Height - y - 1, Tiles[x, Height - y - 1]); 
+                            yield return (x, y, Tiles[x, y]); 
+                            yield return (x, Height - y - 1, Tiles[x, Height - y - 1]); 
                         }
                     }
 
@@ -326,63 +349,18 @@ namespace PathGeneration
                     {
                         for (int x = 0; x < BorderSize.x; x++)
                         {
-                            action(x, y, Tiles[x, y]); 
-                            action(x, Height - y - 1, Tiles[x, Height - y - 1]); 
+                            yield return (x, y, Tiles[x, y]); 
+                            yield return (x, Height - y - 1, Tiles[x, Height - y - 1]); 
                         }
                     }
                     break;
             }
         }
 
-        private Action<int, int, Tile> ConstructSetRegionTileFunction((Vector2Int, Vector2Int) bounds, TilesMatrix clonedRegion, bool shouldCloneTiles = false)
-        { 
-            var (bottomLeft, topRight) = bounds;
+        private bool IsOccupiedPosition(int x, int y) => Tiles[x, y].StateData.Type == TileType.Path;
 
-            return (x, y, tile) =>
-            {
-                int posX = x + bottomLeft.x;
-                int posY = y + bottomLeft.y;
+        private bool IsSingleOccupiedPosition(int x, int y) => Tiles[x, y].StateData.Type == TileType.Path && Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single && !Tiles[x, y].StateData.IsBorder;
 
-                if (shouldCloneTiles)
-                    clonedRegion.SetTileClone(x, y, GetTileByPosition(posX, posY));
-                else
-                    clonedRegion.SetTileReference(x, y, GetTileByPosition(posX, posY));
-            };
-        }
-
-        private Action<int, int, Tile> ConstructSetTilesDataFromMatrixFunction(TilesMatrix otherMatrix)
-        { 
-            return (int x, int y, Tile tile) => 
-            {
-                SetTileData(x, y, otherMatrix.GetTileByPosition(x, y));
-            };
-        }
-
-        private Action<int, int, Tile> ConstructGetOccupiedPositionsFunction(HashSet<Vector2Int> occupiedPositions)
-        { 
-            return (int x, int y, Tile tile) => 
-            {
-                if (Tiles[x, y].StateData.Type == TileType.Path)
-                    occupiedPositions.Add(new Vector2Int(x, y));
-            };
-        }
-
-        private Action<int, int, Tile> ConstructGetSingleOccupiedPositionFunction(HashSet<Vector2Int> occupiedPositions)
-        { 
-            return (int x, int y, Tile tile) => 
-            {
-                if (Tiles[x, y].StateData.Type == TileType.Path && Tiles[x, y].StateData.ConnectionType == TileConnectionType.Single && !Tiles[x, y].StateData.IsBorder)
-                    occupiedPositions.Add(new Vector2Int(x, y));
-            };
-        }
-
-        private Action<int, int, Tile> ConstructGetCornerTileFunction(HashSet<Vector2Int> corners)
-        { 
-            return (int x, int y, Tile tile) => 
-            {
-                if(Tiles[x, y].StateData.ConnectionType == TileConnectionType.Corner) 
-                    corners.Add(new Vector2Int(x, y)); 
-            };
-        }
+        private bool IsCornerTile(int x, int y) => Tiles[x, y].StateData.ConnectionType == TileConnectionType.Corner;  
     }
 }
