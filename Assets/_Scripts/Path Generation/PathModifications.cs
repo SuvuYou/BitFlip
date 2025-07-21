@@ -10,7 +10,7 @@ namespace PathGeneration
 
     public class Explore : IPathModification
     {
-        private readonly Path _path;
+        private readonly PathGenerator _path;
         
         private readonly TileType[] _cachedTypes;
         private readonly Direction[] _cachedDirections;
@@ -18,7 +18,7 @@ namespace PathGeneration
 
         private readonly Direction _exploreDirection;
 
-        public Explore(Path path, (Vector2Int currentPos, Direction currentFacingDirection) cachedState, Direction exploreDirection)
+        public Explore(PathGenerator path, (Vector2Int currentPos, Direction currentFacingDirection) cachedState, Direction exploreDirection)
         {
             this._path = path;
             this._cachedState = cachedState;

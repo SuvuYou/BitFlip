@@ -5,7 +5,7 @@ namespace PathGeneration
 {
     public interface IDungeonRoomFinder
     {
-        public bool TryFindDungeonRoom(Path path, Vector2Int forceContainPosition, out DungeonRoom dungeonRoom);
+        public bool TryFindDungeonRoom(PathGenerator path, Vector2Int forceContainPosition, out DungeonRoom dungeonRoom);
     }
 
     public class VarietyDungeonRoomFinder : IDungeonRoomFinder
@@ -17,7 +17,7 @@ namespace PathGeneration
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
         }
 
-        public bool TryFindDungeonRoom(Path path, Vector2Int forceContainPosition, out DungeonRoom dungeonRoom)
+        public bool TryFindDungeonRoom(PathGenerator path, Vector2Int forceContainPosition, out DungeonRoom dungeonRoom)
         {
             var mapSettings = MapSettingsProvider.Instance.MapSettings;
 
@@ -206,7 +206,7 @@ namespace PathGeneration
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
         }
 
-        public bool TryFindDungeonRoom(Path path, Vector2Int forceContainPosition, out DungeonRoom dungeonRoom)
+        public bool TryFindDungeonRoom(PathGenerator path, Vector2Int forceContainPosition, out DungeonRoom dungeonRoom)
         {
             var mapSettings = MapSettingsProvider.Instance.MapSettings;
             dungeonRoom = null;

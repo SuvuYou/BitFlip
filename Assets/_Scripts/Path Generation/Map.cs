@@ -6,7 +6,7 @@ namespace PathGeneration
     public class Map
     {
         public readonly TilesMatrix MapTiles;
-        public readonly Path MapPath;
+        public readonly PathGenerator MapPathGenerator;
         public readonly PseudoRandom.SystemRandomManager _systemRandom;
 
         private IDungeonRoomFinder _dungeonRoomFinder = new VarietyDungeonRoomFinder();
@@ -26,7 +26,7 @@ namespace PathGeneration
 
             MapTiles = new TilesMatrix(mapSettings.MapWidth, mapSettings.MapHeight, mapSettings.MapStemLength, mapSettings.MapBorderSize);
 
-            MapPath = new Path(MapTiles, startPos, endPos);
+            MapPathGenerator = new PathGenerator(MapTiles, startPos, endPos);
 
             _systemRandom = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
 
@@ -38,7 +38,7 @@ namespace PathGeneration
 
         public void Generate()
         {
-            MapPath.RandomWalk();
+            MapPathGenerator.RandomWalk();
 
             // ExpandCorners();
             GenerateDungeonRooms();
@@ -46,11 +46,11 @@ namespace PathGeneration
 
         private void GenerateDungeonRooms()
         {
-            foreach (var pos in MapPath.Tiles.GetCornerTiles())
+            foreach (var pos in MapPathGenerator.Tiles.GetCornerTiles())
             {
                 if (DungeonRooms.Count < MaxNumberOfDungeonRooms)
                 {
-                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, out DungeonRoom dungeonRoom)) continue;
+                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPathGenerator, pos, out DungeonRoom dungeonRoom)) continue;
 
                     dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom) as DungeonRoom;
 

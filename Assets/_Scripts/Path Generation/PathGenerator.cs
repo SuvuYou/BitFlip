@@ -8,7 +8,7 @@ namespace PathGeneration
 {
     public enum RelativeMove { Forward, Right, Left, Backtrack }
 
-    public class Path
+    public class PathGenerator
     {
         private readonly Dictionary<RelativeMove, float> MOVE_WEIGHTS = new()
         {
@@ -35,7 +35,7 @@ namespace PathGeneration
 
         public void SetCurrentState((Vector2Int position, Direction facingDirection) newState) => _currentState = newState;
 
-        public Path(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction lockedInitialFacingDirection = Direction.None)
+        public PathGenerator(TilesMatrix tiles, Vector2Int startPosition, Vector2Int endPosition, Direction lockedInitialFacingDirection = Direction.None)
         {
             StemLength = MapSettingsProvider.Instance.MapSettings.MapStemLength;
 

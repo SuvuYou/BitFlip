@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
 
         PathGeneration.Map map = _mapController.GenerateMap();
 
-        _playerSpawnManager.Spawn(map.MapPath.StartPosition.ToVector3WithZ(z: 0));
+        _playerSpawnManager.Spawn(map.MapPathGenerator.StartPosition.ToVector3WithZ(z: 0));
     }
 
     private void Update()
