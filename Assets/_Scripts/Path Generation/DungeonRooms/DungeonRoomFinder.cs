@@ -184,8 +184,7 @@ namespace PathGeneration
             {
                 var candidate = validCandidates[_random.GetRandomInt(0, validCandidates.Count)];
 
-                var bounds = candidate.Item1;
-                var exitPositions = candidate.Item2;
+                (var bounds, var exitPositions) = candidate;
 
                 dungeonRoom = new DungeonRoom(DungeonRoomType.DedlyWall, bounds, exitPositions);
 

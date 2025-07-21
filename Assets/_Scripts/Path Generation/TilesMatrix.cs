@@ -178,7 +178,7 @@ namespace PathGeneration
 
             var copiedRegion = new TilesMatrix(width, height, StemLength, borderSize, shouldSetupDefaultTiles: false);
 
-            foreach ((int x, int y, Tile tile) in GetEnumerableTiles(LoopType.All))
+            foreach ((int x, int y, Tile tile) in copiedRegion.GetEnumerableTiles(LoopType.All))
             {
                 int posX = x + bottomLeft.x;
                 int posY = y + bottomLeft.y;
