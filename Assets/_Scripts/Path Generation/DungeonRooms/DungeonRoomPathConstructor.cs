@@ -10,24 +10,14 @@ namespace PathGeneration
 
     public class VarietyDungeonRoomPathConstructor : IDungeonRoomPathConstructor
     {
-        private const int MAX_PATH_ATTEMPTS = 6;
-        private const float MIN_PATH_PERCENTAGE = 0.8f;
-
-        private PseudoRandom.SystemRandomManager _random;
-
         private SimpleExtensionDungeonRoomPathConstructor _simpleExtensionDungeonRoomPathConstructor = new ();
-
-        public VarietyDungeonRoomPathConstructor() 
-        {
-            _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.PathGeneration);
-        }
 
         public IDungeonRoom ConstructPath(DungeonRoom dungeonRoom)
         {
             dungeonRoom.FindEnterExitPositionPairs();
             dungeonRoom.SetupDungeonRoomVariants();
 
-            foreach (var variant in dungeonRoom.VariantsPerEnter.Values)
+            foreach (var variant in dungeonRoom.VariantsPerEntrance.Values)
             {
                 _simpleExtensionDungeonRoomPathConstructor.ConstructPath(variant);
             }

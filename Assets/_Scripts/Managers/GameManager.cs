@@ -3,16 +3,13 @@ using UnityEngine;
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private MapRenderer _mapRenderer;
-
+    [SerializeField] private PathGeneration.MapController _mapController;
     [SerializeField] private PlayerSpawnManager _playerSpawnManager;
     [SerializeField] private EnemySpawner _enemySpawner;
 
     [SerializeField] private SeedField _seedField;
 
-    private PathGeneration.Map _map;
-
-    private void Awake()
+    private void Start()
     {
         SwapSystem.SwappableEntitiesManager.Instance.InitContainers();
     }
@@ -23,14 +20,9 @@ public class GameManager : MonoBehaviour
 
         _seedField.SetSeedText(seed);
 
-        _map = new PathGeneration.Map();
+        PathGeneration.Map map = _mapController.GenerateMap();
 
-        _map.Generate();
-
-        _mapRenderer.Render(_map);
-
-        _playerSpawnManager.Spawn(_map.MapPath.StartPosition.ToVector3WithZ(z: 0));
-        // _enemySpawner.Spawn(_map.GetRandomDungeonRoom().GetRandomPathTilePosition());
+        _playerSpawnManager.Spawn(map.MapPath.StartPosition.ToVector3WithZ(z: 0));
     }
 
     private void Update()
@@ -38,12 +30,6 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SwapSystem.SwappableEntitiesManager.Instance.SwapEntities(layerSwapInterval: 0.01f);
-        }
-
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            _map.SetupDungeonRoomVariants();
-            _mapRenderer.Render(_map);
         }
     }
 }

@@ -34,21 +34,7 @@ namespace PathGeneration
         public List<(Vector2Int, Vector2Int, Direction)> EnterExitPositionPairs { get; private set; } = new();
 
         public DungeonRoomVariant OriginalVariant { get; private set; }
-        public Dictionary<(Vector2Int, Vector2Int), DungeonRoomVariant> VariantsPerEnter = new();
-
-        int currentVariantIndex = 0;
-
-        public void SetDungeonRoomVariant()
-        {
-            currentVariantIndex += 1;
-
-            if (currentVariantIndex > VariantsPerEnter.Count)
-                currentVariantIndex = 0;
-
-            DungeonRoomVariant variantToSet = currentVariantIndex == 0 ? OriginalVariant : VariantsPerEnter.ElementAt(currentVariantIndex - 1).Value;
-
-            Tiles.SetTilesDataFromMatrix(variantToSet.Tiles);
-        }
+        public Dictionary<(Vector2Int, Vector2Int), DungeonRoomVariant> VariantsPerEntrance = new();
 
         public void SetTiles(TilesMatrix tiles)
         {
@@ -99,7 +85,7 @@ namespace PathGeneration
 
         public void SetupDungeonRoomVariants() 
         {
-            VariantsPerEnter.Clear();
+            VariantsPerEntrance.Clear();
 
             foreach ((Vector2Int enter, Vector2Int exit, Direction lockedDiirectiion) in EnterExitPositionPairs)
             {
@@ -112,7 +98,7 @@ namespace PathGeneration
                 Debug.Log($"Generating path from {enter} to {exit}");
                 newPath.RandomWalk();
 
-                VariantsPerEnter.Add((enter, exit), variant);
+                VariantsPerEntrance.Add((enter, exit), variant);
             }
         }
     }

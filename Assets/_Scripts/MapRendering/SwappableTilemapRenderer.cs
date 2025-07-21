@@ -14,25 +14,21 @@ public class SwappableTilemapRenderer : MonoBehaviour
     [SerializeField] private SwapSystem.SwappableRuleTile _deadlyWallSwappableTilePrefab;
 
     public event Action<int, int, PathGeneration.Tile> OnRenderTile;
+    public int Width => _swappableTiles.GetLength(0);
+    public int Height => _swappableTiles.GetLength(1);
 
     private SwapSystem.SwappableRuleTile[,] _swappableTiles;
 
     private PathGeneration.Map _map;
 
-    private void Start()
+    public void ReRenderTilemapRegion(Vector2Int start, Vector2Int end)
     {
-        SwapSystem.SwappableEntitiesManager.Instance.OnSwapAtYLevelComplete += (int yLevel) => RenderTilemapYLevel(yLevel); 
-    }
-
-    public void RenderTilemapYLevel(int yLevel)
-    {
-        Vector3Int tilePosition = new (0, yLevel, 0);
-
-        for (int x = 0; x < _swappableTiles.GetLength(0); x++)
+        for (int x = start.x; x <= end.x; x++)
         {
-            tilePosition.x = x;
-
-            RenderTile(tilePosition);
+            for (int y = start.y; y <= end.y; y++)
+            {
+                RenderTile(new Vector3Int(x, y, 0));
+            }
         }
     }
 
@@ -42,11 +38,11 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
         Vector3Int tilePosition = new (0, 0, 0);
 
-        for (int x = 0; x < _swappableTiles.GetLength(0); x++)
+        for (int x = 0; x < Width; x++)
         {
             tilePosition.x = x;
 
-            for (int y = 0; y < _swappableTiles.GetLength(1); y++)
+            for (int y = 0; y < Height; y++)
             {
                 tilePosition.y = y;
 
@@ -57,7 +53,10 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
     private void RenderTile(Vector3Int tilePosition)
     {
-        _tilemap.SetTile(tilePosition, _swappableTiles[tilePosition.x, tilePosition.y].GetActiveVariant());
+        var currentTile = _tilemap.GetTile(tilePosition);
+        var targetTile = _swappableTiles[tilePosition.x, tilePosition.y].GetActiveVariant();
+
+        if (currentTile != targetTile) _tilemap.SetTile(tilePosition, targetTile);
 
         if (_map.MapPath.Tiles.GetTileByPosition(tilePosition.x, tilePosition.y).StateData.IsIncludedInDungeonRoom)
         {

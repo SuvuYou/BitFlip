@@ -13,7 +13,7 @@ namespace PathGeneration
         private IDungeonRoomPathConstructor _dungeonRoomPathConstructor;
         private IDungeonRoomTransformer _dungeonRoomTransformer = new DungeonRoomTransformer();
 
-        private List<DungeonRoom> _dungeonRooms;
+        public List<DungeonRoom> DungeonRooms { get; private set; }
 
         public int MaxNumberOfDungeonRooms { get; private set; }
 
@@ -33,7 +33,7 @@ namespace PathGeneration
             MaxNumberOfDungeonRooms = mapSettings.MaxNumberOfDungeonRooms;
 
             _dungeonRoomPathConstructor = new VarietyDungeonRoomPathConstructor();
-            _dungeonRooms = new List<DungeonRoom>(MaxNumberOfDungeonRooms);
+            DungeonRooms = new List<DungeonRoom>(MaxNumberOfDungeonRooms);
         }
 
         public void Generate()
@@ -44,19 +44,11 @@ namespace PathGeneration
             GenerateDungeonRooms();
         }
 
-        public void SetupDungeonRoomVariants()
-        {
-            foreach (var dungeonRoom in _dungeonRooms)
-            {
-                dungeonRoom.SetDungeonRoomVariant();
-            }
-        }
-
         private void GenerateDungeonRooms()
         {
             foreach (var pos in MapPath.Tiles.GetCornerTiles())
             {
-                if (_dungeonRooms.Count < MaxNumberOfDungeonRooms)
+                if (DungeonRooms.Count < MaxNumberOfDungeonRooms)
                 {
                     if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPath, pos, out DungeonRoom dungeonRoom)) continue;
 
@@ -64,11 +56,9 @@ namespace PathGeneration
 
                     // dungeonRoom = _dungeonRoomTransformer.TransformDungeonRoom(dungeonRoom);
                     
-                    _dungeonRooms.Add(dungeonRoom);
+                    DungeonRooms.Add(dungeonRoom);
                 }
             }
         }
-
-        public DungeonRoom GetRandomDungeonRoom() => _dungeonRooms[_systemRandom.GetRandomInt(0, _dungeonRooms.Count)];
     }
 }
