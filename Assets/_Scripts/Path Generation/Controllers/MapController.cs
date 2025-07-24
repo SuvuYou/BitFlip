@@ -11,6 +11,7 @@ namespace PathGeneration
 
         private void Start()
         {
+            _renderer.InitObjecPool();
             SwapSystem.SwappableEntitiesManager.Instance.OnSwapAtYLevelComplete += (int yLevel) => _renderer.ReRenderTilemapRegion(new Vector2Int(0, 0), new Vector2Int(_renderer.Width - 1, yLevel)); 
         }
 

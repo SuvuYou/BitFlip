@@ -8,11 +8,16 @@ public class ObjectPool<T> where T : Component
     private Transform _parent;
     private System.Func<T, bool> _isAvailable;
 
-    public ObjectPool(T prefab, Transform parent, int initialPoolSize, System.Func<T, bool> availabilityPredicate)
+    public ObjectPool(T prefab, Transform parent, int initialPoolSize, System.Func<T, bool> availabilityPredicate = null)
     {
         this._prefab = prefab;
         this._parent = parent;
         this._isAvailable = availabilityPredicate;
+
+        if (availabilityPredicate == null)
+        {
+            this._isAvailable = obj => !obj.gameObject.activeSelf;
+        }
 
         _pool = new List<T>();
 
@@ -39,5 +44,10 @@ public class ObjectPool<T> where T : Component
         _pool.Add(newObj);
 
         return newObj;
+    }
+
+    public void ReturnObject(T obj)
+    {
+        obj.gameObject.SetActive(false);
     }
 }

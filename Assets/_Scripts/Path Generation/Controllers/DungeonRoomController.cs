@@ -39,6 +39,7 @@ namespace PathGeneration
         private void RenderRoomVarient(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant)
         {
             dungeonRoom.Tiles.SetTilesDataFromMatrix(roomVariant.Tiles);
+
             _renderer.ReConstructTilemapRegion(_dungeonRooms[0].Bounds.Item1, _dungeonRooms[0].Bounds.Item2);
             _renderer.ReRenderTilemapRegion(dungeonRoom.Bounds.Item1, dungeonRoom.Bounds.Item2);
         }

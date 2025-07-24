@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2758833093997910435}
   - component: {fileID: 4717876599869351786}
   m_Layer: 0
-  m_Name: PathTile
+  m_Name: SwappableTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,7 +46,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _variants:
     items:
-    - key: 0
+    - key:
+        Type: 0
+        Variant: 0
+      value: {fileID: 11400000, guid: b14e92ed5aa9d9a4385fbabf2096a44d, type: 2}
+    - key:
+        Type: 0
+        Variant: 1
+      value: {fileID: 11400000, guid: 78547638d5d1cb04dbcf8de829cc5f9b, type: 2}
+    - key:
+        Type: 1
+        Variant: 0
       value: {fileID: 11400000, guid: 9a228fafb4dac114cafc2873e35f744d, type: 2}
-    - key: 1
+    - key:
+        Type: 1
+        Variant: 1
       value: {fileID: 11400000, guid: fb1f3cf0fda215343abb5e7edcf167f8, type: 2}
+    - key:
+        Type: 2
+        Variant: 0
+      value: {fileID: 11400000, guid: fe7cf2111a34f4543a596d44b6e7c96f, type: 2}
+    - key:
+        Type: 2
+        Variant: 1
+      value: {fileID: 11400000, guid: fe7cf2111a34f4543a596d44b6e7c96f, type: 2}
