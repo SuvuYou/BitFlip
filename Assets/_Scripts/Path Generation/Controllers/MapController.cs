@@ -25,7 +25,7 @@ namespace PathGeneration
                 _dungeonRoomController.SetupRoomEntranceTriggers(dungeonRoom);
             }
             
-            _renderer.ConstructSwappableTiles(_map);
+            _renderer.ConstructTilemap(_map);
 
             _renderer.RenderTilemap();
 

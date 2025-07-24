@@ -23,10 +23,17 @@ namespace PathGeneration
 
         public void OnTriggerEnter2D(Collider2D collision)
         {
+            if (!collision.transform.TryGetComponentInChildrenOfParent<PlayerContextProvider>(out _)) return;
+
             OnRoomEntered?.Invoke();
-            Debug.Log("Entered the room");
 
             Destroy(gameObject);
         }
+
+        private void OnDrawGizmos() 
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(transform.position, Vector3.one * 0.5f);
+        } 
     }
 }

@@ -18,11 +18,9 @@ namespace PathGeneration
         public Vector2Int EnterPosition { get; private set; }
         public Vector2Int ExitPosition { get; private set; }
 
-        public void SetTiles(TilesMatrix tiles, bool shouldResetTiles = false)
+        public void SetTiles(TilesMatrix tiles)
         {
             Tiles = tiles;
-
-            if (shouldResetTiles) Tiles.ResetTiles();
 
             Tiles.LoopThroughTiles(SetTileToDungeonRoomTile, TilesMatrix.LoopType.All);
 

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using Codice.Client.BaseCommands.Merge;
 using UnityEngine;
+using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 namespace PathGeneration
 {
@@ -49,6 +52,20 @@ namespace PathGeneration
             OriginalVariant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width -1, Height -1)), Vector2Int.one, shouldCloneTiles: true));
         }
 
+        int currentVariantIndex = 0;
+
+        public void SetDungeonRoomVariant()
+        {
+            currentVariantIndex += 1;
+
+            if (currentVariantIndex > VariantsPerEntrance.Count)
+                currentVariantIndex = 0;
+
+            DungeonRoomVariant variantToSet = currentVariantIndex == 0 ? OriginalVariant : VariantsPerEntrance.ElementAt(currentVariantIndex - 1).Value;
+
+            Tiles.SetTilesDataFromMatrix(variantToSet.Tiles);
+        }
+
         private void SetTileToDungeonRoomTile (int x, int y, Tile tile) => tile.SetAsDungeonRoomTile();
 
         public Vector3Int GetRandomPathTilePosition()
@@ -91,12 +108,15 @@ namespace PathGeneration
             {
                 var variant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero), enter, exit);
 
-                variant.SetTiles(Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width - 1, Height - 1)), Vector2Int.one, shouldCloneTiles: true), shouldResetTiles: true);
+                TilesMatrix variantTiles = Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width - 1, Height - 1)), Vector2Int.one, shouldCloneTiles: true);
 
-                var newPath = new Path(variant.Tiles, enter, exit, lockedDiirectiion);
+                variantTiles.ResetTiles();
+                variant.SetTiles(variantTiles);
+
+                var pathGenerator = new PathGenerator(variant.Tiles, enter, exit, lockedDiirectiion);
 
                 Debug.Log($"Generating path from {enter} to {exit}");
-                newPath.RandomWalk();
+                pathGenerator.RandomWalk();
 
                 VariantsPerEntrance.Add((enter, exit), variant);
             }

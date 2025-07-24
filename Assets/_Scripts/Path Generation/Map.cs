@@ -50,7 +50,7 @@ namespace PathGeneration
             {
                 if (DungeonRooms.Count < MaxNumberOfDungeonRooms)
                 {
-                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapPathGenerator, pos, out DungeonRoom dungeonRoom)) continue;
+                    if (!_dungeonRoomFinder.TryFindDungeonRoom(MapTiles, pos, out DungeonRoom dungeonRoom)) continue;
 
                     dungeonRoom = _dungeonRoomPathConstructor.ConstructPath(dungeonRoom) as DungeonRoom;
 
