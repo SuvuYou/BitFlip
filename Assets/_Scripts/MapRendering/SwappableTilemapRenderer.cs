@@ -7,10 +7,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
     [SerializeField] private Tilemap _tilemap;
     [SerializeField] private Tilemap _tilemapCollider;
 
-    [SerializeField] private Transform _tilesParent;
-
-    [SerializeField] private SwapSystem.SwappableRuleTile _swappableTilePrefab;
-    private ObjectPool<SwapSystem.SwappableRuleTile> _swappableTilePool;
+    [SerializeField] private SwapSystem.SwappableTileDataSO _swappableTileDataSO;
 
     public event Action<int, int, PathGeneration.Tile> OnRenderTile;
     public int Width => _swappableTiles.GetLength(0);
@@ -19,11 +16,6 @@ public class SwappableTilemapRenderer : MonoBehaviour
     private SwapSystem.SwappableRuleTile[,] _swappableTiles;
 
     private PathGeneration.Map _map;
-
-    public void InitObjecPool()
-    {
-        _swappableTilePool = new ObjectPool<SwapSystem.SwappableRuleTile>(_swappableTilePrefab, _tilesParent, initialPoolSize: 1000);
-    }
 
     public void ReRenderTilemapRegion(Vector2Int start, Vector2Int end)
     {
@@ -42,7 +34,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
         {
             for (int y = start.y; y <= end.y; y++)
             {
-                RemapConstructSwappableTile(x, y);
+                ConstructSwappableTile(x, y);
             }
         }
     }
@@ -68,12 +60,15 @@ public class SwappableTilemapRenderer : MonoBehaviour
         }
 
         _swappableTiles = new SwapSystem.SwappableRuleTile[_map.MapTiles.Width,  _map.MapTiles.Height];
+        _swappableTileDataSO.SetupDictionaries();
 
         for (int x = 0; x < _map.MapTiles.Width; x++)
         {
             for (int y = 0; y < _map.MapTiles.Height; y++)
             {
-                InstantiateConstructSwappableTile(x, y);
+                _swappableTiles[x, y] = new SwapSystem.SwappableRuleTile(x, y, _swappableTileDataSO);
+
+                ConstructSwappableTile(x, y);
             }
         }
     }
@@ -104,7 +99,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
         }
     }
 
-    private void RemapConstructSwappableTile(int x, int y)
+    private void ConstructSwappableTile(int x, int y)
     { 
         OnRenderTile?.Invoke(x, y, _map.MapTiles.GetTileByPosition(x, y));
 
@@ -120,36 +115,5 @@ public class SwappableTilemapRenderer : MonoBehaviour
                 _swappableTiles[x, y].SetTileType(PathGeneration.TileType.DeadlyWall);
                 break;
         }
-    }
-
-    private void InstantiateConstructSwappableTile(int x, int y)
-    { 
-        Vector3Int tilePosition = new (x, y, 0);
-        OnRenderTile?.Invoke(x, y, _map.MapTiles.GetTileByPosition(x, y));
-
-        switch (_map.MapTiles.GetTileByPosition(x, y).StateData.Type)
-        {
-            case PathGeneration.TileType.Path:
-                _swappableTiles[x, y] = PoolTileOfType(PathGeneration.TileType.Path);
-                _swappableTiles[x, y].transform.localPosition = tilePosition;
-                break;
-            case PathGeneration.TileType.Wall:
-                _swappableTiles[x, y] = PoolTileOfType(PathGeneration.TileType.Wall);
-                _swappableTiles[x, y].transform.localPosition = tilePosition;
-                break;
-            case PathGeneration.TileType.DeadlyWall:
-                _swappableTiles[x, y] = PoolTileOfType(PathGeneration.TileType.DeadlyWall);
-                _swappableTiles[x, y].transform.localPosition = tilePosition;
-                break;
-        }
-    }
-
-    private SwapSystem.SwappableRuleTile PoolTileOfType(PathGeneration.TileType type) 
-    {
-        SwapSystem.SwappableRuleTile tile = _swappableTilePool.GetObject();
-        tile.Init();
-        tile.SetTileType(type);
-
-        return tile;
     }
 }
