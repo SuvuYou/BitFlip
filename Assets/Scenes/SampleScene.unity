@@ -3213,8 +3213,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tilemap: {fileID: 1979538198}
   _tilemapCollider: {fileID: 1355288709}
-  _tilesParent: {fileID: 1331670467}
-  _swappableTilePrefab: {fileID: 4717876599869351786, guid: bef327291f84a51428fa9e19f35c45b7, type: 3}
+  _swappableTileDataSO: {fileID: 11400000, guid: 26d303e9bfcd26a4dad6ef6ee0570286, type: 2}
 --- !u!114 &1186204288
 MonoBehaviour:
   m_ObjectHideFlags: 0
