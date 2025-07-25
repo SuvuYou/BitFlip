@@ -73,6 +73,13 @@ public class SwappableTilemapRenderer : MonoBehaviour
         }
     }
 
+    public void ForceRenderTileAt(int x, int y, TileBase tile) 
+    {
+        Vector3Int tilePosition = new (x, y, 0);
+
+        _tilemap.SetTile(tilePosition, tile);
+    }
+
     private void RenderTile(int x, int y)
     {
         Vector3Int tilePosition = new (x, y, 0);
