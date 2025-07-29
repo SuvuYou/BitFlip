@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0956b567658cafe4c97363f9d61598c7, type: 3}
-  m_Name: DoorTile
+  m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
+  m_Name: DarkPath
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 202570049, guid: 3a159aa2ebf3caa48a2277b02dd72b07, type: 3}
+  m_DefaultSprite: {fileID: 0}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 2
   m_TilingRules: []

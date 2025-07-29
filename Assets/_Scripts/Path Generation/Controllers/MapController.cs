@@ -20,14 +20,15 @@ namespace PathGeneration
 
             _map.Generate();
 
-            foreach (DungeonRoom dungeonRoom in _map.DungeonRooms)
-            {
-                _dungeonRoomController.SetupRoomEntranceTriggers(dungeonRoom);
-            }
-            
             _renderer.ConstructTilemap(_map);
 
             _renderer.RenderTilemap();
+
+            foreach (DungeonRoom dungeonRoom in _map.DungeonRooms)
+            {
+                _dungeonRoomController.SetupRoomEntranceTriggers(dungeonRoom);
+                // _dungeonRoomController.RenderOriginDoors(dungeonRoom);
+            }
 
             return _map;
         }

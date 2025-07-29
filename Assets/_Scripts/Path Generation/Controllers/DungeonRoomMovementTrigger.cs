@@ -11,6 +11,7 @@ namespace PathGeneration
             go.transform.position = new Vector3(x, y, 0);
 
             DungeonRoomMovementTrigger trigger = go.AddComponent<DungeonRoomMovementTrigger>();
+            trigger.InitPosition(x, y);
 
             BoxCollider2D collider = go.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
@@ -19,13 +20,16 @@ namespace PathGeneration
             return trigger;
         }
 
-        public event Action OnMovementDetected;
+        private int _x , _y ;
+        public void InitPosition(int x, int y) => (_x, _y) = (x, y);
+        
+        public event Action<Vector2Int> OnMovementDetected;
 
         public void OnTriggerEnter2D(Collider2D collision)
         {
             if (!collision.transform.TryGetComponentInChildrenOfParent<PlayerContextProvider>(out _)) return;
 
-            OnMovementDetected?.Invoke();
+            OnMovementDetected?.Invoke(new Vector2Int(_x, _y));
 
             Destroy(gameObject);
         }

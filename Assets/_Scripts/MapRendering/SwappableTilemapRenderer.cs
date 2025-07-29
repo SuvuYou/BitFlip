@@ -78,6 +78,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
         Vector3Int tilePosition = new (x, y, 0);
 
         _tilemap.SetTile(tilePosition, tile);
+        _tilemapCollider.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
     }
 
     private void RenderTile(int x, int y)
@@ -120,6 +121,9 @@ public class SwappableTilemapRenderer : MonoBehaviour
                 break;
             case PathGeneration.TileType.DeadlyWall:
                 _swappableTiles[x, y].SetTileType(PathGeneration.TileType.DeadlyWall);
+                break;
+            case PathGeneration.TileType.Door:
+                _swappableTiles[x, y].SetTileType(PathGeneration.TileType.Door);
                 break;
         }
     }

@@ -1827,7 +1827,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 7.361111
+  orthographic size: 8.462963
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3227,6 +3227,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _renderer: {fileID: 1186204287}
+  _dungeonRoomDoorTile: {fileID: 11400000, guid: 27260b52df88f054db4585342f2983bf, type: 2}
 --- !u!114 &1186204289
 MonoBehaviour:
   m_ObjectHideFlags: 0

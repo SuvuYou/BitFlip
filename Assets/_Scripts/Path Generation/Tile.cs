@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PathGeneration
 {
-    public enum TileType { Wall, Path, DeadlyWall }
+    public enum TileType { Wall, Path, DeadlyWall, Door }
     public enum TileConnectionType { Single, Corner, T_Junction, Intersection }
 
     public struct TileData 

@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Codice.Client.BaseCommands.Merge;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.UIElements;
 
 namespace PathGeneration
 {
@@ -35,6 +32,8 @@ namespace PathGeneration
 
         public List<Vector2Int> ExitPositions { get; private set; }
         public List<(Vector2Int, Vector2Int, Direction)> EnterExitPositionPairs { get; private set; } = new();
+
+        public List<Vector2Int> ExploredEntrances { get; private set; } = new();
 
         public DungeonRoomVariant OriginalVariant { get; private set; }
         public Dictionary<(Vector2Int, Vector2Int), DungeonRoomVariant> VariantsPerEntrance = new();
@@ -104,7 +103,7 @@ namespace PathGeneration
         {
             VariantsPerEntrance.Clear();
 
-            foreach ((Vector2Int enter, Vector2Int exit, Direction lockedDiirectiion) in EnterExitPositionPairs)
+            foreach ((Vector2Int enter, Vector2Int exit, Direction lockedDirection) in EnterExitPositionPairs)
             {
                 var variant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero), enter, exit);
 
@@ -113,13 +112,25 @@ namespace PathGeneration
                 variantTiles.ResetTiles();
                 variant.SetTiles(variantTiles);
 
-                var pathGenerator = new PathGenerator(variant.Tiles, enter, exit, lockedDiirectiion);
+                var pathGenerator = new PathGenerator(variant.Tiles, enter, exit, lockedDirection);
 
                 Debug.Log($"Generating path from {enter} to {exit}");
                 pathGenerator.RandomWalk();
 
                 VariantsPerEntrance.Add((enter, exit), variant);
+
+                Tiles.SetTileData(enter.x, enter.y, TileType.Door, Tiles.GetTileByPosition(enter).StateData.PreviousFacingDirection);
+                Tiles.SetTileData(exit.x, exit.y, TileType.Door, Tiles.GetTileByPosition(exit).StateData.PreviousFacingDirection);
             }
         }
+
+        public void AddEploredEntrance(Vector2Int position) 
+        {
+            ExploredEntrances.Add(position);
+
+            Tiles.SetTileData(position.x, position.y, TileType.Path, Tiles.GetTileByPosition(position).StateData.PreviousFacingDirection);
+        }
+
+        public List<Vector2Int> GetUnexploredEntrances() => ExitPositions.Where(exit => !ExploredEntrances.Contains(exit)).ToList();
     }
 }

@@ -17,21 +17,32 @@ namespace PathGeneration
                 DungeonRoomMovementTrigger entranceTrigger = DungeonRoomMovementTrigger.CreateInstanceAt(lowerBounds.x + entrance.x, lowerBounds.y + entrance.y);
                 DungeonRoomMovementTrigger exitTrigger = DungeonRoomMovementTrigger.CreateInstanceAt(lowerBounds.x + exit.x, lowerBounds.y + exit.y);
 
-                entranceTrigger.OnMovementDetected += () => OnRoomEnter(dungeonRoom, roomVariant);
-                exitTrigger.OnMovementDetected += () => OnRoomExit(dungeonRoom);
+                entranceTrigger.OnMovementDetected += (position) => OnRoomEnter(dungeonRoom, roomVariant, position);
+                exitTrigger.OnMovementDetected += (position) => OnRoomExit(dungeonRoom, position);
             }
         }
 
-        private void OnRoomEnter(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant)
+        private void OnRoomEnter(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant, Vector2Int position)
         {
+            dungeonRoom.AddEploredEntrance(position);
             RenderRoomVarient(dungeonRoom, roomVariant);
 
-            RenderDoors(dungeonRoom, roomVariant);
+            // RenderDoors(dungeonRoom, roomVariant);
         }
 
-        private void OnRoomExit(DungeonRoom dungeonRoom) 
+        private void OnRoomExit(DungeonRoom dungeonRoom, Vector2Int position) 
         {
+            dungeonRoom.AddEploredEntrance(position);
             RenderRoomVarient(dungeonRoom, dungeonRoom.OriginalVariant);
+            // RenderOriginDoors(dungeonRoom);
+        }
+
+        public void RenderOriginDoors(DungeonRoom dungeonRoom)
+        {
+            foreach (Vector2Int exit in dungeonRoom.GetUnexploredEntrances())
+            {
+                RenderDoorAt(exit);
+            }
         }
 
         private void RenderRoomVarient(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant)
@@ -44,8 +55,13 @@ namespace PathGeneration
 
         private void RenderDoors(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant)
         {
-            _renderer.ForceRenderTileAt(dungeonRoom.Bounds.Item1.x + roomVariant.EnterPosition.x, dungeonRoom.Bounds.Item1.y + roomVariant.EnterPosition.y, _dungeonRoomDoorTile);
-            _renderer.ForceRenderTileAt(dungeonRoom.Bounds.Item1.x + roomVariant.ExitPosition.x, dungeonRoom.Bounds.Item1.y + roomVariant.ExitPosition.y, _dungeonRoomDoorTile);
+            RenderDoorAt(dungeonRoom.Bounds.Item1 + roomVariant.EnterPosition);
+            RenderDoorAt(dungeonRoom.Bounds.Item1 + roomVariant.ExitPosition);
+        }
+
+        private void RenderDoorAt(Vector2Int position)
+        {
+            _renderer.ForceRenderTileAt(position.x, position.y, _dungeonRoomDoorTile);
         }
     }
 }
