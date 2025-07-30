@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 5404207029818271905}
   - component: {fileID: 7010223018005844937}
   - component: {fileID: 1185550026617059458}
+  - component: {fileID: 7392524570107490189}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -176,6 +177,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _healthContextDataSO: {fileID: 11400000, guid: b323d862c932ce447aca186983784c3c, type: 2}
+--- !u!114 &7392524570107490189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6662513108470917385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67cd63f8aeef1e418dcacb121372b5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionContextDataSO: {fileID: 11400000, guid: 1bb217638c0cdb042b12b17cc5dd7cab, type: 2}
 --- !u!1 &6969854853285196778
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,6 +433,7 @@ GameObject:
   - component: {fileID: 5558418681168633283}
   - component: {fileID: 4916801692544586548}
   - component: {fileID: 3230704229969563092}
+  - component: {fileID: 3573943224482748646}
   m_Layer: 7
   m_Name: Collider
   m_TagString: Untagged
@@ -500,3 +515,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _damage: 1
   _attackDuration: 3
+--- !u!114 &3573943224482748646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8894759876975678095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07bede81d5f0f84428f8e912471e5554, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

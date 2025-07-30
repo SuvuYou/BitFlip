@@ -1,13 +1,15 @@
 using System.Collections;
 using UnityEngine;
 
-public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, IConsumer<PlayerContextData>
+public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, IConsumer<PlayerContextData>, IConsumer<ICollisionContextData>
 {
     public PlayerContextData Context { get; private set; }
+    public ICollisionContextData CollisionContext { get; private set; }
 
     private Timer _attackDurationTimer;
 
-    public void Inject(PlayerContextData context) => Context = context;
+    void IConsumer<PlayerContextData>.Inject(PlayerContextData context) => Context = context;
+    void IConsumer<ICollisionContextData>.Inject(ICollisionContextData context) => CollisionContext = context;
 
     private const float ATTACK_MODE_BUFFER_TIME = 0.05f;
 
@@ -25,11 +27,7 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
         _attackDurationTimer = new Timer(_attackDuration);
 
         Context.MovementState.OnHitWall += (Direction direction) => ExitAttackMode();
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        Attack.HandleCollision(other);  
+        CollisionContext.OnTriggerEnter += (Collider2D other) => Attack.HandleCollision(other);  
     }
 
     private void Update()

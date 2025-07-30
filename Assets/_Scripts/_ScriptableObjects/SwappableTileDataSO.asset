@@ -17,11 +17,11 @@ MonoBehaviour:
     - key:
         Type: 0
         Variant: 0
-      value: {fileID: 11400000, guid: b14e92ed5aa9d9a4385fbabf2096a44d, type: 2}
+      value: {fileID: 11400000, guid: 965c974bb818f8242847d0c7e93c49ac, type: 2}
     - key:
         Type: 0
         Variant: 1
-      value: {fileID: 11400000, guid: 78547638d5d1cb04dbcf8de829cc5f9b, type: 2}
+      value: {fileID: 11400000, guid: 721510ee4684ce04488c0fff5ff61602, type: 2}
     - key:
         Type: 1
         Variant: 0
@@ -41,11 +41,11 @@ MonoBehaviour:
     - key:
         Type: 3
         Variant: 0
-      value: {fileID: 11400000, guid: c94bbf89694d18b47b9feb969ce0bc5b, type: 2}
+      value: {fileID: 11400000, guid: 921b997c3b3cb5b4c97473ec6fd444f7, type: 2}
     - key:
         Type: 3
         Variant: 1
-      value: {fileID: 11400000, guid: c94bbf89694d18b47b9feb969ce0bc5b, type: 2}
+      value: {fileID: 11400000, guid: 921b997c3b3cb5b4c97473ec6fd444f7, type: 2}
   Collidables:
     items:
     - key: 1
