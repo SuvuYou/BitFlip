@@ -42,9 +42,10 @@ public class EntityMovement
 
     public void SetDirection(Direction direction) 
     {
-        _state.SetCurrentDirection(direction);
+        bool isNewDirection = _state.CurrentDirection != direction;
 
-        _state.SetIsIdle(IsFacingWall(direction));
+        _state.SetCurrentDirection(direction);
+        _state.SetIsIdle(IsFacingWall(direction) && !isNewDirection);
     }
 
     private void ResetMovement()
@@ -72,11 +73,12 @@ public class EntityMovement
     {
         SnapToGrid();
 
-        _state.SetIsIdle(true);
         _state.SetClosestWallPoint(_stats.ColliderTransform.position + _state.CurrentDirection.ToVector().ToVector3WithZ(z: 0f) * _stats.RaycastDistance);
 
         _state.TriggerOnHitWall(_state.CurrentDirection);
         _state.SetCurrentVelocity(Vector2.zero); 
+
+        _state.SetIsIdle(true);
     }
 
     private void SnapToGrid() 
@@ -86,9 +88,9 @@ public class EntityMovement
 
     private bool IsFacingWall(Direction direction)
     {
-        RaycastHit2D hit = Physics2D.BoxCast(_stats.ColliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction.ToVector(), _stats.RaycastDistance, _stats.WallLayerMask);
+        _state.LastHit = Physics2D.BoxCast(_stats.ColliderTransform.position, new Vector2(0.25f, 0.25f), 0, direction.ToVector(), _stats.RaycastDistance, _stats.WallLayerMask);
 
-        return hit.collider != null;
+        return _state.LastHit.collider != null;
     }
 }
 
@@ -119,12 +121,14 @@ public struct EntityMovementStats
 public class EntityMovementState
 {
     public event Action<Direction> OnChangeDirection;
-    public event Action<Direction> OnHitWall;
+    public event Action<Direction, RaycastHit2D> OnHitWall;
     public event Action<bool> OnIdleChange;
 
     public Direction CurrentDirection { get; private set; } = Direction.None;
     public Vector2 ClosestWallPoint { get; private set; }
     public Vector2 CurrentVelocity { get; private set; }
+
+    public RaycastHit2D LastHit;
 
     public bool IsIdle { get; private set; } = true;
     public bool IsFacingRight { get; private set; }
@@ -143,7 +147,7 @@ public class EntityMovementState
         if (IsIdle && CurrentDirection != direction) 
         {
             OnChangeDirection?.Invoke(direction);
-            
+
             CurrentDirection = direction;
 
             IsFacingRight = CurrentDirection == Direction.Right;
@@ -152,8 +156,10 @@ public class EntityMovementState
 
     public void TriggerOnHitWall(Direction fromDirection) 
     {
+        if (IsIdle) return;
+
         IsFacingRight = fromDirection == Direction.Right;
 
-        OnHitWall?.Invoke(fromDirection);
+        OnHitWall?.Invoke(fromDirection, LastHit);
     }
 }

@@ -22,7 +22,7 @@ public class PlayerSpriteHandler : MonoBehaviour, IConsumer<PlayerContextData>
         Context.MovementState.OnHitWall += SnapSpriteToWall;
     }
 
-    private void SnapSpriteToWall(Direction direction) 
+    private void SnapSpriteToWall(Direction direction, RaycastHit2D lastHit) 
     {  
         Vector3 offset = _spriteWallOffset.ContainsKey(direction) ? _spriteWallOffset[direction] : Vector3.zero;
 

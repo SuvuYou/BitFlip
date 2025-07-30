@@ -26,7 +26,7 @@ public class EnemySpriteHandler : MonoBehaviour, IConsumer<EnemyContextData>
         if (!Context.MovementState.IsIdle) ResetSpritePotion(Context.MovementState.CurrentDirection);
     }
 
-    private void SnapSpriteToWall(Direction direction) 
+    private void SnapSpriteToWall(Direction direction, RaycastHit2D lastHit) 
     {  
         Vector3 offset = _spriteWallOffset.ContainsKey(direction) ? _spriteWallOffset[direction] : Vector3.zero;
 

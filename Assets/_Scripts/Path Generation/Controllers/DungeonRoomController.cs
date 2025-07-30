@@ -1,3 +1,5 @@
+using System.Net;
+using CustomTiles;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -7,20 +9,32 @@ namespace PathGeneration
     {
         [SerializeField] private SwappableTilemapRenderer _renderer;
         [SerializeField] private TileBase _dungeonRoomDoorTile;
+        [SerializeField] private CollisionContextDataSO _playerCollisionEvents;
 
         public void SetupRoomEntranceTriggers(DungeonRoom dungeonRoom)
         {
+            _playerCollisionEvents.OnRaycastHitWall += HandleHitWall;
+
             foreach(((Vector2Int entrance, Vector2Int exit), DungeonRoomVariant roomVariant) in dungeonRoom.VariantsPerEntrance)
             {
                 (Vector2Int lowerBounds, Vector2Int upperBounds) = dungeonRoom.Bounds;
-
-                DungeonRoomMovementTrigger entranceTrigger = DungeonRoomMovementTrigger.CreateInstanceAt(lowerBounds.x + entrance.x, lowerBounds.y + entrance.y);
-                DungeonRoomMovementTrigger exitTrigger = DungeonRoomMovementTrigger.CreateInstanceAt(lowerBounds.x + exit.x, lowerBounds.y + exit.y);
-
-                entranceTrigger.OnMovementDetected += (position) => OnRoomEnter(dungeonRoom, roomVariant, position);
-                exitTrigger.OnMovementDetected += (position) => OnRoomExit(dungeonRoom, position);
             }
         }
+
+        private void HandleHitWall(RaycastHit2D lastHit, Direction direction) 
+        {
+            if (lastHit.collider != null && lastHit.collider.TryGetComponent<Tilemap>(out var hitTilemap))
+            {
+                Vector3Int cellPos = hitTilemap.WorldToCell(lastHit.point +  0.5f * direction.ToVectorFloat());
+                TileBase tile = hitTilemap.GetTile(cellPos);
+
+                if (tile != null && tile is DoorRuleTile)
+                {
+                    Debug.Log("Ray lastHit tile: " + tile.name + " at " + cellPos);
+                }
+            }
+        }
+        
 
         private void OnRoomEnter(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant, Vector2Int position)
         {

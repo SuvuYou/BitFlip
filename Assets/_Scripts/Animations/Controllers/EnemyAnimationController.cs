@@ -57,7 +57,7 @@ public class EnemyAnimationController : BaseAnimationController, IConsumer<Enemy
         _switchAnimationState(newDashHash, mode: SwitchAnimationMode.ReplaceOverride);
     } 
 
-    private void SwitchIdleAnimation(Direction fromDirection) 
+    private void SwitchIdleAnimation(Direction fromDirection, RaycastHit2D lastHit) 
     {
         _switchAnimationState(GetIdleAnimationHash(fromDirection), mode: SwitchAnimationMode.ReplaceOverride);
     }

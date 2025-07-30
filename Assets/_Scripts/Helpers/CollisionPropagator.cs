@@ -6,6 +6,13 @@ public class CollisionPropagator : MonoBehaviour, IConsumer<ICollisionContextDat
 
     void IConsumer<ICollisionContextData>.Inject(ICollisionContextData context) => CollisionContext = context;
 
-    private void OnTriggerEnter2D(Collider2D other) => CollisionContext.OnTriggerEnter?.Invoke(other);
-    private void OnCollisionEnter2D(Collision2D other) => CollisionContext.OnCollisionEnter?.Invoke(other);
+    private void OnTriggerEnter2D(Collider2D other) 
+    {
+        CollisionContext.OnTriggerEnter?.Invoke(other);
+    }   
+     
+    private void OnCollisionEnter2D(Collision2D other) 
+    {
+        CollisionContext.OnCollisionEnter?.Invoke(other);
+    }
 }

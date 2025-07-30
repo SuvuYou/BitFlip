@@ -26,7 +26,7 @@ public class PlayerCollisionAttack : MonoBehaviour, IEntityAttackComponent, ICon
 
         _attackDurationTimer = new Timer(_attackDuration);
 
-        Context.MovementState.OnHitWall += (Direction direction) => ExitAttackMode();
+        Context.MovementState.OnHitWall += (Direction direction, RaycastHit2D lastHit) => ExitAttackMode();
         CollisionContext.OnTriggerEnter += (Collider2D other) => Attack.HandleCollision(other);  
     }
 
