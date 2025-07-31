@@ -48,6 +48,8 @@ public class EntityMovement
         _state.SetIsIdle(IsFacingWall(direction) && !isNewDirection);
     }
 
+    public void SetPosition(Vector3 position) => _stats.EntityTransform.position = position;
+
     private void ResetMovement()
     {
         _state.SetIsIdle(true);

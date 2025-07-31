@@ -1827,7 +1827,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8.462963
+  orthographic size: 8.583333
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3161,6 +3161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerCamera: {fileID: 303797038}
   _playerPrefab: {fileID: 6662513108470917385, guid: c69be0efd286ea44088dc8fcc45255ca, type: 3}
+  _playerSpawnedEvent: {fileID: 11400000, guid: 3437120b360b00249b6398c24f22d823, type: 2}
 --- !u!1 &1186204284
 GameObject:
   m_ObjectHideFlags: 0
@@ -3228,6 +3229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _renderer: {fileID: 1186204287}
   _dungeonRoomDoorTile: {fileID: 11400000, guid: 27260b52df88f054db4585342f2983bf, type: 2}
+  _playerCollisionEvents: {fileID: 11400000, guid: 1bb217638c0cdb042b12b17cc5dd7cab, type: 2}
 --- !u!114 &1186204289
 MonoBehaviour:
   m_ObjectHideFlags: 0

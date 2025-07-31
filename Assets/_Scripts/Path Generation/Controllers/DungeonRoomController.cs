@@ -1,4 +1,3 @@
-using System.Net;
 using CustomTiles;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -10,6 +9,25 @@ namespace PathGeneration
         [SerializeField] private SwappableTilemapRenderer _renderer;
         [SerializeField] private TileBase _dungeonRoomDoorTile;
         [SerializeField] private CollisionContextDataSO _playerCollisionEvents;
+
+        [SerializeField] private GameEvent<GameObject> _playerSpawnedEvent;
+
+        private PlayerMovement _playerMovement;
+
+        private void Start() 
+        {
+            _playerSpawnedEvent.Register((GameObject player) => 
+            {
+                if (player.transform.root.TryGetComponentInChildren(out PlayerMovement playerMovement))
+                {
+                    _playerMovement = playerMovement;
+                }
+                else
+                {
+                    Debug.LogError("Couldn't find player movement");
+                }
+            });
+        }
 
         public void SetupRoomEntranceTriggers(DungeonRoom dungeonRoom)
         {

@@ -5,6 +5,7 @@ public class PlayerSpawnManager : MonoBehaviour
 {
     [SerializeField] private CinemachineVirtualCamera _playerCamera;
     [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private GameEvent<GameObject> _playerSpawnedEvent;
 
     private GameObject _player;
 
@@ -16,5 +17,7 @@ public class PlayerSpawnManager : MonoBehaviour
 
         _playerCamera.Follow = _player.transform;
         _playerCamera.LookAt = _player.transform;
+
+        _playerSpawnedEvent.Raise(_player);
     }
 }
