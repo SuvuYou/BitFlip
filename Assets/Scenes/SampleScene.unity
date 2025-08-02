@@ -439,8 +439,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f80a55473f7ac6f4cb3802537de334dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <TilesMap>k__BackingField: {fileID: 0}
-  _tileEffectPrefab: {fileID: 0}
+  <TilesMap>k__BackingField: {fileID: 1979538198}
+  _tileEffectPrefab: {fileID: 5369163968906455549, guid: 8244dd1f977708943aad5674fda42ac5, type: 3}
 --- !u!1 &162635397
 GameObject:
   m_ObjectHideFlags: 0
@@ -1860,7 +1860,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8.583333
+  orthographic size: 8.462963
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
