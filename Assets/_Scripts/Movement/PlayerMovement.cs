@@ -21,13 +21,13 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
     private Direction _nextDirection = Direction.None;
 
-    private EntityMovement _movement;
+    public EntityMovement Movement { get; private set; }
 
     private void Start()
     {
         _cayoteTimer = new Timer(_cayoteMovementTime);
 
-        _movement = new EntityMovement
+        Movement = new EntityMovement
         (
             new EntityMovementStats(_playerTransform, _colliderTransform, _maxSpeed, _acceleration, _dashMultiplier, _raycastDistance, _wallLayerMask),
             Context.MovementState
@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
         GetInput();
         UpdateDirection();
 
-        _movement.TryMoveInDirection();
+        Movement.TryMoveInDirection();
     }
 
     private void GetInput()
@@ -87,7 +87,7 @@ public class PlayerMovement : MonoBehaviour, IConsumer<PlayerContextData>
 
         if (!Context.MovementState.IsIdle || _nextDirection == Context.MovementState.CurrentDirection) return;
         
-        _movement.SetDirection(_nextDirection);
+        Movement.SetDirection(_nextDirection);
 
         _cayoteTimer.Stop();
     }

@@ -6,6 +6,31 @@ namespace PathGeneration
 {
     public enum DungeonRoomType { DedlyWall, Doorswitch, FlipPuzzle }
 
+    public enum DungeonDoorType { Entrance, Exit }
+    public enum DungeonDoorState { Open, Locked, Unexplored }
+
+    public class DungeonDoor 
+    {
+        public DungeonDoorType Type { get; private set; }
+        public DungeonDoorState State { get; private set; }
+
+        public Vector2Int Position { get; private set; }
+        public Direction LeadingDirection { get; private set; }
+
+        public DungeonDoor(DungeonDoorType type, Vector2Int position, Direction leadingDirection)
+        {
+            Type = type;
+            Position = position;
+            LeadingDirection = leadingDirection;
+            State = DungeonDoorState.Unexplored;
+        }
+
+        public void SetState(DungeonDoorState dungeonDoorState)
+        {
+            State = dungeonDoorState;
+        }
+    }
+
     public class DungeonRoom : IDungeonRoom
     {
         private PseudoRandom.SystemRandomManager _random;
@@ -33,7 +58,7 @@ namespace PathGeneration
         public List<Vector2Int> ExitPositions { get; private set; }
         public List<(Vector2Int, Vector2Int, Direction)> EnterExitPositionPairs { get; private set; } = new();
 
-        public List<Vector2Int> ExploredEntrances { get; private set; } = new();
+        public List<DungeonDoor> Doors { get; private set; } = new();
 
         public DungeonRoomVariant OriginalVariant { get; private set; }
         public Dictionary<(Vector2Int, Vector2Int), DungeonRoomVariant> VariantsPerEntrance = new();
@@ -121,16 +146,10 @@ namespace PathGeneration
 
                 Tiles.SetTileData(enter.x, enter.y, TileType.Door, Tiles.GetTileByPosition(enter).StateData.PreviousFacingDirection);
                 Tiles.SetTileData(exit.x, exit.y, TileType.Door, Tiles.GetTileByPosition(exit).StateData.PreviousFacingDirection);
+
+                Doors.Add(new DungeonDoor(DungeonDoorType.Entrance, enter, Tiles.GetTileByPosition(enter).StateData.PreviousFacingDirection));
+                Doors.Add(new DungeonDoor(DungeonDoorType.Exit, exit, Tiles.GetTileByPosition(exit).StateData.PreviousFacingDirection));
             }
-        }
-
-        public void AddEploredEntrance(Vector2Int position) 
-        {
-            ExploredEntrances.Add(position);
-
-            Tiles.SetTileData(position.x, position.y, TileType.Path, Tiles.GetTileByPosition(position).StateData.PreviousFacingDirection);
-        }
-
-        public List<Vector2Int> GetUnexploredEntrances() => ExitPositions.Where(exit => !ExploredEntrances.Contains(exit)).ToList();
+        }    
     }
 }
