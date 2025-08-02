@@ -32,11 +32,6 @@ namespace PathGeneration
         public void SetupRoomEntranceTriggers(DungeonRoom dungeonRoom)
         {
             _playerCollisionEvents.OnRaycastHitWall += HandleHitWall;
-
-            foreach(((Vector2Int entrance, Vector2Int exit), DungeonRoomVariant roomVariant) in dungeonRoom.VariantsPerEntrance)
-            {
-                (Vector2Int lowerBounds, Vector2Int upperBounds) = dungeonRoom.Bounds;
-            }
         }
 
         private void HandleHitWall(RaycastHit2D lastHit, Direction direction) 
@@ -51,49 +46,6 @@ namespace PathGeneration
                     Debug.Log("Ray lastHit tile: " + tile.name + " at " + cellPos);
                 }
             }
-        }
-        
-
-        private void OnRoomEnter(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant, Vector2Int position)
-        {
-            dungeonRoom.AddEploredEntrance(position);
-            RenderRoomVarient(dungeonRoom, roomVariant);
-
-            // RenderDoors(dungeonRoom, roomVariant);
-        }
-
-        private void OnRoomExit(DungeonRoom dungeonRoom, Vector2Int position) 
-        {
-            dungeonRoom.AddEploredEntrance(position);
-            RenderRoomVarient(dungeonRoom, dungeonRoom.OriginalVariant);
-            // RenderOriginDoors(dungeonRoom);
-        }
-
-        public void RenderOriginDoors(DungeonRoom dungeonRoom)
-        {
-            foreach (Vector2Int exit in dungeonRoom.GetUnexploredEntrances())
-            {
-                RenderDoorAt(exit);
-            }
-        }
-
-        private void RenderRoomVarient(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant)
-        {
-            dungeonRoom.Tiles.SetTilesDataFromMatrix(roomVariant.Tiles);
-
-            _renderer.ReConstructTilemapRegion(dungeonRoom.Bounds.Item1, dungeonRoom.Bounds.Item2);
-            _renderer.ReRenderTilemapRegion(dungeonRoom.Bounds.Item1, dungeonRoom.Bounds.Item2);
-        }
-
-        private void RenderDoors(DungeonRoom dungeonRoom, DungeonRoomVariant roomVariant)
-        {
-            RenderDoorAt(dungeonRoom.Bounds.Item1 + roomVariant.EnterPosition);
-            RenderDoorAt(dungeonRoom.Bounds.Item1 + roomVariant.ExitPosition);
-        }
-
-        private void RenderDoorAt(Vector2Int position)
-        {
-            _renderer.ForceRenderTileAt(position.x, position.y, _dungeonRoomDoorTile);
         }
     }
 }

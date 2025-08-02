@@ -27,7 +27,6 @@ namespace PathGeneration
             foreach (DungeonRoom dungeonRoom in _map.DungeonRooms)
             {
                 _dungeonRoomController.SetupRoomEntranceTriggers(dungeonRoom);
-                // _dungeonRoomController.RenderOriginDoors(dungeonRoom);
             }
 
             return _map;

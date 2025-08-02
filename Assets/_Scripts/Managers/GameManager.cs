@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private SeedField _seedField;
 
+    [SerializeField] private TilemapWaveAnimator _tilemapWaveAnimator;
+
     private void Start()
     {
         SwapSystem.SwappableEntitiesManager.Instance.InitContainers();
@@ -23,6 +25,8 @@ public class GameManager : MonoBehaviour
         PathGeneration.Map map = _mapController.GenerateMap();
 
         _playerSpawnManager.Spawn(map.MapPathGenerator.StartPosition.ToVector3WithZ(z: 0));
+
+        _tilemapWaveAnimator.StartWave();
     }
 
     private void Update()
