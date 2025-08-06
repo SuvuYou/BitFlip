@@ -6,31 +6,6 @@ namespace PathGeneration
 {
     public enum DungeonRoomType { DedlyWall, Doorswitch, FlipPuzzle }
 
-    public enum DungeonDoorType { Entrance, Exit }
-    public enum DungeonDoorState { Open, Locked, Unexplored }
-
-    public class DungeonDoor 
-    {
-        public DungeonDoorType Type { get; private set; }
-        public DungeonDoorState State { get; private set; }
-
-        public Vector2Int Position { get; private set; }
-        public Direction LeadingDirection { get; private set; }
-
-        public DungeonDoor(DungeonDoorType type, Vector2Int position, Direction leadingDirection)
-        {
-            Type = type;
-            Position = position;
-            LeadingDirection = leadingDirection;
-            State = DungeonDoorState.Unexplored;
-        }
-
-        public void SetState(DungeonDoorState dungeonDoorState)
-        {
-            State = dungeonDoorState;
-        }
-    }
-
     public class DungeonRoom : IDungeonRoom
     {
         private PseudoRandom.SystemRandomManager _random;
@@ -41,7 +16,7 @@ namespace PathGeneration
         {
             Type = type;
             Bounds = bounds;
-            ExitPositions = exitPositions;
+            GlobalExitPositions = exitPositions;
 
             _random = PseudoRandom.SystemRandomHolder.UseSystem(PseudoRandom.SystemRandomType.Other);
         }
@@ -55,13 +30,13 @@ namespace PathGeneration
         public int Width => UpperBounds.x - LowerBounds.x + 1;
         public int Height => UpperBounds.y - LowerBounds.y + 1;
 
-        public List<Vector2Int> ExitPositions { get; private set; }
-        public List<(Vector2Int, Vector2Int, Direction)> EnterExitPositionPairs { get; private set; } = new();
+        public List<Vector2Int> GlobalExitPositions { get; private set; }
+        public List<(DungeonTilePosition, DungeonTilePosition, Direction)> EnterExitPositionPairs { get; private set; } = new();
 
         public List<DungeonDoor> Doors { get; private set; } = new();
 
         public DungeonRoomVariant OriginalVariant { get; private set; }
-        public Dictionary<(Vector2Int, Vector2Int), DungeonRoomVariant> VariantsPerEntrance = new();
+        public Dictionary<(DungeonTilePosition, DungeonTilePosition), DungeonRoomVariant> VariantsPerEntrance = new();
 
         public void SetTiles(TilesMatrix tiles)
         {
@@ -103,19 +78,22 @@ namespace PathGeneration
         {
             List<int> occupiedIndecies = new();
 
-            for (int enterIndex = 0; enterIndex < ExitPositions.Count; enterIndex++)
+            for (int enterIndex = 0; enterIndex < GlobalExitPositions.Count; enterIndex++)
             {
-                Vector2Int currentExitPosition = new (ExitPositions[enterIndex].x - LowerBounds.x, ExitPositions[enterIndex].y - LowerBounds.y);
+                Vector2Int currentLocalExitPosition = new (GlobalExitPositions[enterIndex].x - LowerBounds.x, GlobalExitPositions[enterIndex].y - LowerBounds.y);
 
-                Tiles.FollowPath(currentExitPosition, Tiles.GetOccupiedPositions(), (int x, int y, Tile tile) => 
+                Tiles.FollowPath(currentLocalExitPosition, Tiles.GetOccupiedPositions(), (int localX, int localY, Tile tile) => 
                 { 
-                    if (currentExitPosition.x == x && currentExitPosition.y == y) return;
+                    if (currentLocalExitPosition.x == localX && currentLocalExitPosition.y == localY) return;
 
-                    var exitIndex = ExitPositions.FindIndex(pos => pos.x - LowerBounds.x == x && pos.y - LowerBounds.y == y);
+                    var exitIndex = GlobalExitPositions.FindIndex(pos => pos.x - LowerBounds.x == localX && pos.y - LowerBounds.y == localY);
 
                     if (!occupiedIndecies.Contains(exitIndex) && exitIndex != -1)
                     {   
-                        EnterExitPositionPairs.Add((currentExitPosition, new Vector2Int(x, y), Tiles.GetTileByPosition(currentExitPosition).StateData.PreviousFacingDirection));
+                        DungeonTilePosition enterPosition = new (currentLocalExitPosition, currentLocalExitPosition + LowerBounds);
+                        DungeonTilePosition exitPosition = new (new Vector2Int(localX, localY), new Vector2Int(localX, localY) + LowerBounds);
+
+                        EnterExitPositionPairs.Add((enterPosition, exitPosition, Tiles.GetTileByPosition(currentLocalExitPosition).StateData.PreviousFacingDirection));
 
                         occupiedIndecies.Add(exitIndex);
                         occupiedIndecies.Add(enterIndex);
@@ -128,27 +106,27 @@ namespace PathGeneration
         {
             VariantsPerEntrance.Clear();
 
-            foreach ((Vector2Int enter, Vector2Int exit, Direction lockedDirection) in EnterExitPositionPairs)
+            foreach ((DungeonTilePosition enterPosition, DungeonTilePosition exitPosition, Direction lockedDirection) in EnterExitPositionPairs)
             {
-                var variant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero), enter, exit);
+                var variant = new DungeonRoomVariant((Vector2Int.zero, Vector2Int.zero), enterPosition, exitPosition);
 
                 TilesMatrix variantTiles = Tiles.CopyTilesRegion((Vector2Int.zero, new Vector2Int(Width - 1, Height - 1)), Vector2Int.one, shouldCloneTiles: true);
 
                 variantTiles.ResetTiles();
                 variant.SetTiles(variantTiles);
 
-                var pathGenerator = new PathGenerator(variant.Tiles, enter, exit, lockedDirection);
+                var pathGenerator = new PathGenerator(variant.Tiles, enterPosition.Local, exitPosition.Local, lockedDirection);
 
-                Debug.Log($"Generating path from {enter} to {exit}");
+                Debug.Log($"Generating path from {enterPosition} to {exitPosition}");
                 pathGenerator.RandomWalk();
 
-                VariantsPerEntrance.Add((enter, exit), variant);
+                VariantsPerEntrance.Add((enterPosition, exitPosition), variant);
 
-                Tiles.SetTileData(enter.x, enter.y, TileType.Door, Tiles.GetTileByPosition(enter).StateData.PreviousFacingDirection);
-                Tiles.SetTileData(exit.x, exit.y, TileType.Door, Tiles.GetTileByPosition(exit).StateData.PreviousFacingDirection);
+                Tiles.SetTileData(enterPosition.Local.x, enterPosition.Local.y, TileType.Door, Tiles.GetTileByPosition(enterPosition.Local).StateData.PreviousFacingDirection);
+                Tiles.SetTileData(exitPosition.Local.x, exitPosition.Local.y, TileType.Door, Tiles.GetTileByPosition(exitPosition.Local).StateData.PreviousFacingDirection);
 
-                Doors.Add(new DungeonDoor(DungeonDoorType.Entrance, enter, Tiles.GetTileByPosition(enter).StateData.PreviousFacingDirection));
-                Doors.Add(new DungeonDoor(DungeonDoorType.Exit, exit, Tiles.GetTileByPosition(exit).StateData.PreviousFacingDirection));
+                Doors.Add(new DungeonDoor(DungeonDoorType.Entrance, enterPosition, Tiles.GetTileByPosition(enterPosition.Local).StateData.PreviousFacingDirection));
+                Doors.Add(new DungeonDoor(DungeonDoorType.Exit, exitPosition, Tiles.GetTileByPosition(exitPosition.Local).StateData.PreviousFacingDirection));
             }
         }    
     }

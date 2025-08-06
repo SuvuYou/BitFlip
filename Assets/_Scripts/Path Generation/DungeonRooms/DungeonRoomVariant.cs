@@ -4,7 +4,7 @@ namespace PathGeneration
 {
     public class DungeonRoomVariant : IDungeonRoom
     {
-        public DungeonRoomVariant((Vector2Int, Vector2Int) bounds, Vector2Int enterPosition = default, Vector2Int exitPosition = default)
+        public DungeonRoomVariant((Vector2Int, Vector2Int) bounds, DungeonTilePosition enterPosition = default, DungeonTilePosition exitPosition = default)
         {
             Bounds = bounds;
             EnterPosition = enterPosition;
@@ -15,8 +15,8 @@ namespace PathGeneration
 
         public (Vector2Int, Vector2Int) Bounds { get; private set; }
 
-        public Vector2Int EnterPosition { get; private set; }
-        public Vector2Int ExitPosition { get; private set; }
+        public DungeonTilePosition EnterPosition { get; private set; }
+        public DungeonTilePosition ExitPosition { get; private set; }
 
         public void SetTiles(TilesMatrix tiles)
         {
