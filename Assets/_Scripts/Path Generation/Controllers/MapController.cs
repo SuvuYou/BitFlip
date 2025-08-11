@@ -1,6 +1,8 @@
+
+using PathGeneration;
 using UnityEngine;
 
-namespace PathGeneration
+namespace MapRendering
 {
     public class MapController : MonoBehaviour
     {

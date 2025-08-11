@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TileAnimationSystem
@@ -11,6 +12,9 @@ namespace TileAnimationSystem
         private float _elapsed;
 
         private TileAnimationManager _animationManager;
+        private readonly TaskCompletionSource<bool> _task = new();
+
+        public Task AnimationTask => _task.Task;
 
         public ActiveTileAnimation(TileAnimationData data, SpriteRenderer renderer, TileAnimationManager animationManager)
         {
@@ -39,6 +43,7 @@ namespace TileAnimationSystem
             {
                 if (_data.HideTilemapTile) _animationManager.TilesMap.SetColor(_data.TilePosition, Color.white);
 
+                _task.TrySetResult(true);
                 return true;
             }
 

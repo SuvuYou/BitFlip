@@ -1,9 +1,10 @@
+using MapRendering;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private PathGeneration.MapController _mapController;
+    [SerializeField] private MapController _mapController;
     [SerializeField] private PlayerSpawnManager _playerSpawnManager;
     [SerializeField] private EnemySpawner _enemySpawner;
 
@@ -26,7 +27,7 @@ public class GameManager : MonoBehaviour
 
         _playerSpawnManager.Spawn(map.MapPathGenerator.StartPosition.ToVector3WithZ(z: 0));
 
-        _tilemapWaveAnimator.StartWave();
+        // _tilemapWaveAnimator.StartWave();
     }
 
     private void Update()

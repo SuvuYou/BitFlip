@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -20,11 +21,13 @@ namespace TileAnimationSystem
             _spritePool = TileSpritePool.CreateInstance(_tileEffectPrefab);
         }
 
-        public void AnimateTile(TileAnimationData data)
+        public Task AnimateTile(TileAnimationData data)
         {
             var renderer = _spritePool.GetFromPool();
             var animation = new ActiveTileAnimation(data, renderer, this);
             _activeAnimations.Add(animation);
+
+            return animation.AnimationTask;
         }
 
         private void Update()

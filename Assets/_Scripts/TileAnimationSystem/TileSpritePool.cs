@@ -29,6 +29,7 @@ namespace TileAnimationSystem
             {
                 var obj = _pool.Pop();
                 obj.gameObject.SetActive(true);
+                
                 return obj;
             }
 
