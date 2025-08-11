@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 
 public class SwappableTilemapRenderer : MonoBehaviour
 {
-    [SerializeField] private Tilemap _tilemap;
+    [field: SerializeField] public Tilemap Tilemap { get; private set; }
     [SerializeField] private Tilemap _tilemapCollider;
 
     [SerializeField] private SwapSystem.SwappableTileDataSO _swappableTileDataSO;
@@ -16,6 +16,12 @@ public class SwappableTilemapRenderer : MonoBehaviour
     private SwapSystem.SwappableRuleTile[,] _swappableTiles;
 
     private PathGeneration.Map _map;
+
+    public void SetColor(Vector3Int position, Color color) 
+    {
+        _swappableTiles[position.x, position.y].SetColor(color);
+        Tilemap.SetColor(position, color);
+    }
 
     public void ReRenderTilemapRegion(Vector2Int start, Vector2Int end)
     {
@@ -41,7 +47,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
 
     public void RenderTilemap()
     {
-        _tilemap.ClearAllTiles();
+        Tilemap.ClearAllTiles();
 
         for (int x = 0; x < Width; x++)
         {
@@ -77,7 +83,7 @@ public class SwappableTilemapRenderer : MonoBehaviour
     {
         Vector3Int tilePosition = new (x, y, 0);
 
-        _tilemap.SetTile(tilePosition, tile);
+        Tilemap.SetTile(tilePosition, tile);
         _tilemapCollider.SetTile(tilePosition, _swappableTiles[x, y].GetActiveVariant());
     }
 
@@ -85,17 +91,19 @@ public class SwappableTilemapRenderer : MonoBehaviour
     {
         Vector3Int tilePosition = new (x, y, 0);
 
-        var currentTile = _tilemap.GetTile(tilePosition);
+        var currentTile = Tilemap.GetTile(tilePosition);
         var targetTile = _swappableTiles[x, y].GetActiveVariant();
 
         if (currentTile == targetTile) return;
 
-        _tilemap.SetTile(tilePosition, targetTile);
+        Tilemap.SetTile(tilePosition, targetTile);
 
         if (_map.MapTiles.GetTileByPosition(x, y).StateData.IsIncludedInDungeonRoom)
         {
-            _tilemap.SetColor(tilePosition, Color.red);
+            SetColor(tilePosition, Color.red);
         }
+
+        Tilemap.SetColor(tilePosition, _swappableTiles[x, y].SavedColor);
 
         if (_swappableTiles[x, y].IsCollidable)
         {

@@ -484,7 +484,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f80a55473f7ac6f4cb3802537de334dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <TilesMap>k__BackingField: {fileID: 1979538198}
+  <TilesRenderer>k__BackingField: {fileID: 1186204287}
   _tileEffectPrefab: {fileID: 5369163968906455549, guid: 8244dd1f977708943aad5674fda42ac5, type: 3}
 --- !u!1 &162635397
 GameObject:
@@ -1905,7 +1905,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8.375
+  orthographic size: 7.8703704
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2303,7 +2303,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beea7d43d9ccd9b499a8827330b6df09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _keySprite: {fileID: 202570049, guid: 3a159aa2ebf3caa48a2277b02dd72b07, type: 3}
+  _lockedDoorSprite: {fileID: -459445948, guid: 3a159aa2ebf3caa48a2277b02dd72b07, type: 3}
+  _unlockedDoorSprite: {fileID: 202570049, guid: 3a159aa2ebf3caa48a2277b02dd72b07, type: 3}
+  _keySprite: {fileID: -452538264, guid: 3a159aa2ebf3caa48a2277b02dd72b07, type: 3}
+  _tilemapRenderer: {fileID: 1186204287}
   _paletteMappingSO: {fileID: 11400000, guid: e21c6c01299d7c6469209312c48b9049, type: 2}
 --- !u!114 &737137751
 MonoBehaviour:
@@ -3370,7 +3373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51a6e9b9993abad43a6352ffa49c3b03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tilemap: {fileID: 1979538198}
+  <Tilemap>k__BackingField: {fileID: 1979538198}
   _tilemapCollider: {fileID: 1355288709}
   _swappableTileDataSO: {fileID: 11400000, guid: 26d303e9bfcd26a4dad6ef6ee0570286, type: 2}
 --- !u!114 &1186204289

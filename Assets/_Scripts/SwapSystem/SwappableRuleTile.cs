@@ -12,6 +12,8 @@ namespace SwapSystem
         private PathGeneration.TileType _currentTileType;
         private SwapVariant _currentVariant;
 
+        public Color SavedColor { get; private set; } = Color.white;
+
         public bool IsCollidable => _swappableTileDataSO.CollidablesDictionary[_currentTileType];
 
         public readonly int X, Y;
@@ -24,6 +26,8 @@ namespace SwapSystem
 
             (this as ISwappable).Register(staticPositionY: Y);
         } 
+
+        public void SetColor(Color color) => SavedColor = color;
 
         public void SetTileType(PathGeneration.TileType type) => _currentTileType = type;
 

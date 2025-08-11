@@ -64,10 +64,9 @@ namespace MapRendering
                                 break;
                             case DungeonDoorState.Unexplored:
                                 Debug.Log("Door is unexplored.");
+                                
                                 _dungeonEntrySequenceOrchestrator.StartSequence(_playerMovement, _doorController, door);
 
-                                Debug.Log(door.Type);
-                                
                                 if (door.Type == DungeonDoorType.Entrance)
                                 {
                                     dungeonRoom.SetDungeonRoomVariant(door.RelatedRoomVariant);
@@ -81,7 +80,6 @@ namespace MapRendering
 
                                     _renderer.ReConstructTilemapRegion(dungeonRoom.LowerBounds, dungeonRoom.UpperBounds);
                                     _renderer.ReRenderTilemapRegion(dungeonRoom.LowerBounds, dungeonRoom.UpperBounds);
-
                                 }
            
                                 break;

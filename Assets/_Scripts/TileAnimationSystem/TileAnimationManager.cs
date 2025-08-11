@@ -9,7 +9,8 @@ namespace TileAnimationSystem
     {
         public static TileAnimationManager Instance { get; private set; }
 
-        [field: SerializeField] public Tilemap TilesMap { get; private set; }
+
+        [field: SerializeField] public SwappableTilemapRenderer TilesRenderer { get; private set; }
         [SerializeField] private SpriteRenderer _tileEffectPrefab;
 
         private readonly List<ActiveTileAnimation> _activeAnimations = new();

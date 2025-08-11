@@ -18,7 +18,7 @@ public class TilemapWaveAnimator : MonoBehaviour
 
     private IEnumerator WaveCoroutine()
     {
-        var tilemap = TileAnimationManager.Instance.TilesMap;
+        var tilemap = TileAnimationManager.Instance.TilesRenderer.Tilemap;
         var bounds = tilemap.cellBounds;
         Dictionary<int, List<Vector3Int>> diagonals = new();
 

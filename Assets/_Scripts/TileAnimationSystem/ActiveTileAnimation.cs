@@ -21,13 +21,13 @@ namespace TileAnimationSystem
             _data = data;
             Renderer = renderer;
             _animationManager = animationManager;
-            _baseWorldPosition = _animationManager.TilesMap.GetCellCenterWorld(data.TilePosition);
+            _baseWorldPosition = _animationManager.TilesRenderer.Tilemap.GetCellCenterWorld(data.TilePosition);
 
             Renderer.sprite = _data.Sprite;
             Renderer.material = _data.Material;
             Renderer.transform.position = _baseWorldPosition;
 
-            if (_data.HideTilemapTile) _animationManager.TilesMap.SetColor(_data.TilePosition, new Color(1f, 1f, 1f, 0f));
+            if (_data.HideTilemapTile) _animationManager.TilesRenderer.SetColor(_data.TilePosition, new Color(1f, 1f, 1f, 0f));
         }
 
         public bool Update(float deltaTime)
@@ -41,7 +41,7 @@ namespace TileAnimationSystem
 
             if (t >= 1f && !_data.Loop)
             {
-                if (_data.HideTilemapTile) _animationManager.TilesMap.SetColor(_data.TilePosition, Color.white);
+                if (_data.HideTilemapTile) _animationManager.TilesRenderer.SetColor(_data.TilePosition, Color.white);
 
                 _task.TrySetResult(true);
                 return true;
